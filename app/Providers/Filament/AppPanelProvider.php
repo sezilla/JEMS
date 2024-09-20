@@ -23,6 +23,7 @@ use Filament\Navigation\MenuItem;
 
 class AppPanelProvider extends PanelProvider
 {
+    
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -35,9 +36,9 @@ class AppPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Administration')
-                    ->url('admin')
+                    ->url('/admin')
                     ->icon('heroicon-o-cog-8-tooth')
-                    ->visible(fn () => auth()->user() && auth()->user()->hasRole('super_admin')),
+                    ->visible(fn () => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin'])),
             ])
             
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')

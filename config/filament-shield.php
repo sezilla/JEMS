@@ -27,7 +27,7 @@ return [
 
     //other roles
     'panel_user' => [
-        'enabled' => true,
+        'enabled' => false,
         'name' => 'Admin',
     ],
 

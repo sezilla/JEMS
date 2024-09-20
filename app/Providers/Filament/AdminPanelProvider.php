@@ -35,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 MenuItem::make()
                     ->label('App')
-                    ->url('app')
+                    ->url('/app')
                     ->icon('heroicon-o-cog-8-tooth'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

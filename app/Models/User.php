@@ -10,9 +10,10 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasFactory, Notifiable;
 
@@ -28,7 +29,14 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'profile_photo_path'
     ];
+
+    //php
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar_url;
+    }
 
 
     public function departments()
@@ -66,13 +74,14 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessAdminPanel(): bool
     {
-        return $this->hasRole('super_admin');
+        // Checks if the user has either 'super_admin' or 'Admin' roles
+        return $this->hasRole(['super_admin', 'Admin']);
     }
+    
     public function canAccessPanel(Panel $panel): bool
     {
-        if ($panel->getId() === 'admin') {
-            return $this->canAccessAdminPanel();
-        }
-        return true;
+        // Checks if the user has any role without specification
+        return $this->roles()->exists(); // Ensure 'roles' relationship is correctly defined in your User model
     }
+    
 }

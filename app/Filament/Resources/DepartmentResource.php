@@ -105,4 +105,9 @@ class DepartmentResource extends Resource
     {
         return 'User Management';
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 }
