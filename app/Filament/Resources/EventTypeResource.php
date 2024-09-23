@@ -75,4 +75,9 @@ class EventTypeResource extends Resource
     {
         return 'Project Management';
     }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
 }
