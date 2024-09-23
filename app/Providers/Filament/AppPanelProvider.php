@@ -33,6 +33,7 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->topNavigation()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Administration')
