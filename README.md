@@ -43,6 +43,22 @@ php artisan key:generate
 php artisan migrate --seed
 ** if error(would re migrate) == php artisan migrate:fresh --seed
 
+
+
+
+ php artisan shield:install
+ php artisan shield:generate
+
+
+
+
+
+
+
+
+
+
+
 php artisan permission:sync
 
 php artisan serve

@@ -31,7 +31,7 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->path('app')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#6366f1',
             ])
             ->topNavigation()
             ->userMenuItems([
