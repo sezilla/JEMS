@@ -24,13 +24,12 @@ class Roles extends Seeder
             'name' => 'ako',
             'email' => 'ako@me.com',
         ]);
-        
+
         //test coor
         $coor = User::factory()->create([
             'name' => 'coor',
             'email' => 'coor@email.com',
         ]);
-        $admin->assignRole($adminRole);
         $coor->assignRole($coorRole);
 
         
