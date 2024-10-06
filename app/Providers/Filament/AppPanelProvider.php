@@ -19,6 +19,8 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\Navigation;
+use Filament\Navigation\NavigationItem;
 
 
 class AppPanelProvider extends PanelProvider
@@ -33,7 +35,11 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#6366f1',
             ])
-            ->topNavigation()
+            // ->navigationGroups([
+            //     NavigationGroup::make('My Projects')
+            //         ->collapsible()
+            // ])
+            // ->topNavigation()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Administration')
@@ -41,7 +47,7 @@ class AppPanelProvider extends PanelProvider
                     ->icon('heroicon-o-cog-8-tooth')
                     ->visible(fn () => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin'])),
             ])
-            
+
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
@@ -62,6 +68,8 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+
+                // UserProjectsMiddleware::class, enable when working ito ay yung projects per usser somethin idk
             ])
             ->authMiddleware([
                 Authenticate::class,

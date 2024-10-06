@@ -86,22 +86,37 @@ class ProjectResource extends Resource
                 TextColumn::make('user.name')
                     ->label('Creator')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('coordinator.name')
+
+
+                    TextColumn::make('coordinators.name')
                     ->label('Coordinators')
                     ->searchable()
                     ->getStateUsing(function ($record) {
-                        return $record->coordinator->pluck('name')->implode('<br/>') ?: 'N/A';
+                        if ($record->coordinators) {
+                            return implode('<br/>', $record->coordinators->pluck('name')->toArray());
+                        }
+                        return 'N/A';
                     })
                     ->html()
                     ->verticallyAlignStart(),
-                TextColumn::make('team.name')
+                
+                TextColumn::make('teams.name')
                     ->label('Teams')
                     ->searchable()
                     ->getStateUsing(function ($record) {
-                        return $record->team->pluck('name')->implode('<br/>') ?: 'N/A';
+                        if ($record->teams) {
+                            return implode('<br/>', $record->teams->pluck('name')->toArray());
+                        }
+                        return 'N/A';
                     })
                     ->html()
                     ->verticallyAlignStart(),
+                
+                
+                
+
+
+
                 TextColumn::make('venue')
                     ->searchable()
                     ->limit(15),

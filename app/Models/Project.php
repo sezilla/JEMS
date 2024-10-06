@@ -24,7 +24,7 @@ class Project extends Model
 
         static::creating(function ($project) {
             if (Auth::check()) {
-                $project->user_id = Auth::id(); // Set the authenticated user's ID as the user_id
+                $project->user_id = Auth::id(); // Set the authenticated user's ID
             }
         });
     }
@@ -35,23 +35,23 @@ class Project extends Model
         return $this->belongsTo(User::class);
     }
 
+    // Relationship with packages for the project
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'project_package', 'project_id', 'package_id');
     }
 
-    public function project()
+    // Correct team relationship
+    public function teams()
     {
-        return $this->belongsToMany(team::class, 'project_teams', 'project_id', 'team_id');
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
     }
 
-    public function coordinator()
+    // Relationship with coordinators (users)
+    public function coordinators()
     {
         return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
     }
 
-    public function team()
-    {
-        return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
-    }
+    // Other potential relationships or methods can be added here based on your project’s structure.
 }
