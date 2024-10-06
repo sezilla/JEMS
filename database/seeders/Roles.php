@@ -16,6 +16,7 @@ class Roles extends Seeder
     public function run(): void
     {
         $coorRole = Role::create(['name' => 'Coordinator']);
+        Role::create(['name' => 'Admin']);
         Role::create(['name' => 'Team Leader']);
         Role::create(['name' => 'Member']);
 
@@ -34,20 +35,27 @@ class Roles extends Seeder
 
         
 
+        // Seed Packages
+        DB::table('packages')->insert([
+            ['name' => 'Ruby', 'description' => 'Description for Package One', 'event_type_id' => 1],
+            ['name' => 'Garnet', 'description' => 'Description for Package Two', 'event_type_id' => 1],
+            ['name' => 'Emerald', 'description' => 'Description for Package Three', 'event_type_id' => 1],
+            ['name' => 'Infinity', 'description' => 'Description for Package Three', 'event_type_id' => 1],
+            ['name' => 'Sapphire', 'description' => 'Description for Package Three', 'event_type_id' => 1],
+        ]);
+
+        // Seed Departments
+        DB::table('departments')->insert([
+            ['name' => 'Coordination', 'description' => 'Description for Department X'],
+            ['name' => 'Catering', 'description' => 'Description for Department Y'],
+            ['name' => 'Hair and Makeup', 'description' => 'Description for Department Z'],
+            ['name' => 'Photo and Video', 'description' => 'Description for Department Z'],
+            ['name' => 'Designing', 'description' => 'Description for Department Z'],
+            ['name' => 'Entertainment', 'description' => 'Description for Department Z'],
+            ['name' => 'drivers', 'description' => 'Description for Department Z'],
+        ]);
 
 
-        //test
-        User::factory()->count(3)->create()->each(function ($user) {
-            $user->assignRole('Admin');
-        });
-        User::factory()->count(5)->create()->each(function ($user) {
-            $user->assignRole('Coordinator');
-        });
-        User::factory()->count(5)->create()->each(function ($user) {
-            $user->assignRole('Team Leader');
-        });
-        User::factory()->count(5)->create()->each(function ($user) {
-            $user->assignRole('Member');
-        });
+        
     }
 }

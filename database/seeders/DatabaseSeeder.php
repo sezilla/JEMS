@@ -14,13 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->create([
+        User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'admin@email.com',
         ]);
-
-
-        $adminrole = Role::create(['name' => 'Admin']);
-        $admin->assignRole($adminrole);
     }
 }

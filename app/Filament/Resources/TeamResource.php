@@ -70,26 +70,27 @@ class TeamResource extends Resource
                     ->searchable()
                     ->limit(15),
                 // Display the leader's name
-                TextColumn::make('leader.name')
+                TextColumn::make('leaders.name')
                     ->label('Team Leader')
                     ->searchable(),
                 // Display the member's name
-                TextColumn::make('member.name')
-                    ->label('Members')
-                    ->searchable()
-                    ->verticallyAlignstart(),
+                // TextColumn::make('member.name')
+                //     ->label('Members')
+                //     ->searchable()
+                //     ->verticallyAlignstart(),
 
-                Tables\Columns\TextColumn::make('member.name')
+                TextColumn::make('members')
                     ->label('Members')
                     ->getStateUsing(function ($record) {
-                        if ($record->member) {
-                            return implode('<br/>', $record->member->pluck('name')->toArray());
+                        if ($record->members) {
+                            return implode('<br/>', $record->members->pluck('name')->toArray());
                         }
                         return 'N/A';
                     })
-                    ->html()
-                    ->verticallyAlignStart()
+                    ->html() // Optional if you want custom HTML formatting
                     ->searchable(),
+
+
                 // ImageColumn::make('member.avatar')
                 //     ->circular()
                 //     ->stacked(),

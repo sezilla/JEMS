@@ -13,6 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Forms\Components\Select;
+
+
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -41,6 +44,17 @@ class UserResource extends Resource
                     ->label('Role')
                     ->preload()
                     ->searchable(),
+                // Select::make('departments')
+                //     ->relationship('departments', 'name') 
+                //     ->label('Department')
+                //     ->preload()
+                //     ->searchable(),
+                // Select::make('team')
+                //     ->relationship('team', 'name')
+                //     ->label('Team')
+                //     ->preload()
+                //     ->searchable(),
+                // to be fix
             ]);
     }
 
@@ -49,7 +63,8 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -65,6 +80,30 @@ class UserResource extends Resource
                         return 'No Role';
                     })
                     ->html(),
+                // Panel::make([
+                //         Stack::make([
+                //                 //DEPARTMENT
+                //             TextColumn::make('departments.name')
+                //                 ->label('Department')
+                //                 ->searchable()
+                //                 ->limit(20),
+    
+                //                 //TEAM
+                //             TextColumn::make('team.name')
+                //                 ->label('Team')
+                //                 ->searchable()
+                //                 ->verticallyAlignStart()
+                //                 ->getStateUsing(function ($record) {
+                //                     if ($record->team) {
+                //                         return implode('<br/>', $record->team->pluck('name')->toArray());
+                //                     }
+                //                     return 'No Team';
+                //                 })
+                                
+                //                 ->html(),
+                //         ]),
+                //     ])->collapsible(),
+                // ikaw jo bahala dto d ko to alam
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

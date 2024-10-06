@@ -30,10 +30,12 @@ class DepartmentResource extends Resource
                     ->required()
                     ->columnSpanFull(),
                 Forms\Components\Select::make('teams')
-                    ->relationship('teams', 'name', function ($query) {
-                        $query->whereDoesntHave('departments'); //ano to para di lumabas mga team na may department na
-                    })
                     ->multiple()
+                    ->relationship('teams', 'name'
+                    , function ($query) {
+                        $query->whereDoesntHave('departments'); //ano to para di lumabas mga team na may department na
+                    }
+                    )
                     ->label('Teams')
                     ->preload()
                     ->searchable(),

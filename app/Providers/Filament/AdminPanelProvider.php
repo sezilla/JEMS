@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('App')

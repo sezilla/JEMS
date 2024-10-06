@@ -40,6 +40,7 @@ class AppPanelProvider extends PanelProvider
             //         ->collapsible()
             // ])
             // ->topNavigation()
+            ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Administration')

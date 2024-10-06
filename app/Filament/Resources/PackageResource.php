@@ -32,19 +32,6 @@ class PackageResource extends Resource
                     ->required(),
                 TextArea::make('description')
                     ->required(),
-                Select::make('attributes')
-                    ->multiple()
-                    ->relationship('attributes', 'name')
-                    ->label('Attributes')
-                    ->preload()
-                    ->searchable()
-                    ->createOptionForm([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('description')
-                            ->columnSpanFull(),
-                    ]),
                 Select::make('event_type_id') 
                     ->relationship('eventType', 'name') 
                     ->label('Event Type')
