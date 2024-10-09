@@ -15,6 +15,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 
+use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\Section;
+
+
 class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
@@ -25,37 +30,41 @@ class TeamResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->required()
-                    ->columnSpanFull(),
-                Select::make('departments')
-                    ->relationship('departments', 'name')
-                    ->label('Department')
-                    ->preload()
-                    ->searchable(),
-                Select::make('leader_id')
-                    ->relationship('leaders', 'name', function ($query) {
-                        $query->whereHas('roles', function ($q) {
-                            $q->where('name', 'Team Leader');
-                        });
-                    })
-                    ->label('Team Leader')
-                    ->preload()
-                    ->searchable(),
-                Select::make('members')
-                    ->multiple()
-                    ->relationship('members', 'name', function ($query) {
-                        $query->whereHas('roles', function ($q) {
-                            $q->where('name', 'Member');
-                        });
-                    })
-                    ->label('Members')
-                    ->preload()
-                    ->searchable(),
-                
+                Section::make()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Select::make('leader_id')
+                            ->relationship('leaders', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Team Leader');
+                                });
+                            })
+                            ->label('Team Leader')
+                            ->preload()
+                            ->searchable(),
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpanFull(),
+                        Select::make('departments')
+                            ->relationship('departments', 'name')
+                            ->label('Department')
+                            ->preload()
+                            ->searchable(),
+                        Select::make('members')
+                            ->multiple()
+                            ->relationship('members', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Member');
+                                });
+                            })
+                            ->label('Members')
+                            ->preload()
+                            ->searchable(),
+                    ])
+
             ]);
     }
 
@@ -70,25 +79,16 @@ class TeamResource extends Resource
                     ->searchable()
                     ->limit(15),
                 // Display the leader's name
-                TextColumn::make('leaders.name')
+                ImageColumn::make('leaders.avatar_url')
                     ->label('Team Leader')
-                    ->searchable(),
-                // Display the member's name
-                // TextColumn::make('member.name')
-                //     ->label('Members')
-                //     ->searchable()
-                //     ->verticallyAlignstart(),
-
-                TextColumn::make('members')
+                    ->searchable()
+                    ->circular(),
+                ImageColumn::make('members.avatar_url')
                     ->label('Members')
-                    ->getStateUsing(function ($record) {
-                        if ($record->members) {
-                            return implode('<br/>', $record->members->pluck('name')->toArray());
-                        }
-                        return 'N/A';
-                    })
-                    ->html() // Optional if you want custom HTML formatting
-                    ->searchable(),
+                    ->circular()
+                    ->stacked()
+                    ->limit(3)
+                    ->limitedRemainingText(),
 
 
                 // ImageColumn::make('member.avatar')

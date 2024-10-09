@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\Section;
+
+
 
 
 class UserResource extends Resource
@@ -26,35 +31,60 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->default('password')
-                    ->required()
-                    ->maxLength(255)
-                    ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser),
-                Forms\Components\Select::make('roles')
-                    ->multiple()
-                    ->relationship('roles', 'name')
-                    ->label('Role')
-                    ->preload()
-                    ->searchable(),
-                // Select::make('departments')
-                //     ->relationship('departments', 'name') 
-                //     ->label('Department')
-                //     ->preload()
-                //     ->searchable(),
-                // Select::make('team')
-                //     ->relationship('team', 'name')
-                //     ->label('Team')
-                //     ->preload()
-                //     ->searchable(),
-                // to be fix
+                Section::make()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('password')
+                            ->default('password')
+                            ->required()
+                            ->maxLength(255)
+                            ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser),
+                        Forms\Components\Select::make('roles')
+                            ->multiple()
+                            ->relationship('roles', 'name')
+                            ->label('Role')
+                            ->preload()
+                            ->searchable(),
+
+                        Select::make('departments')
+                            ->relationship('departments', 'name')
+                            ->label('Department')
+                            ->preload()
+                            ->searchable()
+                            ->reactive() // Makes the department field reactive
+                            ->afterStateUpdated(fn ($state, callable $set) => 
+                                // Clear the selected team when the department changes
+                                $set('teams', null)
+                            ),
+                        
+                        Select::make('teams')
+                            ->relationship('teams', 'name', fn ($query, $get) => 
+                                // Filter teams based on the selected department
+                                $query->whereHas('departments', fn ($query) => 
+                                    $query->where('id', $get('departments'))
+                                )
+                            )
+                            ->label('Team')
+                            ->preload()
+                            ->searchable()
+                            ->reactive() // Makes the team field reactive
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    // Automatically set the department based on the selected team
+                                    $team = \App\Models\Team::find($state);
+                                    if ($team && $team->departments->isNotEmpty()) {
+                                        $set('departments', $team->departments->first()->id);
+                                    }
+                                }
+                            }),
+                    ])
             ]);
     }
 
@@ -65,6 +95,11 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('avatar_url')
+                    ->label('Avatar')
+                    ->circular()
+                    ->size(40),
+                
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -80,6 +115,19 @@ class UserResource extends Resource
                         return 'No Role';
                     })
                     ->html(),
+
+
+
+                Tables\Columns\TextColumn::make('departments.name')
+                    ->label('Department')
+                    ->formatStateUsing(fn ($record) => $record->departments->pluck('name')->join(', '))
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('teams.name')
+                    ->label('Team')
+                    ->formatStateUsing(fn ($record) => $record->teams->pluck('name')->join(', '))
+                    ->searchable(),
+
                 // Panel::make([
                 //         Stack::make([
                 //                 //DEPARTMENT

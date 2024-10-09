@@ -18,6 +18,9 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+
 use Filament\Navigation\MenuItem;
 
 class AdminPanelProvider extends PanelProvider
@@ -38,6 +41,10 @@ class AdminPanelProvider extends PanelProvider
                     ->label('App')
                     ->url('/app')
                     ->icon('heroicon-o-cog-8-tooth'),
+                'profile' => MenuItem::make()
+                    ->label(fn () =>auth()->user()->name)
+                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->icon('heroicon-m-user-circle'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -65,7 +72,21 @@ class AdminPanelProvider extends PanelProvider
             ])
             
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+
+                FilamentEditProfilePlugin::make()
+                    // ->slug('profile')
+                    ->setTitle('My Profile')
+                    ->setNavigationLabel('Profile')
+                    ->setIcon('heroicon-o-user')
+                    ->shouldShowAvatarForm(
+                        value: true,
+                        directory: 'avatars', 
+                        rules: 'mimes:jpeg,png|max:1024'
+                    )
+                    ->shouldShowDeleteAccountForm(false)
+                
+                
             ]);
     }
 }

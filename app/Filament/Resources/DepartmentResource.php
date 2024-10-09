@@ -13,6 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Forms\Components\Section;
+
+
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
@@ -23,23 +26,27 @@ class DepartmentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->required()
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('teams')
-                    ->multiple()
-                    ->relationship('teams', 'name')
-                    // ->relationship('teams', 'name'
-                    // , function ($query) {
-                    //     $query->whereDoesntHave('departments'); //ano to para di lumabas mga team na may department na
-                    // }
-                    // )
-                    ->label('Teams')
-                    ->preload()
-                    ->searchable(),
+                Section::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('teams')
+                            ->multiple()
+                            ->relationship('teams', 'name')
+                            // ->relationship('teams', 'name'
+                            // , function ($query) {
+                            //     $query->whereDoesntHave('departments'); //ano to para di lumabas mga team na may department na
+                            // }
+                            // )
+                            ->label('Teams')
+                            ->preload()
+                            ->searchable(),
+                    ])
+                
             ]);
     }
 

@@ -21,6 +21,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\Navigation;
 use Filament\Navigation\NavigationItem;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 
 
 class AppPanelProvider extends PanelProvider
@@ -47,6 +49,10 @@ class AppPanelProvider extends PanelProvider
                     ->url('/admin')
                     ->icon('heroicon-o-cog-8-tooth')
                     ->visible(fn () => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin'])),
+                'profile' => MenuItem::make()
+                    ->label(fn () =>auth()->user()->name)
+                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->icon('heroicon-m-user-circle'),
             ])
 
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
@@ -76,6 +82,18 @@ class AppPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             
+            ->plugins([
+                FilamentEditProfilePlugin::make()
+                    // ->slug('profile')
+                    ->setTitle('My Profile')
+                    ->setNavigationLabel('Profile')
+                    ->setIcon('heroicon-o-user')
+                    ->shouldShowAvatarForm(
+                        value: true,
+                        directory: 'avatars', 
+                    )
+                    ->shouldShowDeleteAccountForm(false)
+            ])
             // ->plugins([
             //     \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
             // ])

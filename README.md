@@ -90,3 +90,7 @@ other commands [only for development]
 
 php artisan storage:link
 php artisan vendor:publish --tag="filament-views"
+
+https://filamentphp.com/plugins/joaopaulolndev-edit-profile
+
+

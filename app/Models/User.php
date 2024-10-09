@@ -11,6 +11,7 @@ use Spatie\Permission\Traits\HasRoles;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Support\Facades\Storage;
 use Filament\Panel;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
@@ -29,25 +30,34 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'name',
         'email',
         'password',
-        'profile_photo_path'
+        'avatar_url',
+        'custom_fields'
     ];
 
     //php
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar_url;
+        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
+
+
+
 
 
     public function departments()
     {
-        return $this->belongsToMany(Department::class);
+        return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
     }
     
     public function teams()
     {
-        return $this->belongsToMany(Team::class);
+        return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
     }
+    
+
+
+
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -69,6 +79,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'custom_fields' => 'array'
         ];
     }
 

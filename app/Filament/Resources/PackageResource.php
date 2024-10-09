@@ -14,9 +14,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TextArea;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
+
+use Filament\Forms\Components\Section;
+
 
 class PackageResource extends Resource
 {
@@ -28,10 +31,16 @@ class PackageResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required(),
-                TextArea::make('description')
-                    ->required(),
+                Section::make()
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('name')
+                            ->required(),
+                        MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpan('full'),
+                    ])
+                
                 // Select::make('event_type_id') 
                 //     ->relationship('eventType', 'name') 
                 //     ->label('Event Type')
