@@ -12,18 +12,18 @@ class Package extends Model
     protected $fillable = [
         'name',
         'description',
-        'event_type_id'
+        // 'event_type_id'
     ];
     protected $table = 'packages';
 
-    public function attributes()
-    {
-        return $this->belongsToMany(Attribute::class, 'package_attribute', 'package_id', 'attribute_id');
-    }
+    // public function attributes()
+    // {
+    //     return $this->belongsToMany(Attribute::class, 'package_attribute', 'package_id', 'attribute_id');
+    // }
 
-    public function eventType()
-    {
-        return $this->belongsTo(EventType::class);
-    }
+    // public function eventType()
+    // {
+    //     return $this->belongsTo(EventType::class);
+    // }
 
 }

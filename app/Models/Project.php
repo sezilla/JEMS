@@ -15,13 +15,25 @@ class Project extends Model
 
     protected $fillable = [
         'name',
+        'trello_board_id',
+        'package_id',
         'description',
+        'user_id',
         'event_date',
         'venue',
-        'user_id',
-        'trello_board_id'
+
+        'groom_name',
+        'bride_name',
+        'theme_color',
+        'special_request',
+        'thumbnail_path',
+
+        'groom_coordinator',
+        'bride_coordinator',
+        'head_coordinator',
     ];
 
+    //mostly ffor trello....
     protected static function boot()
     {
         parent::boot();
@@ -72,26 +84,134 @@ class Project extends Model
         });
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    //for database....
+
+
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    // Relationship with packages for the project
-    public function packages()
+    
+    public function package()
     {
-        return $this->belongsToMany(Package::class, 'project_package', 'project_id', 'package_id');
+        return $this->belongsTo(Package::class);
     }
 
-    // Correct team relationship
-    public function teams()
-    {
-        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
-    }
 
     // Relationship with coordinators (users)
     public function coordinators()
     {
         return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
     }
+
+    public function groomCoordinator()
+    {
+        return $this->belongsTo(User::class, 'groom_coordinator');
+    }
+    public function brideCoordinator()
+    {
+        return $this->belongsTo(User::class, 'bride_coordinator');
+    }
+    public function headCoordinator()
+    {
+        return $this->belongsTo(User::class, 'head_coordinator');
+    }
+
+
+
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'departments_has_teams', 'department_id', 'team_id');
+    }
+    
+
+
+
+    public function team1()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+    public function team2()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+    public function team3()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+    public function team4()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+    public function team5()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+    public function team6()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+
+
+
+    // public function user()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
+
+    // Relationship with coordinators (users)
+    // public function coordinators()
+    // {
+    //     return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'head_coordinator', 'groom_coordinator', 'bride_coordinator', 'other_coordinator');
+    // }
+    // public function groomCoordinator()
+    // {
+    //     return $this->belongsTo(User::class, 'project_coordinators', 'project_id', 'groom_coordinator');
+    // }
+
+    // // Bride coordinator relationship
+    // public function brideCoordinator()
+    // {
+    //     return $this->belongsTo(User::class, 'bride_coordinator');
+    // }
+
+    // // Head coordinator relationship
+    // public function headCoordinator()
+    // {
+    //     return $this->belongsTo(User::class, 'head_coordinator');
+    // }
+
+    // // Other coordinators (many-to-many relationship)
+    // public function otherCoordinators()
+    // {
+    //     return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
+    // }
+
+
+
+    
+
+    // Correct team relationship
+    // public function teams()
+    // {
+    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'catering', 'hair_and_makeup', 'photo_and_video', 'designing', 'entertainment', 'drivers');
+    // }
 }

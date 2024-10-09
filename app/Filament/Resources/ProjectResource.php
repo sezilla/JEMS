@@ -13,10 +13,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use App\Models\Package;
+use App\Models\User;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Tables\Actions\ViewAction;
 
 
 class ProjectResource extends Resource
@@ -37,20 +40,18 @@ class ProjectResource extends Resource
                         Forms\Components\TextInput::make('name')
                         ->required()
                         ->maxLength(255),
-                        Forms\Components\Select::make('packages')
-                            ->relationship('packages', 'name')
+                        Forms\Components\Select::make('package_id')
                             ->label('Packages')
+                            ->required()
                             ->preload()
                             ->searchable()
-                            ->reactive(),
+                            ->options(Package::all()->pluck('name', 'id')),
                         Forms\Components\MarkdownEditor::make('description')
-                            ->required()
                             ->columnSpanFull(),
                         Forms\Components\DatePicker::make('event_date')
                             ->required()
                             ->default(now()->toDateString()),
                         Forms\Components\TextInput::make('venue')
-                            ->required()
                             ->maxLength(255),
                     ])
                     ->columns(2),
@@ -60,21 +61,21 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->columns(3)
                     ->schema([
-                        Forms\Components\TextInput::make('Groom_name')
+                        Forms\Components\TextInput::make('groom_name')
                             ->label('Groom Name')
                             ->required()
+                            ->columnSpan(1)
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('Bride_name')
+                        Forms\Components\TextInput::make('bride_name')
                             ->label('Bride Name')
+                            ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
-                        ColorPicker::make('theme_color')
-                            ->required(),
-                        Forms\Components\MarkdownEditor::make('requests')
+                        ColorPicker::make('theme_color'),
+                        Forms\Components\MarkdownEditor::make('special_request')
                             ->label('Special Requests')
-                            ->required()
                             ->columnSpan(2),
-                        FileUpload::make('thumbnail')
+                        FileUpload::make('thumbnail_path')
                             ->disk('public')
                             ->directory('thumbnails'),
                     ]),
@@ -83,36 +84,42 @@ class ProjectResource extends Resource
                 Section::make()
                     ->description('Coordinators')
                     ->collapsible()
-                    ->columns(4)
+                    ->columns(3)
                     ->schema([
-                        Forms\Components\Select::make('coordinators')
+                        Forms\Components\Select::make('groom_coordinator')
+                            ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
                             ->label('Groom Coordinator')
+                            ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('coordinators')
+                        Forms\Components\Select::make('bride_coordinator')
+                            ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
                             ->label('Bride Coordinator')
+                            ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('coordinators')
+                        Forms\Components\Select::make('head_coordinator')
+                            ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
                             ->label('Head Coordinator')
+                            ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('coordinators')
+                        Forms\Components\Select::make('other_coordinators')
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
@@ -122,44 +129,73 @@ class ProjectResource extends Resource
                             ->label('Other Coordinators')
                             ->searchable()
                             ->preload(),
+                        
                     ]),
                 Section::make()
                     ->columns(3)
                     ->description('Teams')
                     ->collapsible()
                     ->schema([
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+                        Forms\Components\Select::make('team1')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Catering');
+                                });
+                            })
                             ->label('Catering')
                             ->preload()
                             ->searchable(),
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+
+                        Forms\Components\Select::make('team2')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Hair and Makeup');
+                                });
+                            })
                             ->label('Hair and Makeup')
                             ->preload()
                             ->searchable(),
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+
+                        Forms\Components\Select::make('team3')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Photo and Video');
+                                });
+                            })
                             ->label('Photo and Video')
                             ->preload()
                             ->searchable(),
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+
+                        Forms\Components\Select::make('team4')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Designing');
+                                });
+                            })
                             ->label('Designing')
                             ->preload()
                             ->searchable(),
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+
+                        Forms\Components\Select::make('team5')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Entertainment');
+                                });
+                            })
                             ->label('Entertainment')
                             ->preload()
                             ->searchable(),
-                        Forms\Components\Select::make('teams')
-                            ->relationship('teams', 'name')
+
+                        Forms\Components\Select::make('team6')
+                            ->relationship('teams', 'name', function ($query) {
+                                $query->whereHas('departments', function ($q) {
+                                    $q->where('name', 'Drivers');
+                                });
+                            })
                             ->label('Drivers')
                             ->preload()
                             ->searchable(),
                     ]),
-                
             ]);
     }
 
@@ -167,27 +203,19 @@ class ProjectResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('packages.name')
+                TextColumn::make('package.name')
                     ->label('Package')
                     ->searchable()
                     ->limit(15),
-                TextColumn::make('description')
-                    ->searchable()
-                    ->limit(15)
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('event_date')
                     ->date()
                     ->sortable(),
                 TextColumn::make('user.name')
                     ->label('Creator')
                     ->toggleable(isToggledHiddenByDefault: true),
-
-
+                    // ->visible(fn (ViewAction $livewire) => $livewire instanceof ViewAction),
                 TextColumn::make('coordinators.name')
                     ->label('Coordinators')
                     ->searchable()
@@ -211,29 +239,53 @@ class ProjectResource extends Resource
                     })
                     ->html()
                     ->verticallyAlignStart(),
-                
-                
-                
-
-
-
                 TextColumn::make('venue')
                     ->searchable()
                     ->limit(15),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('groom_name')
+                    ->searchable()
+                    ->limit(15),
+                TextColumn::make('bride_name')
+                    ->searchable()
+                    ->limit(15),
+                    
+                TextColumn::make('groomCoordinator.name')
+                    ->label('Groom Coordinator') 
+                    ->searchable()
+                    ->limit(15),
+                
+                TextColumn::make('brideCoordinator.name') 
+                    ->label('Bride Coordinator') 
+                    ->searchable()
+                    ->limit(15),
+                
+                TextColumn::make('headCoordinator.name') 
+                    ->label('Head Coordinator') 
+                    ->searchable()
+                    ->limit(15),
+                
+
+
+
+
+                // TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true)
+                //     ->visible(fn (ViewAction $livewire) => $livewire instanceof ViewAction),
+                
+                // TextColumn::make('updated_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true)
+                //     ->visible(fn (ViewAction $livewire) => $livewire instanceof ViewAction),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

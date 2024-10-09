@@ -14,10 +14,22 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
+            $table->string('trello_board_id')->nullable();
+            $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
+            $table->text('description')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // project is created by
             $table->date('event_date');
-            $table->string('venue');
+            $table->string('venue')->nullable();
+
+            $table->string('groom_name');
+            $table->string('bride_name');
+            $table->string('theme_color')->nullable();
+            $table->text('special_request')->nullable();
+            $table->string('thumbnail_path')->nullable();
+
+            $table->foreignId('groom_coordinator')->constrained('users')->onDelete('cascade');
+            $table->foreignId('bride_coordinator')->constrained('users')->onDelete('cascade');
+            $table->foreignId('head_coordinator')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -44,29 +56,29 @@ return new class extends Migration
             $table->primary(['project_id', 'team_id']); // Composite primary key
         });
 
-        Schema::create('project_package', function (Blueprint $table) {
-            $table->unsignedBigInteger('project_id');
-            $table->unsignedBigInteger('package_id');
+        // Schema::create('project_package', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('project_id');
+        //     $table->unsignedBigInteger('package_id');
 
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
-            $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
+        //     $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+        //     $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
 
-            $table->primary(['project_id', 'package_id']); // Composite primary key
-        });
+        //     $table->primary(['project_id', 'package_id']); // Composite primary key
+        // });
 
-        Schema::create('project_attribute_value', function (Blueprint $table) {
-            $table->unsignedBigInteger('attribute_id');
-            $table->unsignedBigInteger('project_id');
+        // Schema::create('project_attribute_value', function (Blueprint $table) {
+        //     $table->unsignedBigInteger('attribute_id');
+        //     $table->unsignedBigInteger('project_id');
 
-            $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+        //     $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('cascade');
+        //     $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         
-            $table->string('value');
-            $table->timestamps();
+        //     $table->string('value');
+        //     $table->timestamps();
         
-            // Ensure the column is unique
-            $table->primary(['attribute_id', 'project_id']); // Use unique constraint
-        });
+        //     // Ensure the column is unique
+        //     $table->primary(['attribute_id', 'project_id']); // Use unique constraint
+        // });
     }
 
     /**
@@ -74,8 +86,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('project_attribute_value');
-        Schema::dropIfExists('project_package');
+        // Schema::dropIfExists('project_attribute_value');
+        // Schema::dropIfExists('project_package');
         Schema::dropIfExists('project_teams');
         Schema::dropIfExists('project_coordinators');
         Schema::dropIfExists('projects');
