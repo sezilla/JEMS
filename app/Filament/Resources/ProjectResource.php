@@ -20,6 +20,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\ImageColumn;
 
 
 class ProjectResource extends Resource
@@ -77,6 +78,7 @@ class ProjectResource extends Resource
                             ->columnSpan(2),
                         FileUpload::make('thumbnail_path')
                             ->disk('public')
+                            ->label('Thumbnail')
                             ->directory('thumbnails'),
                     ]),
 
@@ -143,6 +145,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Catering')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
 
@@ -153,6 +156,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Hair and Makeup')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
 
@@ -163,6 +167,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Photo and Video')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
 
@@ -173,6 +178,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Designing')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
 
@@ -183,6 +189,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Entertainment')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
 
@@ -193,6 +200,7 @@ class ProjectResource extends Resource
                                 });
                             })
                             ->label('Drivers')
+                            ->multiple()
                             ->preload()
                             ->searchable(),
                     ]),
@@ -203,6 +211,9 @@ class ProjectResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('thumbnail_path')
+                    ->disk('public')
+                    ->label('Thumbnail'),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('package.name')

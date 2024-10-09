@@ -40,7 +40,7 @@ class Project extends Model
 
         static::creating(function ($project) {
             if (Auth::check()) {
-                $project->user_id = Auth::id(); 
+                $project->user_id = Auth::id();
             }
         });
 
@@ -54,30 +54,50 @@ class Project extends Model
                 $project->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
 
-                // Step 1: Get the "Project details" list
+                // Get the "Project details" list
                 $projectDetailsList = $trelloService->getBoardListByName($project->trello_board_id, 'Project details');
-                
+
                 if ($projectDetailsList) {
                     Log::info('Project details list found.');
 
-                    // Step 2: Find or create the "date" card
-                    $dateCard = $trelloService->getCardByName($projectDetailsList['id'], 'date');
-                    if (!$dateCard) {
-                        Log::info('Date card not found, creating new card.');
-                        $dateCard = $trelloService->createCardInList($projectDetailsList['id'], 'date');
+                    // Helper function to create or update card
+                    $createOrUpdateCard = function ($listId, $cardName, $cardData) use ($trelloService) {
+                        $card = $trelloService->getCardByName($listId, $cardName);
+                        if (!$card) {
+                            Log::info("$cardName card not found, creating new card.");
+                            $card = $trelloService->createCardInList($listId, $cardName);
+                        }
+                        if ($card && isset($card['id'])) {
+                            Log::info("Updating $cardName card.");
+                            $trelloService->updateCard($card['id'], $cardData);
+                            return $card['id'];
+                        }
+                        return null;
+                    };
+
+                    // Update the cards with the project data
+                    $createOrUpdateCard($projectDetailsList['id'], 'date', ['due' => $project->event_date]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'package', ['name' => $project->package->name]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'description', ['desc' => $project->description]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['name' => $project->venue]);
+                    $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', [
+                        'name' => "{$project->groom_name} & {$project->bride_name}"
+                    ]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'coordinators', [
+                        'desc' => "Groom Coordinator: {$project->groomCoordinator->name}\nBride Coordinator: {$project->brideCoordinator->name}\nHead Coordinator: {$project->headCoordinator->name}"
+                    ]);
+
+                    // Add the thumbnail photo as a cover if it exists
+                    if ($project->thumbnail_path && $coupleCardId) {
+                        Log::info('Adding thumbnail as cover to the couple name card.');
+                        $trelloService->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
                     }
 
-                    // Step 3: Update the "date" card with the event date (due date)
-                    if ($dateCard && isset($dateCard['id'])) {
-                        Log::info('Updating date card with event date as due date.');
-                        $trelloService->updateCard($dateCard['id'], [
-                            'due' => $project->event_date, // Setting the due date
-                        ]);
-                    }
                 } else {
                     Log::error('Project details list not found.');
                 }
-                
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
@@ -87,19 +107,19 @@ class Project extends Model
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     
+
+
+
+
+
+
+
+
+
+
+
+
     //for database....
 
 

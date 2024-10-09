@@ -190,5 +190,44 @@ class TrelloService
             return null;
         }
     }
+
+
+    public function addAttachmentToCard($cardId, $filePath)
+    {
+        $url = "https://api.trello.com/1/cards/{$cardId}/attachments";
+        $fileFullPath = storage_path("app/public/{$filePath}");
+    
+        // Ensure the file exists before proceeding
+        if (!file_exists($fileFullPath)) {
+            throw new \Exception("File not found at path: {$fileFullPath}");
+        }
+    
+        $params = [
+            'key' => env('TRELLO_API_KEY'),
+            'token' => env('TRELLO_API_TOKEN'),
+        ];
+    
+        $response = $this->client->request('POST', $url, [
+            'multipart' => [
+                [
+                    'name' => 'file',
+                    'contents' => fopen($fileFullPath, 'r'),
+                    'filename' => basename($fileFullPath) // Ensure the filename is passed correctly
+                ],
+                [
+                    'name' => 'key',
+                    'contents' => $params['key'],
+                ],
+                [
+                    'name' => 'token',
+                    'contents' => $params['token'],
+                ],
+            ]
+        ]);
+    
+        return json_decode($response->getBody(), true);
+    }
+    
+
     
 }

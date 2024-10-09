@@ -45,93 +45,104 @@ class Roles extends Seeder
         ]);
 
         DB::table('departments')->insert([
-            ['name' => 'Coordination', 'description' => 'Description for Coordination Department'],
-            ['name' => 'Catering', 'description' => 'Description for Catering Department'],
-            ['name' => 'Hair and Makeup', 'description' => 'Description for Hair and Makeup Department'],
-            ['name' => 'Photo and Video', 'description' => 'Description for Photo and Video Department'],
-            ['name' => 'Designing', 'description' => 'Description for Designing Department'],
-            ['name' => 'Entertainment', 'description' => 'Description for Entertainment Department'],
-            ['name' => 'Drivers', 'description' => 'Description for Drivers Department'],
+            ['name' => 'Catering', 'description' => 'Description for Catering Department', 'id' => '1'],
+            ['name' => 'Hair and Makeup', 'description' => 'Description for Hair and Makeup Department', 'id' => '2'],
+            ['name' => 'Photo and Video', 'description' => 'Description for Photo and Video Department', 'id' => '3'],
+            ['name' => 'Designing', 'description' => 'Description for Designing Department', 'id' => '4'],
+            ['name' => 'Entertainment', 'description' => 'Description for Entertainment Department', 'id' => '5'],
+            ['name' => 'Drivers', 'description' => 'Description for Drivers Department', 'id' => '6'],
         ]);
+        
+        DB::table('teams')->insert([
+            ['name' => 'Catering Team A', 'description' => 'Catering team A description', 'id' => '1'],
+            ['name' => 'Catering Team B', 'description' => 'Catering team B description', 'id' => '2'],
+            ['name' => 'Catering Team C', 'description' => 'Catering team C description', 'id' => '3'],
+            ['name' => 'Catering Team D', 'description' => 'Catering team D description', 'id' => '4'],
+            ['name' => 'Catering Team E', 'description' => 'Catering team E description', 'id' => '5'],
+            ['name' => 'Catering Team F', 'description' => 'Catering team F description', 'id' => '6'],
+            
+            ['name' => 'Hair and Makeup Team A', 'description' => 'Hair and Makeup team A description', 'id' => '7'],
+            ['name' => 'Hair and Makeup Team B', 'description' => 'Hair and Makeup team B description', 'id' => '8'],
+            ['name' => 'Hair and Makeup Team C', 'description' => 'Hair and Makeup team C description', 'id' => '9'],
+            ['name' => 'Hair and Makeup Team D', 'description' => 'Hair and Makeup team D description', 'id' => '10'],
+            ['name' => 'Hair and Makeup Team E', 'description' => 'Hair and Makeup team E description', 'id' => '11'],
+            ['name' => 'Hair and Makeup Team F', 'description' => 'Hair and Makeup team F description', 'id' => '12'],
+            
+            ['name' => 'Photo and Video Team A', 'description' => 'Photo and Video team A description', 'id' => '13'],
+            ['name' => 'Photo and Video Team B', 'description' => 'Photo and Video team B description', 'id' => '14'],
+            ['name' => 'Photo and Video Team C', 'description' => 'Photo and Video team C description', 'id' => '15'],
+            ['name' => 'Photo and Video Team D', 'description' => 'Photo and Video team D description', 'id' => '16'],
+            ['name' => 'Photo and Video Team E', 'description' => 'Photo and Video team E description', 'id' => '17'],
+            ['name' => 'Photo and Video Team F', 'description' => 'Photo and Video team F description', 'id' => '18'],
+            
+            ['name' => 'Designing Team A', 'description' => 'Designing team A description', 'id' => '19'],
+            ['name' => 'Designing Team B', 'description' => 'Designing team B description', 'id' => '20'],
+            ['name' => 'Designing Team C', 'description' => 'Designing team C description', 'id' => '21'],
+            ['name' => 'Designing Team D', 'description' => 'Designing team D description', 'id' => '22'],
+            ['name' => 'Designing Team E', 'description' => 'Designing team E description', 'id' => '23'],
+            ['name' => 'Designing Team F', 'description' => 'Designing team F description', 'id' => '24'],
+            
+            ['name' => 'Entertainment Team A', 'description' => 'Entertainment team A description', 'id' => '25'],
+            ['name' => 'Entertainment Team B', 'description' => 'Entertainment team B description', 'id' => '26'],
+            ['name' => 'Entertainment Team C', 'description' => 'Entertainment team C description', 'id' => '27'],
+            ['name' => 'Entertainment Team D', 'description' => 'Entertainment team D description', 'id' => '28'],
+            ['name' => 'Entertainment Team E', 'description' => 'Entertainment team E description', 'id' => '29'],
+            ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => '30'],
+            
+            ['name' => 'Drivers Team A', 'description' => 'Drivers team A description', 'id' => '31'],
+            ['name' => 'Drivers Team B', 'description' => 'Drivers team B description', 'id' => '32'],
+            ['name' => 'Drivers Team C', 'description' => 'Drivers team C description', 'id' => '33'],
+            ['name' => 'Drivers Team D', 'description' => 'Drivers team D description', 'id' => '34'],
+            ['name' => 'Drivers Team E', 'description' => 'Drivers team E description', 'id' => '35'],
+            ['name' => 'Drivers Team F', 'description' => 'Drivers team F description', 'id' => '36'],
+        ]);
+        
+        DB::table('department_has_teams')->insert([
+            ['department_id' => '1', 'team_id' => '1'],
+            ['department_id' => '1', 'team_id' => '2'],
+            ['department_id' => '1', 'team_id' => '3'],
+            ['department_id' => '1', 'team_id' => '4'],
+            ['department_id' => '1', 'team_id' => '5'],
+            ['department_id' => '1', 'team_id' => '6'],
+        
+            ['department_id' => '2', 'team_id' => '7'],
+            ['department_id' => '2', 'team_id' => '8'],
+            ['department_id' => '2', 'team_id' => '9'],
+            ['department_id' => '2', 'team_id' => '10'],
+            ['department_id' => '2', 'team_id' => '11'],
+            ['department_id' => '2', 'team_id' => '12'],
+        
+            ['department_id' => '3', 'team_id' => '13'],
+            ['department_id' => '3', 'team_id' => '14'],
+            ['department_id' => '3', 'team_id' => '15'],
+            ['department_id' => '3', 'team_id' => '16'],
+            ['department_id' => '3', 'team_id' => '17'],
+            ['department_id' => '3', 'team_id' => '18'],
+        
+            ['department_id' => '4', 'team_id' => '19'],
+            ['department_id' => '4', 'team_id' => '20'],
+            ['department_id' => '4', 'team_id' => '21'],
+            ['department_id' => '4', 'team_id' => '22'],
+            ['department_id' => '4', 'team_id' => '23'],
+            ['department_id' => '4', 'team_id' => '24'],
+        
+            ['department_id' => '5', 'team_id' => '25'],
+            ['department_id' => '5', 'team_id' => '26'],
+            ['department_id' => '5', 'team_id' => '27'],
+            ['department_id' => '5', 'team_id' => '28'],
+            ['department_id' => '5', 'team_id' => '29'],
+            ['department_id' => '5', 'team_id' => '30'],
+        
+            ['department_id' => '6', 'team_id' => '31'],
+            ['department_id' => '6', 'team_id' => '32'],
+            ['department_id' => '6', 'team_id' => '33'],
+            ['department_id' => '6', 'team_id' => '34'],
+            ['department_id' => '6', 'team_id' => '35'],
+            ['department_id' => '6', 'team_id' => '36'],
+        ]);
+        
 
-        // Get department IDs
-        $coordinationId = DB::table('departments')->where('name', 'Coordination')->value('id');
-        $cateringId = DB::table('departments')->where('name', 'Catering')->value('id');
-        $hairMakeupId = DB::table('departments')->where('name', 'Hair and Makeup')->value('id');
-        $photoVideoId = DB::table('departments')->where('name', 'Photo and Video')->value('id');
-        $designingId = DB::table('departments')->where('name', 'Designing')->value('id');
-        $entertainmentId = DB::table('departments')->where('name', 'Entertainment')->value('id');
-        $driversId = DB::table('departments')->where('name', 'Drivers')->value('id');
 
-        // Seed Teams and link them to their departments
-        $teams = [
-            'Catering' => [
-                ['name' => 'Catering Team A', 'description' => 'Catering team A description'],
-                ['name' => 'Catering Team B', 'description' => 'Catering team B description'],
-                ['name' => 'Catering Team C', 'description' => 'Catering team C description'],
-                ['name' => 'Catering Team D', 'description' => 'Catering team D description'],
-                ['name' => 'Catering Team E', 'description' => 'Catering team E description'],
-                ['name' => 'Catering Team F', 'description' => 'Catering team F description'],
-            ],
-            'Hair and Makeup' => [
-                ['name' => 'Hair and Makeup Team A', 'description' => 'Hair and Makeup team A description'],
-                ['name' => 'Hair and Makeup Team B', 'description' => 'Hair and Makeup team B description'],
-                ['name' => 'Hair and Makeup Team C', 'description' => 'Hair and Makeup team C description'],
-                ['name' => 'Hair and Makeup Team D', 'description' => 'Hair and Makeup team D description'],
-                ['name' => 'Hair and Makeup Team E', 'description' => 'Hair and Makeup team E description'],
-                ['name' => 'Hair and Makeup Team F', 'description' => 'Hair and Makeup team F description'],
-            ],
-            'Photo and Video' => [
-                ['name' => 'Photo and Video Team A', 'description' => 'Photo and Video team A description'],
-                ['name' => 'Photo and Video Team B', 'description' => 'Photo and Video team B description'],
-                ['name' => 'Photo and Video Team C', 'description' => 'Photo and Video team C description'],
-                ['name' => 'Photo and Video Team D', 'description' => 'Photo and Video team D description'],
-                ['name' => 'Photo and Video Team E', 'description' => 'Photo and Video team E description'],
-                ['name' => 'Photo and Video Team F', 'description' => 'Photo and Video team F description'],
-            ],
-            'Designing' => [
-                ['name' => 'Designing Team A', 'description' => 'Designing team A description'],
-                ['name' => 'Designing Team B', 'description' => 'Designing team B description'],
-                ['name' => 'Designing Team C', 'description' => 'Designing team C description'],
-                ['name' => 'Designing Team D', 'description' => 'Designing team D description'],
-                ['name' => 'Designing Team E', 'description' => 'Designing team E description'],
-                ['name' => 'Designing Team F', 'description' => 'Designing team F description'],
-            ],
-            'Entertainment' => [
-                ['name' => 'Entertainment Team A', 'description' => 'Entertainment team A description'],
-                ['name' => 'Entertainment Team B', 'description' => 'Entertainment team B description'],
-                ['name' => 'Entertainment Team C', 'description' => 'Entertainment team C description'],
-                ['name' => 'Entertainment Team D', 'description' => 'Entertainment team D description'],
-                ['name' => 'Entertainment Team E', 'description' => 'Entertainment team E description'],
-                ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description'],
-            ],
-            'Drivers' => [
-                ['name' => 'Drivers Team A', 'description' => 'Drivers team A description'],
-                ['name' => 'Drivers Team B', 'description' => 'Drivers team B description'],
-                ['name' => 'Drivers Team C', 'description' => 'Drivers team C description'],
-                ['name' => 'Drivers Team D', 'description' => 'Drivers team D description'],
-                ['name' => 'Drivers Team E', 'description' => 'Drivers team E description'],
-                ['name' => 'Drivers Team F', 'description' => 'Drivers team F description'],
-            ]
-        ];
-
-        foreach ($teams as $departmentName => $teamData) {
-            // Get the department ID
-            $departmentId = DB::table('departments')->where('name', $departmentName)->value('id');
-
-            foreach ($teamData as $team) {
-                // Insert team and get team ID
-                $teamId = DB::table('teams')->insertGetId([
-                    'name' => $team['name'],
-                    'description' => $team['description'],
-                ]);
-
-                // Insert into departments_has_teams
-                DB::table('departments_has_teams')->insert([
-                    'department_id' => $departmentId,
-                    'team_id' => $teamId,
-                ]);
-            }
-        }
+        
     }
 }
