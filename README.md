@@ -24,8 +24,6 @@ commands after ma clone--------
 
 composer install
 
-npm install
-
 cp .env.example .env
 //configure .env file 
 
