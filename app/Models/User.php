@@ -44,15 +44,26 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
 
 
-    public function departments()
-    {
-        return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
-    }
+    // public function departments()
+    // {
+    //     return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
+    // }
     
     public function teams()
     {
         return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
     }
+
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
+    }
+
+    // public function leaderOfTeams()
+    // {
+    //     return $this->belongsToMany(Team::class, 'team_leader', 'user_id', 'team_id');
+    // }
+
     
 
 

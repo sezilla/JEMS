@@ -51,6 +51,7 @@ class UserResource extends Resource
                             ->relationship('roles', 'name')
                             ->label('Role')
                             ->preload()
+                            ->required()
                             ->searchable(),
 
                         Select::make('departments')
@@ -118,10 +119,13 @@ class UserResource extends Resource
 
 
 
-                Tables\Columns\TextColumn::make('departments.name')
+                Tables\Columns\TextColumn::make('department_name')
                     ->label('Department')
-                    ->formatStateUsing(fn ($record) => $record->departments->pluck('name')->join(', '))
+                    ->getStateUsing(function ($record) {
+                        return $record->teams->first()?->departments->first()?->name;
+                    })
                     ->searchable(),
+                
 
                 Tables\Columns\TextColumn::make('teams.name')
                     ->label('Team')

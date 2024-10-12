@@ -106,7 +106,7 @@ class Roles extends Seeder
         ]);
 
         // Pivot Table Seed for Departments and Teams
-        DB::table('department_team')->insert([
+        DB::table('departments_has_teams')->insert([
             // Catering Department
             ['department_id' => 1, 'team_id' => 1],
             ['department_id' => 1, 'team_id' => 2],

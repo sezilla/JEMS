@@ -94,3 +94,13 @@ https://trello.com/power-ups
 https://filamentphp.com/plugins/joaopaulolndev-edit-profile
 
 
+
+
+
+newwww
+php artisan migrate
+php artisan db:seed
+php artisan shield:install
+php artisan shield:generate
+php artisan db:seed --class=Roles
+php artisan db:seed --class=TestDataSeeder

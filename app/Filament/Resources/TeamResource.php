@@ -78,17 +78,26 @@ class TeamResource extends Resource
                     ->label('Department')
                     ->searchable()
                     ->limit(15),
-                // Display the leader's name
-                ImageColumn::make('leaders.avatar_url')
-                    ->label('Team Leader')
+
+                    
+                // Display the leader's avatar
+                // ImageColumn::make('leaders.avatar_url')
+                //     ->label('Team Leader')
+                //     ->searchable()
+                //     ->circular(),
+                // ImageColumn::make('members.avatar_url')
+                //     ->label('Members')
+                //     ->circular()
+                //     ->stacked()
+                //     ->limit(3)
+                //     ->limitedRemainingText(),
+
+                TextColumn::make('leaders.name')
                     ->searchable()
-                    ->circular(),
-                ImageColumn::make('members.avatar_url')
-                    ->label('Members')
-                    ->circular()
-                    ->stacked()
-                    ->limit(3)
-                    ->limitedRemainingText(),
+                    ->limit(30),
+                TextColumn::make('members.name')
+                    ->searchable()
+                    ->limit(30),
 
 
                 // ImageColumn::make('member.avatar')
