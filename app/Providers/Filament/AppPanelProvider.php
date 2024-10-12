@@ -41,7 +41,7 @@ class AppPanelProvider extends PanelProvider
             //     NavigationGroup::make('My Projects')
             //         ->collapsible()
             // ])
-            // ->topNavigation()
+            ->topNavigation()
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
                 MenuItem::make()
