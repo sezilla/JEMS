@@ -139,73 +139,51 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('team1')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Catering');
-                                });
-                            })
+                            ->relationship('cateringTeam', 'name') 
                             ->label('Catering')
-                            ->multiple()
+                                // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team2')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Hair and Makeup');
-                                });
-                            })
+                            ->relationship('hairAndMakeupTeam', 'name') 
                             ->label('Hair and Makeup')
-                            ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team3')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Photo and Video');
-                                });
-                            })
+                            ->relationship('photoAndVideoTeam', 'name') 
                             ->label('Photo and Video')
-                            ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team4')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Designing');
-                                });
-                            })
+                            ->relationship('designingTeam', 'name')
                             ->label('Designing')
-                            ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team5')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Entertainment');
-                                });
-                            })
+                            ->relationship('entertainmentTeam', 'name') 
                             ->label('Entertainment')
-                            ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team6')
-                            ->relationship('teams', 'name', function ($query) {
-                                $query->whereHas('departments', function ($q) {
-                                    $q->where('name', 'Drivers');
-                                });
-                            })
+                            ->relationship('driversTeam', 'name') 
                             ->label('Drivers')
-                            ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
+
                     ]),
             ]);
     }
+    
 
     public static function table(Table $table): Table
     {
