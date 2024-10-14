@@ -24,7 +24,7 @@ class StatsOverview extends BaseWidget
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->pluck('total') // Get the total column as an array
-            ->toArray();
+            ->toArray(); 
 
         // If there are fewer than 7 days of data, fill in with zeroes
         $userRegistrationsChart = array_pad($userRegistrationsLast7Days, 7, 0);
