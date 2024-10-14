@@ -23,6 +23,8 @@ use Filament\Navigation\Navigation;
 use Filament\Navigation\NavigationItem;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Filament\Navigation\NavigationGroup;
+use App\Http\Middleware\AddUserProjectsMiddleware;
 
 
 class AppPanelProvider extends PanelProvider
@@ -37,11 +39,12 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#6366f1',
             ])
-            // ->navigationGroups([
-            //     NavigationGroup::make('My Projects')
-            //         ->collapsible()
+            
+            // ->topNavigation([
+            //     navigation::make('dashboard'),
+            //     navigation::make('trello boards'),
+            //     navigation::make('profile'),
             // ])
-            ->topNavigation()
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
                 MenuItem::make()
@@ -76,13 +79,16 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
 
-                // UserProjectsMiddleware::class, enable when working ito ay yung projects per usser somethin idk
+                AddUserProjectsMiddleware::class, 
+                // enable when working ito ay yung projects per usser somethin idk
             ])
             ->authMiddleware([
                 Authenticate::class,
             ])
             
             ->plugins([
+                // \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+
                 FilamentEditProfilePlugin::make()
                     // ->slug('profile')
                     ->setTitle('My Profile')
@@ -92,11 +98,14 @@ class AppPanelProvider extends PanelProvider
                         value: true,
                         directory: 'avatars', 
                     )
-                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldShowDeleteAccountForm(false),
             ])
-            // ->plugins([
-            //     \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
-            // ])
+     
+                ->navigationGroups([
+                    NavigationGroup::make('My Projects')
+                        ->collapsible()
+                        ->collapsed()
+                ])
             ;
     }
 }

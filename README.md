@@ -98,9 +98,9 @@ https://filamentphp.com/plugins/joaopaulolndev-edit-profile
 
 
 newwww
-php artisan migrate
+php artisan migrate:fresh
 php artisan db:seed
-php artisan shield:install
+php artisan shield:install --fresh
 php artisan shield:generate
 php artisan db:seed --class=Roles
 php artisan db:seed --class=TestDataSeeder

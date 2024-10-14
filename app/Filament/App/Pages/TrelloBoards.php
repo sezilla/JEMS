@@ -9,12 +9,12 @@ class TrelloBoards extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
+    protected static string $view = 'filament.app.pages.trello-boards';
+
     public $boards = [];
 
     public function mount(TrelloService $trelloService)
     {
         $this->boards = $trelloService->getBoards();
     }
-
-    protected static string $view = 'filament.app.pages.trello-boards';
 }
