@@ -33,6 +33,7 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->brandLogo(asset('storage/images/logo.svg'))
             ->id('app')
             ->login()
             ->path('app')
