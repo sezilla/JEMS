@@ -92,6 +92,10 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
