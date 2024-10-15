@@ -67,7 +67,7 @@
                             >
                                 <div id="screenshot-container" class="relative flex w-full flex-1 items-stretch">
                                     <img
-                                        src="resources/images/banner.jpg"/>
+                                        src="storage/images/banner.jpg"/>
                                     
                                     <div
                                         class="absolute -bottom-16 -left-16 h-40 w-[calc(100%+8rem)] bg-gradient-to-b from-transparent via-white to-white dark:via-zinc-900 dark:to-zinc-900"
