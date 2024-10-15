@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandLogo(asset('storage/images/logo.svg'))
+            ->brandLogo(asset('resources/images/logo.svg'))
             // ->brandName('JEM')
             ->default()
             ->id('admin')
