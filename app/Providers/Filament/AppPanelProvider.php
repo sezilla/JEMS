@@ -33,7 +33,8 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandLogo(asset('storage/images/logo.svg'))
+            // ->brandLogo(asset('storage/images/logo.svg'))
+            ->brandName('JEM')
             ->id('app')
             ->login()
             ->path('app')
@@ -67,7 +68,6 @@ class AppPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

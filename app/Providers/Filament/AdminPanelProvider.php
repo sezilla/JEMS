@@ -28,8 +28,8 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandLogo(asset('storage/images/logo.svg'))
-            // ->brandName('JEM')
+            // ->brandLogo(asset('storage/images/logo.svg'))
+            ->brandName('JEM')
             ->default()
             ->id('admin')
             ->path('admin')
@@ -56,7 +56,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
