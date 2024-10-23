@@ -7,7 +7,7 @@ use App\Services\TrelloService;
 
 class TrelloBoards extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static string $view = 'filament.app.pages.trello-boards';
 

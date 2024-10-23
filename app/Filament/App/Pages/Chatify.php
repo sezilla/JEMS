@@ -7,7 +7,7 @@ use Illuminate\Contracts\View\View;
 
 class Chatify extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
     protected static string $view = 'filament.app.pages.chatify';
 
@@ -18,7 +18,7 @@ class Chatify extends Page
     public function mount()
     {
         $this->id = auth()->id();
-        $this->messengerColor = config('chatify.messengerColor', '#2184F3');
+        $this->messengerColor = config('chatify.messengerColor', '#FF748C');
         $this->dark_mode = config('chatify.dark_mode', false); // Add default value
     }
 }
