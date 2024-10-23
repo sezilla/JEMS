@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\Layout\Stack;
 
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
@@ -92,11 +93,8 @@ class UserResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->contentGrid([
-                'md' => 2,
-                'xl' => 3,
-            ])
             ->columns([
+                Stack::make([
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -121,15 +119,12 @@ class UserResource extends Resource
                     })
                     ->html(),
 
-
-
                 Tables\Columns\TextColumn::make('department_name')
                     ->label('Department')
                     ->getStateUsing(function ($record) {
                         return $record->teams->first()?->departments->first()?->name;
                     })
                     ->searchable(),
-                
 
                 Tables\Columns\TextColumn::make('teams.name')
                     ->label('Team')
@@ -168,7 +163,12 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                    ])
             ])
+            // ->defaultPerPage(12)
+            // ->pagination([
+            //     12, 24, 50, 100 // Available pagination sizes in the dropdown
+            // ])
             ->filters([
                 //
             ])
@@ -180,6 +180,10 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
             ]);
     }
 
