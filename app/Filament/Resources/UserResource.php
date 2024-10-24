@@ -92,8 +92,14 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
+        $livewire = $table->getLivewire();
+
         return $table
             ->columns([
+                $livewire->isGridLayout()
+                ? static::getGridTableColumns()
+                : static::getListTableColumns(),
+
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -179,7 +185,30 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->contentGrid(
+                fn () => $livewire->isListLayout()
+                    ? null
+                    : [
+                        'md' => 2,
+                        'lg' => 3,
+                        'xl' => 4,
+                    ]
+            );
+    }
+
+    public static function getListTableColumns(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getGridTableColumns(): array
+    {
+        return [
+            //
+        ];
     }
 
     public static function getRelations(): array
