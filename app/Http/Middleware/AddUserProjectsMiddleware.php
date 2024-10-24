@@ -37,7 +37,7 @@ class AddUserProjectsMiddleware
             $itemsList[] = NavigationItem::make($project->name)
                 ->icon('heroicon-o-document')
                 ->group('My Projects') // Ensure this matches the navigation group name
-                ->url(ProjectResource::getUrl('edit', ['record' => $project->id]));
+                ->url(ProjectResource::getUrl('task', ['record' => $project->id]));
         }
 
         Filament::getCurrentPanel()

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Traits\HasRoles;
 
 use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 class Project extends Model
 {
     use HasFactory;
+    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -206,16 +208,19 @@ class Project extends Model
                 $query->where('id', $user->id);
             })
             ->orWhereHas('brideCoordinator', function ($query) use ($user) {
-                $query->where('id', $user->id); 
+                $query->where('id', $user->id);
             })
             ->orWhereHas('headCoordinator', function ($query) use ($user) {
-                $query->where('id', $user->id); 
+                $query->where('id', $user->id);
             })
             ->orWhereHas('teams', function ($query) use ($user) {
                 $query->whereHas('users', function ($query) use ($user) {
-                    $query->where('user_id', $user->id); 
+                    $query->where('user_id', $user->id);
                 });
             });
+        })
+        ->orWhereHas('roles', function ($query) {
+            $query->whereIn('name', ['Admin', 'Super Admin']);
         });
     }
 
