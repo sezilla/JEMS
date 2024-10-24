@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\User;
+use App\Models\Project;
 use App\Models\Team;
 use App\Models\Department;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +16,7 @@ class StatsOverview extends BaseWidget
     {
         // Fetch counts from the database
         $userCount = User::count();
+        $projectCount = Project::count();
         $teamCount = Team::count();
         $departmentCount = Department::count();
 
@@ -29,6 +31,17 @@ class StatsOverview extends BaseWidget
         // If there are fewer than 7 days of data, fill in with zeroes
         $userRegistrationsChart = array_pad($userRegistrationsLast7Days, 7, 0);
 
+        // Fetch the number of projects created each day for the past 7 days
+        $projectsCreatedLast7Days = Project::select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as total'))
+            ->where('created_at', '>=', now()->subDays(7))
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->pluck('total') // Get the total column as an array
+            ->toArray();
+
+        // If there are fewer than 7 days of data, fill in with zeroes
+        $projectsChart = array_pad($projectsCreatedLast7Days, 7, 0);
+
         return [
             Stat::make('Users', $userCount)
                 ->description('Total number of Users')
@@ -39,6 +52,12 @@ class StatsOverview extends BaseWidget
                     'wire:click' => "\$dispatch('setStatusFilter', { filter: 'processed' })",
                 ])
                 ->chart($userRegistrationsChart),
+
+            Stat::make('Projects', $projectCount)
+                ->description('Total number of Projects')
+                ->descriptionIcon('heroicon-o-clipboard-document-check')
+                ->color('info')
+                ->chart($projectsChart),
 
             Stat::make('Teams', $teamCount)
                 ->description('Total number of Teams')
