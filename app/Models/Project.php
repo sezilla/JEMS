@@ -49,12 +49,12 @@ class Project extends Model
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
             $boardResponse = $trelloService->createBoardFromTemplate($project->name);
-
+        
             if ($boardResponse && isset($boardResponse['id'])) {
                 $project->trello_board_id = $boardResponse['id']; // Save Trello board ID
                 $project->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
-
+        
                 // Helper function to create or update card
                 $createOrUpdateCard = function ($listId, $cardName, $cardData) use ($trelloService) {
                     $card = $trelloService->getCardByName($listId, $cardName);
@@ -69,64 +69,41 @@ class Project extends Model
                     }
                     return null;
                 };
-
+        
                 // Get the "Project details" and "Teams and Members" lists
                 $projectDetailsList = $trelloService->getBoardListByName($project->trello_board_id, 'Project details');
-                $teamList = $trelloService->getBoardListByName($project->trello_board_id, 'Teams and Members');
-
-                // Handle the "Teams and Members" list
-                if ($teamList) {
-                    Log::info('Teams and Members list found.');
-                    
-                    // Fetching team names
-                    $teams = [
-                        'Catering' => $project->cateringTeam->pluck('name')->first(),
-                        'Hair and Makeup' => $project->hairAndMakeupTeam->pluck('name')->first(),
-                        'Photo and Video' => $project->photoAndVideoTeam->pluck('name')->first(),
-                        'Designing' => $project->designingTeam->pluck('name')->first(),
-                        'Entertainment' => $project->entertainmentTeam->pluck('name')->first(),
-                        'Drivers' => $project->driversTeam->pluck('name')->first(),
-                    ];
-                
-                    // Log the team data for debugging
-                    foreach ($teams as $team => $name) {
-                        Log::info("{$team} Team:", ['team' => $name]);
+                $coorList = $trelloService->getBoardListByName($project->trello_board_id, 'Coordinators');
+        
+                if ($coorList) {
+                    Log::info('Project Coordinator list found.');
+        
+                    // Check if groom coordinator exists
+                    if ($project->groom_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'groom coordinator', ['desc' => $project->groomCoordinator->name]);
                     }
-                
-                    // Assuming the Trello list ID and team names are mapped correctly
-                    foreach ($teams as $teamName => $name) {
-                        if ($name) {
-                            $trello->updateCard($listId, [
-                                $teamName => $name
-                            ]);
-                
-                            // Optional: If you're using createOrUpdateCard method:
-                            // $createOrUpdateCard($teamList['id'], $teamName, ['name' => $name]);
-                        }
+        
+                    // Check if bride coordinator exists
+                    if ($project->bride_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'bride coordinator', ['desc' => $project->brideCoordinator->name]);
+                    }
+        
+                    // Check if head coordinator exists
+                    if ($project->head_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'head coordinator', ['desc' => $project->headCoordinator->name]);
                     }
                 }
-                
-
-
-
-                
-
+        
                 // Handle the "Project details" list
                 if ($projectDetailsList) {
                     Log::info('Project details list found.');
-                    $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', [
-                        'name' => "{$project->groom_name} & {$project->bride_name}"
-                    ]);
-                    $createOrUpdateCard($projectDetailsList['id'], 'date', ['due' => $project->event_date]);
-                    $createOrUpdateCard($projectDetailsList['id'], 'package', ['name' => $project->package->name]);
+                    $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', 
+                    ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->event_date]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'package', ['desc' => $project->package->name]);
                     $createOrUpdateCard($projectDetailsList['id'], 'description', ['desc' => $project->description]);
-                    $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['name' => $project->venue]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
                     $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
                     $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
-                    $createOrUpdateCard($projectDetailsList['id'], 'coordinators', [
-                        'desc' => "Groom Coordinator: {$project->groomCoordinator->name}\nBride Coordinator: {$project->brideCoordinator->name}\nHead Coordinator: {$project->headCoordinator->name}"
-                    ]);
-
+        
                     // Add the thumbnail photo as a cover if it exists
                     if ($project->thumbnail_path && $coupleCardId) {
                         Log::info('Adding thumbnail as cover to the couple name card.');
@@ -139,10 +116,81 @@ class Project extends Model
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
         });
+        
+
+
+        static::updating(function ($project) {
+            Log::info('Updating Trello board for project: ' . $project->name);
+            $trelloService = new TrelloService();
+        
+            // Check if the Trello board exists
+            if ($project->trello_board_id) {
+                Log::info('Trello board found for project: ' . $project->trello_board_id);
+        
+                // Helper function to create or update card
+                $createOrUpdateCard = function ($listId, $cardName, $cardData) use ($trelloService) {
+                    $card = $trelloService->getCardByName($listId, $cardName);
+                    if (!$card) {
+                        Log::info("$cardName card not found, creating new card.");
+                        $card = $trelloService->createCardInList($listId, $cardName);
+                    }
+                    if ($card && isset($card['id'])) {
+                        Log::info("Updating $cardName card.");
+                        $trelloService->updateCard($card['id'], $cardData);
+                        return $card['id'];
+                    }
+                    return null;
+                };
+        
+                // Get the "Project details" and "Teams and Members" lists
+                $projectDetailsList = $trelloService->getBoardListByName($project->trello_board_id, 'Project details');
+                $coorList = $trelloService->getBoardListByName($project->trello_board_id, 'Coordinators');
+        
+                if ($coorList) {
+                    Log::info('Updating Coordinator list.');
+        
+                    // Update groom coordinator if exists
+                    if ($project->groom_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'groom coordinator', ['desc' => $project->groomCoordinator->name]);
+                    }
+        
+                    // Update bride coordinator if exists
+                    if ($project->bride_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'bride coordinator', ['desc' => $project->brideCoordinator->name]);
+                    }
+        
+                    // Update head coordinator if exists
+                    if ($project->head_coordinator) {
+                        $createOrUpdateCard($coorList['id'], 'head coordinator', ['desc' => $project->headCoordinator->name]);
+                    }
+                }
+        
+                if ($projectDetailsList) {
+                    Log::info('Updating Project details list.');
+                    $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', 
+                        ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->event_date]);
+                    $package = $createOrUpdateCard($projectDetailsList['id'], 'package', ['desc' => $project->package->name]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'description', ['desc' => $project->description]);
+                    $venue = $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
+                    $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
+        
+                    // Update thumbnail if it exists
+                    if ($project->thumbnail_path && $coupleCardId) {
+                        Log::info('Updating thumbnail on the couple name card.');
+                        $trelloService->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
+                    }
+                } else {
+                    Log::error('Project details list not found.');
+                }
+        
+            } else {
+                Log::error('No Trello board found for project: ' . $project->name);
+            }
+        });
+        
+        
     }
-
-
-
 
 
 
@@ -170,7 +218,6 @@ class Project extends Model
     {
         return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
     }
-
     public function groomCoordinator()
     {
         return $this->belongsTo(User::class, 'groom_coordinator');

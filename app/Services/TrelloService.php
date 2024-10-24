@@ -158,6 +158,43 @@ class TrelloService
         }
         return null;
     }
+    public function getCardIdByName($listId, $cardName)
+    {
+        $cards = $this->getListCards($listId);
+        if ($cards) {
+            foreach ($cards as $card) {
+                if ($card['name'] === $cardName) {
+                    return $card['id'];
+                }
+            }
+        }
+        return null;
+    }
+
+    public function getCardData($cardId)
+    {
+        try {
+            Log::info('Fetching data for Trello card with ID: ' . $cardId);
+            $response = $this->client->get("cards/{$cardId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            $responseBody = $response->getBody()->getContents();
+            Log::info('Trello API Response: ' . $responseBody);
+
+            return json_decode($responseBody, true);
+        } catch (RequestException $e) {
+            Log::error('Failed to retrieve data for Trello card: ' . $e->getMessage());
+            if ($e->hasResponse()) {
+                $responseContent = $e->getResponse()->getBody()->getContents();
+                Log::error('Response: ' . $responseContent);
+                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+            }
+            return null;
+        }
+    }
+
+
 
     public function updateCard($cardId, $data)
     {
