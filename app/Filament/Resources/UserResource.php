@@ -94,7 +94,6 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Stack::make([
                 Tables\Columns\TextColumn::make('id')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -163,7 +162,7 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                    ])
+            
             ])
             // ->defaultPerPage(12)
             // ->pagination([
@@ -180,10 +179,6 @@ class UserResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->contentGrid([
-                'md' => 2,
-                'xl' => 3,
             ]);
     }
 

@@ -85,9 +85,16 @@ class AdminPanelProvider extends PanelProvider
                         directory: 'avatars', 
                         rules: 'mimes:jpeg,png|max:1024'
                     )
-                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldShowDeleteAccountForm(false),
                 
-                
+                TableLayoutTogglePlugin::make()
+                    ->defaultLayout('grid') // default layout for user seeing the table for the first time
+                    ->persistLayoutInLocalStorage(true) // allow user to keep his layout preference in his local storage
+                    ->shareLayoutBetweenPages(false) // allow all tables to share the layout option (requires persistLayoutInLocalStorage to be true)
+                    ->displayToggleAction() // used to display the toggle action button automatically
+                    ->toggleActionHook('tables::toolbar.search.after') // chose the Filament view hook to render the button on
+                    ->listLayoutButtonIcon('heroicon-o-list-bullet')
+                    ->gridLayoutButtonIcon('heroicon-o-squares-2x2'),
             ]);
     }
 }
