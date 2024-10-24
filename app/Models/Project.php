@@ -196,6 +196,30 @@ class Project extends Model
 
 
 
+    public function scopeForUser($query, $user)
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->whereHas('coordinators', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->orWhereHas('groomCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->orWhereHas('brideCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id); 
+            })
+            ->orWhereHas('headCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id); 
+            })
+            ->orWhereHas('teams', function ($query) use ($user) {
+                $query->whereHas('users', function ($query) use ($user) {
+                    $query->where('user_id', $user->id); 
+                });
+            });
+        });
+    }
+
+
 
 
     //for database....
@@ -230,6 +254,15 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'head_coordinator');
     }
+
+    
+
+
+
+
+
+
+
 
 
 
@@ -279,50 +312,5 @@ class Project extends Model
             $q->where('name', 'Drivers');
         });
     }
-
-
-
-    // public function team1()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Catering');
-    //     });
-    // }
-
-    // public function team2()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Hair and Makeup');
-    //     });
-    // }
-
-    // public function team3()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Photo and Video');
-    //     });
-    // }
-
-    // public function team4()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Designing');
-    //     });
-    // }
-
-    // public function team5()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Entertainment');
-    //     });
-    // }
-
-    // public function team6()
-    // {
-    //     return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')->whereHas('departments', function ($q) {
-    //         $q->where('name', 'Drivers');
-    //     });
-    // }
-
 
 }

@@ -29,8 +29,9 @@ class AddUserProjectsMiddleware
 
         $itemsList = [];
 
-        // Fetch all projects from the database
-        $projects = Project::all();
+        // Fetch projects associated with the authenticated user using the scope
+        $user = auth()->user();
+        $projects = Project::forUser($user)->get(); // Use the scopeForUser here
 
         foreach ($projects as $project) {
             $itemsList[] = NavigationItem::make($project->name)

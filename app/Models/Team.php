@@ -26,6 +26,10 @@ class Team extends Model
     {
         return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
     }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+    }
 
     public function departments()
     {
