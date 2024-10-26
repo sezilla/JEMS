@@ -79,23 +79,19 @@ class Project extends Model
                 if ($coorList) {
                     Log::info('Project Coordinator list found.');
         
-                    // Check if groom coordinator exists
                     if ($project->groom_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'groom coordinator', ['desc' => $project->groomCoordinator->name]);
                     }
         
-                    // Check if bride coordinator exists
                     if ($project->bride_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'bride coordinator', ['desc' => $project->brideCoordinator->name]);
                     }
         
-                    // Check if head coordinator exists
                     if ($project->head_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'head coordinator', ['desc' => $project->headCoordinator->name]);
                     }
                 }
         
-                // Handle the "Project details" list
                 if ($projectDetailsList) {
                     Log::info('Project details list found.');
                     $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', 
@@ -106,7 +102,6 @@ class Project extends Model
                     $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
                     $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
         
-                    // Add the thumbnail photo as a cover if it exists
                     if ($project->thumbnail_path && $coupleCardId) {
                         Log::info('Adding thumbnail as cover to the couple name card.');
                         $trelloService->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
@@ -125,11 +120,9 @@ class Project extends Model
             Log::info('Updating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
         
-            // Check if the Trello board exists
             if ($project->trello_board_id) {
                 Log::info('Trello board found for project: ' . $project->trello_board_id);
         
-                // Helper function to create or update card
                 $createOrUpdateCard = function ($listId, $cardName, $cardData) use ($trelloService) {
                     $card = $trelloService->getCardByName($listId, $cardName);
                     if (!$card) {
@@ -144,24 +137,20 @@ class Project extends Model
                     return null;
                 };
         
-                // Get the "Project details" and "Teams and Members" lists
                 $projectDetailsList = $trelloService->getBoardListByName($project->trello_board_id, 'Project details');
                 $coorList = $trelloService->getBoardListByName($project->trello_board_id, 'Coordinators');
         
                 if ($coorList) {
                     Log::info('Updating Coordinator list.');
         
-                    // Update groom coordinator if exists
                     if ($project->groom_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'groom coordinator', ['desc' => $project->groomCoordinator->name]);
                     }
         
-                    // Update bride coordinator if exists
                     if ($project->bride_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'bride coordinator', ['desc' => $project->brideCoordinator->name]);
                     }
         
-                    // Update head coordinator if exists
                     if ($project->head_coordinator) {
                         $createOrUpdateCard($coorList['id'], 'head coordinator', ['desc' => $project->headCoordinator->name]);
                     }
@@ -176,8 +165,7 @@ class Project extends Model
                     $venue = $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
                     $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
                     $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
-        
-                    // Update thumbnail if it exists
+    
                     if ($project->thumbnail_path && $coupleCardId) {
                         Log::info('Updating thumbnail on the couple name card.');
                         $trelloService->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
