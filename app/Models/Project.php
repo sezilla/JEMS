@@ -50,8 +50,10 @@ class Project extends Model
         static::created(function ($project) {
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
-            $boardResponse = $trelloService->createBoardFromTemplate($project->name);
-        
+
+            $packageName = $project->package->name;
+            $boardResponse = $trelloService->createBoardFromTemplate($project->name, $packageName);
+            
             if ($boardResponse && isset($boardResponse['id'])) {
                 $project->trello_board_id = $boardResponse['id']; // Save Trello board ID
                 $project->save();
@@ -181,11 +183,7 @@ class Project extends Model
         
         
     }
-
-
-
-
-
+    
     public function scopeForUser($query, $user)
     {
         return $query->where(function ($q) use ($user) {

@@ -11,8 +11,8 @@ class TrelloService
     protected $client;
     protected $key;
     protected $token;
-    protected $templateBoardId;
     protected $workspace;
+    protected $templateBoardIds;
 
     public function __construct()
     {
@@ -22,14 +22,17 @@ class TrelloService
 
         $this->key = env('TRELLO_API_KEY');
         $this->token = env('TRELLO_API_TOKEN');
-        $this->templateBoardId = '66ffad3f3110fff4b5e72915'; // Hardcoded template board ID for testing
-        $this->workspace = '66ffad3e1bd0e8d01b154aa7'; // Hardcoded workspace ID for testing
+        $this->workspace = env('TRELLO_WORKSPACE_ID');
 
-        // Log the environment variables to ensure they are loaded correctly
-        Log::info('Trello API Key: ' . $this->key);
-        Log::info('Trello API Token: ' . $this->token);
-        Log::info('Trello Template Board ID: ' . $this->templateBoardId);
-        Log::info('Trello Workspace ID: ' . $this->workspace);
+        $this->templateBoardIds = [
+            'Ruby' => env('TRELLO_TEMPLATE_ID_RUBY'),
+            'Garnet' => env('TRELLO_TEMPLATE_ID_GARNET'),
+            'Emerald' => env('TRELLO_TEMPLATE_ID_EMERALD'),
+            'Infinity' => env('TRELLO_TEMPLATE_ID_INFINITY'),
+            'Sapphire' => env('TRELLO_TEMPLATE_ID_SAPPHIRE'),
+        ];
+
+        Log::info('Loaded Trello configuration.');
     }
 
     private function getAuthParams()
@@ -40,14 +43,23 @@ class TrelloService
         ];
     }
 
-    public function createBoardFromTemplate($name)
+    public function createBoardFromTemplate($name, $packageName)
     {
         try {
             Log::info('Creating Trello board with name: ' . $name);
+
+            // Determine the template board ID based on package name
+            $templateBoardId = $this->templateBoardIds[$packageName] ?? null;
+
+            if (!$templateBoardId) {
+                Log::error('Invalid package name: ' . $packageName);
+                return null;
+            }
+
             $response = $this->client->post("boards/", [
                 'query' => array_merge($this->getAuthParams(), [
                     'name' => $name,
-                    'idBoardSource' => $this->templateBoardId,
+                    'idBoardSource' => $templateBoardId,
                     'idOrganization' => $this->workspace,
                     'prefs_permissionLevel' => 'private'
                 ]),
@@ -67,6 +79,8 @@ class TrelloService
             return null;
         }
     }
+
+    
 
     public function createList($boardId, $name)
     {
