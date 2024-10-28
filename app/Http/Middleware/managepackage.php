@@ -30,8 +30,8 @@ class ManagePackage
         foreach ($packages as $package) {
             $itemList[] = NavigationItem::make($package->name)
                 ->icon('heroicon-o-plus-circle')
-                ->group('Project Management')
-                ->url(PackageResource::getUrl('task', ['record' => $package->id]));
+                ->group('Packages')
+                ->url(PackageResource::getUrl('edit', ['record' => $package->id]));
         }
 
         Filament::getCurrentPanel()

@@ -23,6 +23,7 @@ use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use App\Http\Middleware\managepackage;
 
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -69,10 +70,19 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
 
-                // managepackage::class,
+                managepackage::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+
+            ->navigationGroups([
+                NavigationGroup::make()
+                     ->label('Project Management'),
+                NavigationGroup::make()
+                    ->label('Packages'),
+                NavigationGroup::make()
+                    ->label('User Management'),
             ])
             
             ->plugins([
