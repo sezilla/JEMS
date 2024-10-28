@@ -78,7 +78,7 @@ class PackageResource extends Resource
             'index' => Pages\ListPackages::route('/'),
             'create' => Pages\CreatePackage::route('/create'),
             'edit' => Pages\EditPackage::route('/{record}/edit'),
-            'task' => Pages\PackageTask::route('/{record}/task'),
+            // 'task' => Pages\PackageTask::route('/{record}/task'),
             // 'createTask' => Pages\CreateTask::route('/{record}/task/create'),
             // 'editTask' => Pages\EditTask::route('/{record}/task/{task}/edit'),
         ];
