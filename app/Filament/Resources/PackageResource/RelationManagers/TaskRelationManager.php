@@ -22,13 +22,14 @@ class TaskRelationManager extends RelationManager
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('department_id')
+                Forms\Components\Select::make('department_id')
                     ->label('Department')
-                    ->relationship('department', 'name')
+                    ->relationship('department', 'name') // Ensure this relationship exists in the Task model
                     ->required()
                     ->preload(),
             ]);
     }
+    
 
     public function table(Table $table): Table
     {
