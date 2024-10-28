@@ -40,20 +40,6 @@ class PackageResource extends Resource
                             ->required()
                             ->columnSpan('full'),
                     ])
-                
-                // Select::make('event_type_id') 
-                //     ->relationship('eventType', 'name') 
-                //     ->label('Event Type')
-                //     ->preload()
-                //     ->searchable()
-                //     ->required()
-                //     ->createOptionForm([
-                //         Forms\Components\TextInput::make('name')
-                //             ->required()
-                //             ->maxLength(255),
-                //         Forms\Components\Textarea::make('description')
-                //             ->columnSpanFull(),
-                //     ]),
             ]);
     }
 
@@ -65,16 +51,6 @@ class PackageResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable(),
-                // Tables\Columns\TextColumn::make('eventType.name')
-                //     ->label('Event Type')
-                //     ->searchable(),
-                // Tables\Columns\TextColumn::make('attributes')
-                //     ->label('Attributes')
-                //     ->formatStateUsing(function ($record) {
-                //         // Ensure $record->attributes returns a collection of Attribute models
-                //         return $record->attributes->pluck('name')->join(', ');
-                //     })
-                //     ->searchable(),
             ])
             ->filters([
                 //
@@ -102,8 +78,12 @@ class PackageResource extends Resource
             'index' => Pages\ListPackages::route('/'),
             'create' => Pages\CreatePackage::route('/create'),
             'edit' => Pages\EditPackage::route('/{record}/edit'),
+            'task' => Pages\PackageTask::route('/{record}/task'),
+            'createTask' => Pages\CreateTask::route('/{record}/task/create'),
+            'editTask' => Pages\EditTask::route('/{record}/task/{task}/edit'),
         ];
     }
+    
 
     public static function getNavigationGroup(): ?string
     {
