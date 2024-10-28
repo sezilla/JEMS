@@ -230,58 +230,53 @@ class TrelloService
 
 
     public function fetchTrelloCards($boardId, $listName = 'Departments')
-{
-    $list = $this->getBoardListByName($boardId, $listName);
+    {
+        $list = $this->getBoardListByName($boardId, $listName);
 
-    if ($list) {
-        // Retrieve each card in the list along with its checklists
-        $cards = $this->getListCardsWithChecklists($list['id']);
-        return $cards;
-    }
-
-    Log::warning("List '{$listName}' not found on board '{$boardId}'.");
-    return null;
-}
-
-public function getListCardsWithChecklists($listId)
-{
-    try {
-        // Get all cards in the specified list
-        $response = $this->client->get("lists/{$listId}/cards", [
-            'query' => $this->getAuthParams(),
-        ]);
-        $cards = json_decode($response->getBody()->getContents(), true);
-
-        // Fetch checklists for each card and add them to the card array
-        foreach ($cards as &$card) {
-            $card['checklist'] = $this->getCardChecklists($card['id']);
+        if ($list) {
+            // Retrieve each card in the list along with its checklists
+            $cards = $this->getListCardsWithChecklists($list['id']);
+            return $cards;
         }
 
-        return $cards;
-    } catch (RequestException $e) {
-        Log::error('Failed to get Trello list cards: ' . $e->getMessage());
+        Log::warning("List '{$listName}' not found on board '{$boardId}'.");
         return null;
     }
-}
 
-public function getCardChecklists($cardId)
-{
-    try {
-        $response = $this->client->get("cards/{$cardId}/checklists", [
-            'query' => $this->getAuthParams(),
-        ]);
+    public function getListCardsWithChecklists($listId)
+    {
+        try {
+            // Get all cards in the specified list
+            $response = $this->client->get("lists/{$listId}/cards", [
+                'query' => $this->getAuthParams(),
+            ]);
+            $cards = json_decode($response->getBody()->getContents(), true);
 
-        return json_decode($response->getBody()->getContents(), true);
-    } catch (RequestException $e) {
-        Log::error('Failed to get checklists for Trello card: ' . $e->getMessage());
-        return null;
+            // Fetch checklists for each card and add them to the card array
+            foreach ($cards as &$card) {
+                $card['checklist'] = $this->getCardChecklists($card['id']);
+            }
+
+            return $cards;
+        } catch (RequestException $e) {
+            Log::error('Failed to get Trello list cards: ' . $e->getMessage());
+            return null;
+        }
     }
-}
 
+    public function getCardChecklists($cardId)
+    {
+        try {
+            $response = $this->client->get("cards/{$cardId}/checklists", [
+                'query' => $this->getAuthParams(),
+            ]);
 
-    
-
-    
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to get checklists for Trello card: ' . $e->getMessage());
+            return null;
+        }
+    }
 
     public function addAttachmentToCard($cardId, $filePath)
     {
