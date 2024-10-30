@@ -12,12 +12,16 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 use Filament\Tables\Columns\Layout\Stack;
 
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\FileUpload;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
 
 
 
@@ -92,17 +96,17 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $livewire = $table->getLivewire();
-
         return $table
             ->columns([
-                // $livewire->isGridLayout()
-                // ? static::getGridTableColumns()
-                // : static::getListTableColumns(),
-
-                Tables\Columns\TextColumn::make('id')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Stack::make([
+                    ImageColumn::make('avatar_url')
+                        ->label('Avatar')
+                        ->size(200)
+                        ->circular()
+                        ->alignment(Alignment::Center),
+                // Tables\Columns\TextColumn::make('id')
+                //     ->searchable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
                 ImageColumn::make('avatar_url')
                     ->label('Avatar')
                     ->circular()
@@ -136,29 +140,6 @@ class UserResource extends Resource
                     ->formatStateUsing(fn ($record) => $record->teams->pluck('name')->join(', '))
                     ->searchable(),
 
-                // Panel::make([
-                //         Stack::make([
-                //                 //DEPARTMENT
-                //             TextColumn::make('departments.name')
-                //                 ->label('Department')
-                //                 ->searchable()
-                //                 ->limit(20),
-    
-                //                 //TEAM
-                //             TextColumn::make('team.name')
-                //                 ->label('Team')
-                //                 ->searchable()
-                //                 ->verticallyAlignStart()
-                //                 ->getStateUsing(function ($record) {
-                //                     if ($record->team) {
-                //                         return implode('<br/>', $record->team->pluck('name')->toArray());
-                //                     }
-                //                     return 'No Team';
-                //                 })
-                                
-                //                 ->html(),
-                //         ]),
-                //     ])->collapsible(),
                 // ikaw jo bahala dto d ko to alam
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -168,12 +149,13 @@ class UserResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            
+                ]),
             ])
-            // ->defaultPerPage(12)
-            // ->pagination([
-            //     12, 24, 50, 100 // Available pagination sizes in the dropdown
-            // ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 //
             ])
