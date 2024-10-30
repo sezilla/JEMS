@@ -11,7 +11,8 @@ class Department extends Model
 
     public $fillable = [
         'name',
-        'description'
+        'description',
+        'image',
     ];
 
     public function teams()

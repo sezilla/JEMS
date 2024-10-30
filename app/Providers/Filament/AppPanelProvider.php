@@ -99,7 +99,8 @@ class AppPanelProvider extends PanelProvider
                         value: true,
                         directory: 'avatars', 
                     )
-                    ->shouldShowDeleteAccountForm(false),
+                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page')),
             ])
      
                 ->navigationGroups([

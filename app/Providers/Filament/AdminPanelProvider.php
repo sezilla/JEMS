@@ -24,6 +24,7 @@ use App\Http\Middleware\managepackage;
 
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
+// use Filament\Navigation\NavigationItem;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -75,7 +76,10 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-
+            // ->navigation([
+            //     NavigationItem::make('Profile')
+            //         ->visible(auth()->user()->can('view-edit-profile-page')),
+            // ])
             ->navigationGroups([
                 NavigationGroup::make()
                      ->label('Project Management'),
@@ -98,7 +102,8 @@ class AdminPanelProvider extends PanelProvider
                         directory: 'avatars', 
                         rules: 'mimes:jpeg,png|max:1024'
                     )
-                    ->shouldShowDeleteAccountForm(false),
+                    ->shouldShowDeleteAccountForm(false)
+                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page')),
             ]);
     }
 }

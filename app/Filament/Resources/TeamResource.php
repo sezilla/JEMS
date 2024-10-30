@@ -18,6 +18,15 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Forms\Components\FileUpload;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Department;
+
+
+
 
 
 class TeamResource extends Resource
@@ -31,11 +40,18 @@ class TeamResource extends Resource
         return $form
             ->schema([
                 Section::make()
+                    ->columnSpan(2)
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->columnSpan('full')
                             ->required()
                             ->maxLength(255),
+                        Select::make('departments')
+                            ->relationship('departments', 'name')
+                            ->label('Department')
+                            ->preload()
+                            ->searchable(),
                         Select::make('leader_id')
                             ->relationship('leaders', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
@@ -47,12 +63,19 @@ class TeamResource extends Resource
                             ->searchable(),
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
-                            ->columnSpanFull(),
-                        Select::make('departments')
-                            ->relationship('departments', 'name')
-                            ->label('Department')
-                            ->preload()
-                            ->searchable(),
+                            ->columnSpan('full'),
+                        ]),
+                Section::make()
+                    ->columnSpan(1)
+                    ->columns(1)
+                    ->schema([
+                        FileUpload::make('image')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->columnSpan('1')
+                            ->directory('teams')
+                            ->label('Team Photo'),
                         Select::make('members')
                             ->multiple()
                             ->relationship('members', 'name', function ($query) {
@@ -62,70 +85,57 @@ class TeamResource extends Resource
                             })
                             ->label('Members')
                             ->preload()
-                            ->searchable(),
+                            ->searchable()
+                            ->visible(fn ($livewire) => $livewire instanceof Pages\CreateTeam),
                     ])
 
-            ]);
+            ])
+            ->columns(3);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('departments.name')
-                    ->label('Department')
-                    ->searchable()
-                    ->limit(15),
-
-                    
-                // Display the leader's avatar
-                // ImageColumn::make('leaders.avatar_url')
-                //     ->label('Team Leader')
-                //     ->searchable()
-                //     ->circular(),
-                // ImageColumn::make('members.avatar_url')
-                //     ->label('Members')
-                //     ->circular()
-                //     ->stacked()
-                //     ->limit(3)
-                //     ->limitedRemainingText(),
-
-                TextColumn::make('leaders.name')
-                    ->searchable()
-                    ->limit(30),
-                TextColumn::make('members.name')
-                    ->searchable()
-                    ->limit(30),
-
-
-                // ImageColumn::make('member.avatar')
-                //     ->circular()
-                //     ->stacked(),
-
-                TextColumn::make('description')
-                    ->searchable()
-                    ->limit(30)
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Stack::make([
+                    ImageColumn::make('image')
+                        ->width(200)
+                        ->height(200)
+                        ->rounded('lg')
+                        ->alignment(Alignment::Center),
+                    TextColumn::make('name')
+                        ->searchable()
+                        ->weight(FontWeight::Bold),
+                    TextColumn::make('departments.name')
+                        ->limit(15),
+                    ImageColumn::make('leaders.avatar_url')
+                        ->circular(),
+                    ImageColumn::make('members.avatar_url')
+                        ->circular()
+                        ->stacked(),
+                ]),
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
             ])
             ->filters([
-                //
+                SelectFilter::make('department')
+                    ->options(function () {
+                        return Department::pluck('name', 'id');
+                    })
+                    ->label('Department')
+                    ->relationship('departments', 'name')
             ])
+            
+            
+            
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

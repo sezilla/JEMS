@@ -13,6 +13,7 @@ class Package extends Model
     protected $fillable = [
         'name',
         'description',
+        'image',
     ];
     protected $table = 'packages';
 

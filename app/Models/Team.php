@@ -13,18 +13,25 @@ class Team extends Model
 
     public $fillable = [
         'name', 
-        'description'
+        'description',
+        'image',
     ];
 
 
     public function leaders()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'Team Leader');
+            });
     }
-
+    
     public function members()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'Member');
+            });;
     }
     public function users()
     {

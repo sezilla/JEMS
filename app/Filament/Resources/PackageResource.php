@@ -19,7 +19,11 @@ use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 
 use Filament\Forms\Components\Section;
-
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
 
 class PackageResource extends Resource
 {
@@ -35,10 +39,15 @@ class PackageResource extends Resource
                     ->columns(2)
                     ->schema([
                         TextInput::make('name')
-                            ->required(),
-                        MarkdownEditor::make('description')
                             ->required()
                             ->columnSpan('full'),
+                        MarkdownEditor::make('description')
+                            ->required(),
+                        FileUpload::make('image')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('packages'),
                     ])
             ]);
     }
@@ -47,20 +56,32 @@ class PackageResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
+                Stack::make([
+                    ImageColumn::make('image')
+                        ->width(200)
+                        ->height(200)
+                        ->rounded('lg')
+                        ->alignment(Alignment::Center),
+                    Tables\Columns\TextColumn::make('name')
+                        ->weight(FontWeight::Bold)
+                        ->description(fn($record): ?string => $record->description)
+                        ->alignment(Alignment::Start),
+                ]),
             ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->paginated(false)
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -84,6 +105,10 @@ class PackageResource extends Resource
         ];
     }
     
+    public static function canCreate(): bool
+    {
+        return false;
+    }
 
     public static function getNavigationGroup(): ?string
     {

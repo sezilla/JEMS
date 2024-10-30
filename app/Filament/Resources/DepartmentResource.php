@@ -14,6 +14,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
 
 
 class DepartmentResource extends Resource
@@ -30,22 +35,26 @@ class DepartmentResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
-                        Forms\Components\MarkdownEditor::make('description')
-                            ->required()
-                            ->columnSpanFull(),
+                            ->maxLength(255)
+                            ->columnSpan('1'),
                         Forms\Components\Select::make('teams')
                             ->multiple()
+                            ->columnSpan('1')
                             ->relationship('teams', 'name')
-                            // ->relationship('teams', 'name'
-                            // , function ($query) {
-                            //     $query->whereDoesntHave('departments'); //ano to para di lumabas mga team na may department na
-                            // }
-                            // )
                             ->label('Teams')
                             ->preload()
                             ->searchable(),
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpan('1'),
+                        FileUpload::make('image')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->columnSpan('1')
+                            ->directory('departments'),
                     ])
+                    ->columns(2)
                 
             ]);
     }
@@ -54,43 +63,34 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->limit(35),
-                Tables\Columns\TextColumn::make('description')
-                    ->searchable()
-                    ->limit(30),
-                // Tables\Columns\TextColumn::make('teams.name')
-                //     ->label('Teams')
-                //     ->searchable(),
-                Tables\Columns\TextColumn::make('teams.name')
-                    ->label('Teams')
-                    ->searchable()
-                    ->getStateUsing(function ($record) {
-                        // Assuming $record->teams is a collection of teams related to the department
-                        return implode('<br/>', $record->teams->pluck('name')->toArray());
-                    })
-                    ->html()  // Enable HTML rendering for line breaks
-                    ->verticallyAlignStart(),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                Stack::make([
+                    ImageColumn::make('image')
+                        ->width(200)
+                        ->height(200)
+                        ->rounded('lg')
+                        ->alignment(Alignment::Center),
+                    Tables\Columns\TextColumn::make('name')
+                        ->weight(FontWeight::Bold)
+                        ->description(fn($record): ?string => $record->description),
+                    ImageColumn::make('teams.image')
+                        ->circular()
+                        ->stacked(),
+                ])
             ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->paginated(false)
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
