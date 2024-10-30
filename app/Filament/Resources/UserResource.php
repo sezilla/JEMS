@@ -103,22 +103,31 @@ class UserResource extends Resource
                         ->label('Avatar')
                         ->size(200)
                         ->circular()
-                        ->alignment(Alignment::Center),
+                        ->alignment(Alignment::Center)
+                        ->extraImgAttributes([
+                            'class' => 'bordered-avatar', // Apply custom CSS class here
+                            'style' => 'border: 2px solid #ccc; padding: 2px;', // Add inline styles for border
+                        ]),
+
                 // Tables\Columns\TextColumn::make('id')
                 //     ->searchable()
                 //     ->toggleable(isToggledHiddenByDefault: true),
-                ImageColumn::make('avatar_url')
-                    ->label('Avatar')
-                    ->circular()
-                    ->size(40),
+                //ImageColumn::make('avatar_url')
+                //    ->label('Avatar')
+                //    ->circular()
+                //    ->size(40),
                 
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->alignment(Alignment::Center)
+                    ->weight('bold'),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable(),
+                    ->searchable()
+                    ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('roles')
                     ->label('Role')
+                    ->alignment(Alignment::Center)
                     ->verticallyAlignStart()
                     ->getStateUsing(function ($record) {
                         if ($record->roles) {
@@ -130,6 +139,7 @@ class UserResource extends Resource
 
                 Tables\Columns\TextColumn::make('department_name')
                     ->label('Department')
+                    ->alignment(Alignment::Center)
                     ->getStateUsing(function ($record) {
                         return $record->teams->first()?->departments->first()?->name;
                     })
@@ -141,14 +151,14 @@ class UserResource extends Resource
                     ->searchable(),
 
                 // ikaw jo bahala dto d ko to alam
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('created_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
+                // Tables\Columns\TextColumn::make('updated_at')
+                //     ->dateTime()
+                //     ->sortable()
+                //     ->toggleable(isToggledHiddenByDefault: true),
                 ]),
             ])
             ->contentGrid([
@@ -160,12 +170,12 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

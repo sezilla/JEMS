@@ -119,6 +119,7 @@ class TeamResource extends Resource
                 'md' => 2,
                 'xl' => 3,
             ])
+            ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 SelectFilter::make('department')
                     ->options(function () {
