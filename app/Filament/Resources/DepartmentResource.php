@@ -32,31 +32,37 @@ class DepartmentResource extends Resource
         return $form
             ->schema([
                 Section::make()
+                    ->columnSpan(2)
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
                             ->columnSpan('1'),
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpan('1'),
+                        
+                    ]),
+                Section::make()
+                    ->columnSpan(1)
+                    ->schema([
+                        FileUpload::make('image')
+                            ->columnSpan('1')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->directory('departments'),
                         Forms\Components\Select::make('teams')
                             ->multiple()
                             ->columnSpan('1')
                             ->relationship('teams', 'name')
                             ->label('Teams')
                             ->preload()
-                            ->searchable(),
-                        Forms\Components\MarkdownEditor::make('description')
-                            ->required()
-                            ->columnSpan('1'),
-                        FileUpload::make('image')
-                            ->image()
-                            ->imageEditor()
-                            ->disk('public')
-                            ->columnSpan('1')
-                            ->directory('departments'),
+                            ->searchable()
+                            ->visible(fn ($livewire) => $livewire instanceof Pages\CreateDepartment),
                     ])
-                    ->columns(2)
-                
-            ]);
+            ])
+            ->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -98,7 +104,7 @@ class DepartmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TeamRelationManager::class,
         ];
     }
 
