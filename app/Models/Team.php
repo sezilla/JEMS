@@ -33,9 +33,9 @@ class Team extends Model
                 $query->where('name', 'Member');
             });;
     }
-    public function users()
+    public function team()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+        return $this->hasMany(User::class, 'users_has_teams', 'team_id', 'user_id');
     }
 
     public function departments()
