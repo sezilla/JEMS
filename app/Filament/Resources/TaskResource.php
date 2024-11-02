@@ -32,12 +32,19 @@ class TaskResource extends Resource
                     ->relationship('package', 'name')
                     ->required()
                     ->preload(),
-    
+                
                 Forms\Components\Select::make('department_id')
                     ->label('Department')
                     ->relationship('department', 'name')
                     ->required()
                     ->preload(),
+                
+                Forms\Components\Select::make('task_category_id')
+                    ->label('Category')
+                    ->relationship('category', 'name')
+                    ->required()
+                    ->preload(),
+                
             ]);
     }
     
@@ -53,6 +60,9 @@ class TaskResource extends Resource
                     ->searchable()
                     ->limit(25),
                 Tables\Columns\TextColumn::make('department.name')
+                    ->searchable()
+                    ->limit(25),
+                Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
                     ->limit(25),
             ])

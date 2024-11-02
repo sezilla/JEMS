@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->text('description');
             $table->timestamps();
-            // $table->foreignId('event_type_id')->constrained('event_types')->onDelete('cascade');
         });
     }
 

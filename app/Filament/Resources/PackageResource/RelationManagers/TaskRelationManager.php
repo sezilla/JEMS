@@ -27,6 +27,11 @@ class TaskRelationManager extends RelationManager
                     ->relationship('department', 'name') // Ensure this relationship exists in the Task model
                     ->required()
                     ->preload(),
+                Forms\Components\Select::make('task_category_id')
+                    ->label('Department')
+                    ->relationship('category', 'name') // Ensure this relationship exists in the Task model
+                    ->required()
+                    ->preload(),
             ]);
     }
     
@@ -37,6 +42,7 @@ class TaskRelationManager extends RelationManager
             ->recordTitleAttribute('Name')
             ->columns([
                 Tables\Columns\TextColumn::make('department.name'),
+                Tables\Columns\TextColumn::make('category.name'),
                 Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([

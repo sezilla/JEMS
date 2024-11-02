@@ -51,7 +51,7 @@ class Roles extends Seeder
             ['name' => 'Photo and Video', 'description' => 'Description for Photo and Video Department', 'id' => 3],
             ['name' => 'Designing', 'description' => 'Description for Designing Department', 'id' => 4],
             ['name' => 'Entertainment', 'description' => 'Description for Entertainment Department', 'id' => 5],
-            ['name' => 'Drivers', 'description' => 'Description for Drivers Department', 'id' => 6],
+            ['name' => 'Coordination', 'description' => 'Description for Coordination Department', 'id' => 6],
         ]);
 
         // Seed Teams
@@ -96,13 +96,13 @@ class Roles extends Seeder
             ['name' => 'Entertainment Team E', 'description' => 'Entertainment team E description', 'id' => 29],
             ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => 30],
             
-            // Drivers Teams
-            ['name' => 'Drivers Team A', 'description' => 'Drivers team A description', 'id' => 31],
-            ['name' => 'Drivers Team B', 'description' => 'Drivers team B description', 'id' => 32],
-            ['name' => 'Drivers Team C', 'description' => 'Drivers team C description', 'id' => 33],
-            ['name' => 'Drivers Team D', 'description' => 'Drivers team D description', 'id' => 34],
-            ['name' => 'Drivers Team E', 'description' => 'Drivers team E description', 'id' => 35],
-            ['name' => 'Drivers Team F', 'description' => 'Drivers team F description', 'id' => 36],
+            // Coordination Teams
+            // ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
+            // ['name' => 'Coordination Team B', 'description' => 'Coordination team B description', 'id' => 32],
+            // ['name' => 'Coordination Team C', 'description' => 'Coordination team C description', 'id' => 33],
+            // ['name' => 'Coordination Team D', 'description' => 'Coordination team D description', 'id' => 34],
+            // ['name' => 'Coordination Team E', 'description' => 'Coordination team E description', 'id' => 35],
+            // ['name' => 'Coordination Team F', 'description' => 'Coordination team F description', 'id' => 36],
         ]);
 
         // Pivot Table Seed for Departments and Teams
@@ -147,7 +147,7 @@ class Roles extends Seeder
             ['department_id' => 5, 'team_id' => 29],
             ['department_id' => 5, 'team_id' => 30],
             
-            // Drivers Department
+            // Coordination Department
             ['department_id' => 6, 'team_id' => 31],
             ['department_id' => 6, 'team_id' => 32],
             ['department_id' => 6, 'team_id' => 33],
@@ -156,7 +156,19 @@ class Roles extends Seeder
             ['department_id' => 6, 'team_id' => 36],
         ]);
 
-        
+        DB::table('task_category')->insert([
+            ['name' => '1 Year to 6 Months before'],
+            ['name' => '9 Months to 6 Months before'],
+            ['name' => '3 Months to 1 Month before'],
+            ['name' => '6 Months to 3 Months before'],
+            ['name' => '3 Months before'],
+            ['name' => '3 Months to 1 Month before'],
+            ['name' => '1 Month before'],
+            ['name' => '1 Week before and Wedding Day'],
+            ['name' => 'Wedding Day'],
+            ['name' => '6 Months after Wedding Day'],
+
+        ]);
 
 
         
