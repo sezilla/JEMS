@@ -12,6 +12,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Package;
+use App\Models\Department;
+use App\Models\TaskCategory;
 
 class TaskResource extends Resource
 {
@@ -67,7 +71,26 @@ class TaskResource extends Resource
                     ->limit(25),
             ])
             ->filters([
-                //
+                SelectFilter::make('department_id')
+                    ->options(function () {
+                        return Department::pluck('name', 'id');
+                    })
+                    ->label('Department')
+                    ->relationship('department', 'name'),
+
+                SelectFilter::make('task_category_id')
+                    ->options(function () {
+                        return TaskCategory::pluck('name', 'id');
+                    })
+                    ->label('Category')
+                    ->relationship('category', 'name'),
+
+                SelectFilter::make('package_id')
+                    ->options(function () {
+                        return Department::pluck('name', 'id');
+                    })
+                    ->label('Package')
+                    ->relationship('package', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

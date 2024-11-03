@@ -28,7 +28,7 @@ class TaskRelationManager extends RelationManager
                     ->required()
                     ->preload(),
                 Forms\Components\Select::make('task_category_id')
-                    ->label('Department')
+                    ->label('Category')
                     ->relationship('category', 'name') // Ensure this relationship exists in the Task model
                     ->required()
                     ->preload(),
