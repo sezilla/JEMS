@@ -12,19 +12,19 @@ class PackageTaskSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('task_category')->insert([
-            ['name' => '1 Year to 6 Months before'],
-            ['name' => '9 Months to 6 Months before'],
-            ['name' => '3 Months to 1 Month before'],
-            ['name' => '6 Months to 3 Months before'],
-            ['name' => '3 Months before'],
-            ['name' => '3 Months to 1 Month before'],
-            ['name' => '1 Month before'],
-            ['name' => '1 Week before and Wedding Day'],
-            ['name' => 'Wedding Day'],
-            ['name' => '6 Months after Wedding Day'],
+        // DB::table('task_category')->insert([
+        //     ['name' => '1 Year to 6 Months before'],
+        //     ['name' => '9 Months to 6 Months before'],
+        //     ['name' => '3 Months to 1 Month before'],
+        //     ['name' => '6 Months to 3 Months before'],
+        //     ['name' => '3 Months before'],
+        //     ['name' => '3 Months to 1 Month before'],
+        //     ['name' => '1 Month before'],
+        //     ['name' => '1 Week before and Wedding Day'],
+        //     ['name' => 'Wedding Day'],
+        //     ['name' => '6 Months after Wedding Day'],
 
-        ]);
+        // ]);
         
         // Define package and department IDs
         $categories = [

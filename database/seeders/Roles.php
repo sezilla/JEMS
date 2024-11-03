@@ -97,12 +97,12 @@ class Roles extends Seeder
             ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => 30],
             
             // Coordination Teams
-            // ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
-            // ['name' => 'Coordination Team B', 'description' => 'Coordination team B description', 'id' => 32],
-            // ['name' => 'Coordination Team C', 'description' => 'Coordination team C description', 'id' => 33],
-            // ['name' => 'Coordination Team D', 'description' => 'Coordination team D description', 'id' => 34],
-            // ['name' => 'Coordination Team E', 'description' => 'Coordination team E description', 'id' => 35],
-            // ['name' => 'Coordination Team F', 'description' => 'Coordination team F description', 'id' => 36],
+            ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
+            ['name' => 'Coordination Team B', 'description' => 'Coordination team B description', 'id' => 32],
+            ['name' => 'Coordination Team C', 'description' => 'Coordination team C description', 'id' => 33],
+            ['name' => 'Coordination Team D', 'description' => 'Coordination team D description', 'id' => 34],
+            ['name' => 'Coordination Team E', 'description' => 'Coordination team E description', 'id' => 35],
+            ['name' => 'Coordination Team F', 'description' => 'Coordination team F description', 'id' => 36],
         ]);
 
         // Pivot Table Seed for Departments and Teams

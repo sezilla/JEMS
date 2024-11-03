@@ -112,3 +112,4 @@ php artisan shield:install --fresh
 php artisan shield:generate
 php artisan db:seed --class=Roles
 php artisan db:seed --class=TestDataSeeder
+php artisan db:seed --class=PackageTaskSeeder
