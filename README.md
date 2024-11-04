@@ -113,3 +113,4 @@ php artisan shield:generate
 php artisan db:seed --class=Roles
 php artisan db:seed --class=TestDataSeeder
 php artisan db:seed --class=PackageTaskSeeder
+php artisan db:seed --class=SkillTask
