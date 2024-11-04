@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreign('task_category_id')->references('id')->on('task_category')->onDelete('cascade');
         
             $table->string('name');
+            $table->text('description')->nullable();
 
             // Add unique constraint with a shorter name
             // $table->unique(['package_id', 'department_id', 'task_category_id'], 'pkg_dept_taskcat_unique');

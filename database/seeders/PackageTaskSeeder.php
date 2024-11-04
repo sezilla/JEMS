@@ -37,128 +37,129 @@ class PackageTaskSeeder extends Seeder
         $tasks = [
             'Coordination' => [
                 '1 Year to 6 Months before' => [
-                    'Initial meeting with the couple',
-                    'Confirm team availability',
-                    'Distribution of tasks and assigning teams',
-                    'Bring down memo for each team leaders of each department',
-                    'Monitor each department',
+                    ['name' => 'Initial meeting', 'description' => 'Initial meeting with the couple'],
+                    ['name' => 'Confirm availability', 'description' => 'Confirm team availability'],
+                    ['name' => 'Task distribution', 'description' => 'Distribution of tasks and assigning teams'],
+                    ['name' => 'Memo distribution', 'description' => 'Bring down memo for each team leaders of each department'],
+                    ['name' => 'Monitor departments', 'description' => 'Monitor each department'],
                 ],
                 '6 Months to 3 Months before' => [
-                    'Finalize event flow (Consult with Clients)',
+                    ['name' => 'Finalize event flow', 'description' => 'Finalize event flow (Consult with Clients)'],
                 ],
                 '3 Months to 1 Month before' => [
-                    'Oversee final preparations and ensure all departments have necessary resources'
+                    ['name' => 'Oversee final prep', 'description' => 'Oversee final preparations and ensure all departments have necessary resources']
                 ],
                 '1 Week before and Wedding Day' => [
-                    'Final check-ins with departments',
-                    'Day-of oversight, monitoring each departments progress',
+                    ['name' => 'Final check-ins', 'description' => 'Final check-ins with departments'],
+                    ['name' => 'Day-of oversight', 'description' => 'Day-of oversight, monitoring each department’s progress'],
                 ],
             ],
             'Catering' => [
                 '9 Months to 6 Months before' => [
-                    'Meeting for food planning',
-                    'Plan and design the weddings menu',
+                    ['name' => 'Food planning meeting', 'description' => 'Meeting for food planning'],
+                    ['name' => 'Menu planning', 'description' => 'Plan and design the wedding menu'],
                 ],
                 '6 Months to 3 Months before' => [
-                    'Conduct food tasting with the couple',
-                    'Coordinate logistics with the venue for cater',
-                    'Plan chair and table setup to match the weddings theme color',
+                    ['name' => 'Food tasting', 'description' => 'Conduct food tasting with the couple'],
+                    ['name' => 'Coordinate venue logistics', 'description' => 'Coordinate logistics with the venue for catering'],
+                    ['name' => 'Table and chair setup plan', 'description' => 'Plan chair and table setup to match the wedding’s color theme'],
                 ],
                 '1 Month before' => [
-                    'Finalize setup plan with the designing team for the reception',
-                    'Discuss additional food cart (Mobile Bar or Donut Wall)'
+                    ['name' => 'Finalize setup plan', 'description' => 'Finalize setup plan with the designing team for the reception'],
+                    ['name' => 'Discuss food cart options', 'description' => 'Discuss additional food cart (Mobile Bar or Donut Wall)']
                 ],
                 'Wedding Day' => [
-                    'Buffet Setup',
-                    'Setup food cart choice',
-                    'Modern Design of weddings reception set up',
-                    'Clean-up after service completion',
+                    ['name' => 'Buffet Setup', 'description' => 'Buffet Setup'],
+                    ['name' => 'Reception design setup', 'description' => 'Modern Design of wedding reception set up'],
+                    ['name' => 'Food cart setup', 'description' => 'Setup food cart choice'],
+                    ['name' => 'Service cleanup', 'description' => 'Clean-up after service completion'],
                 ]
             ],
             'HairAndMakeup' => [
                 '3 Months before' => [
-                    'Initial consultations for makeup styles',
-                    'Meeting with the bride and groom to discuss the entourage theme',
-                    'Prenup Traditional hair and makeup'
+                    ['name' => 'Initial makeup consultation', 'description' => 'Initial consultations for makeup styles'],
+                    ['name' => 'Theme meeting with couple', 'description' => 'Meeting with the bride and groom to discuss the entourage theme'],
+                    ['name' => 'Prenup hair and makeup', 'description' => 'Prenup Traditional hair and makeup'],
                 ],
                 'Wedding Day' => [
-                    'Airbrush makeup for the bride',
-                    'Early setup for bride, groom, and entourage makeup',
-                    'Entourage makeup',
-                    'Makeup for pre-ceremony photo and video shoots',
+                    ['name' => 'Bride airbrush makeup', 'description' => 'Airbrush makeup for the bride'],
+                    ['name' => 'Groom traditional makeup', 'description' => 'Traditional makeup for the groom'],
+                    ['name' => 'Entourage makeup', 'description' => 'Entourage makeup'],
+                    ['name' => 'Pre-ceremony shoot makeup', 'description' => 'Makeup for pre-ceremony photo and video shoots'],
                 ],
             ],
             'PhotoAndVideo' => [
                 '3 Months before' => [
-                    'Meeting with the couple and coordinator to discuss themes and concepts for video and album',
-                    'Prenuptial Pictorial Session'
+                    ['name' => 'Theme discussion for video/album', 'description' => 'Meeting with the couple and coordinator to discuss themes and concepts for video and album'],
+                    ['name' => 'Prenuptial pictorial session', 'description' => 'Prenuptial Pictorial Session'],
                 ],
                 '1 Month before' => [
-                    'Confirm shot lists and key moments with the couple and coordinator',
-                    'Designing of weddings Photo Frame'
+                    ['name' => 'Confirm shot list', 'description' => 'Confirm shot lists and key moments with the couple and coordinator'],
+                    ['name' => 'Design photo frame', 'description' => 'Designing of Wedding Photo Frame'],
                 ],
                 'Wedding Day' => [
-                    'Setup Photobooth',
-                    'Setup Aerial Pilot/Drone',
-                    'Setup Projector Screen',
-                    'Same day edit video prenuptial photo and engagement session',
-                    'Onside Photo same day edit with photoalbum with weddings highlights',
-                    'Transfer raw photos for clients on the same day'
+                    ['name' => 'Setup photobooth', 'description' => 'Setup Photobooth'],
+                    ['name' => 'Setup drone', 'description' => 'Setup Aerial Pilot/Drone'],
+                    ['name' => 'Setup projector screen', 'description' => 'Setup Projector Screen'],
+                    ['name' => 'Same-day edit video', 'description' => 'Same day edit video prenuptial photo and engagement session'],
+                    ['name' => 'Same-day photo album edit', 'description' => 'Onside Photo same day edit with photo album with wedding highlights'],
+                    ['name' => 'Raw photo transfer', 'description' => 'Transfer raw photos for clients on the same day']
                 ],
                 '6 Months after Wedding Day' => [
-                    'File transfer of photos and video to the couple'
-                    ]
+                    ['name' => 'Final file transfer', 'description' => 'File transfer of magnetic wedding album and video to the couple']
+                ]
             ],
             'Designing' => [
                 '9 Months to 6 Months before' => [
-                    'Plan the weddings overall theme and identify props to match the motif',
-                    'Design and coordinate the invitation cards'
+                    ['name' => 'Plan overall theme', 'description' => 'Plan the wedding’s overall theme and identify props to match the motif'],
+                    ['name' => 'Design invitations', 'description' => 'Design and coordinate the invitation cards']
                 ],  
                 '3 Months to 1 Month before' => [
-                    'Finalize aisle setup, walkway, altar, and reception décor',
-                    'Coordinate with the catering team for the design of the reception space',
-                    'Entourage flowers choices Bouquet, Boutonniere, and Corsage',
-                    'Designing of Garden Floristry',
-                    'Setup LED Wall'
+                    ['name' => 'Aisle, walkway, and altar setup', 'description' => 'Finalize aisle setup, walkway, altar, and reception décor'],
+                    ['name' => 'Coordinate reception design', 'description' => 'Coordinate with the catering team for the design of the reception space'],
+                    ['name' => 'Entourage flowers', 'description' => 'Entourage flowers choices Bouquet, Boutonniere, and Corsage'],
+                    ['name' => 'Garden floristry design', 'description' => 'Designing of Garden Floristry'],
+                    ['name' => 'Setup LED wall', 'description' => 'Setup LED Wall']
                 ],
                 'Wedding Day' => [
-                    'Early setup of all decorative elements, including aisle flowers, altar, entrance arch, and reception decor',
-                    'Final touch-ups on decorative elements before guests arrive'
+                    ['name' => 'Early decorative setup', 'description' => 'Early setup of all decorative elements, including aisle flowers, altar, entrance arch, and reception decor'],
+                    ['name' => 'Final touch-ups', 'description' => 'Final touch-ups on decorative elements before guests arrive']
                 ]
-                
-            
             ],
             'Entertainment' => [
                 '6 Months to 3 Months before' => [
-                    'Meeting to discuss the tone of the reception (formal or playful)',
-                    'Plan reception activities based on the couple preferences'
+                    ['name' => 'Reception tone meeting', 'description' => 'Meeting to discuss the tone of the reception (formal or playful)'],
+                    ['name' => 'Plan reception activities', 'description' => 'Plan reception activities based on the couple’s preferences']
                 ],
                 '1 Month before' => [
-                    'Check sound and lights equipment',
-                    'Discuss music preference for both weddings ceremony and reception'
+                    ['name' => 'Check sound and lights', 'description' => 'Check sound and lights equipment'],
+                    ['name' => 'Music preference discussion', 'description' => 'Discuss music preference for both wedding ceremony and reception']
                 ],
                 'Wedding Day' => [
-                    'Setup lights, sound, and channel mixer music operator',
-                    'Deploy Acoustic Band',
-                    'Coordinate with the emcee for announcements and flow of events',
-                    'Set up reception activities like games and first dance',
+                    ['name' => 'Setup lights and sound', 'description' => 'Setup lights, sound, and channel mixer music operator'],
+                    ['name' => 'Deploy band', 'description' => 'Deploy Acoustic Band'],
+                    ['name' => 'Coordinate with emcee', 'description' => 'Coordinate with the emcee for announcements and flow of events'],
+                    ['name' => 'Setup reception activities', 'description' => 'Set up reception activities like games and first dance']
                 ]
-            ],
+            ]
         ];
+        
 
         foreach ($tasks as $departmentName => $categoriesTasks) {
             $departmentId = $departments[$departmentName];
             foreach ($categoriesTasks as $categoryName => $tasksArray) {
                 $taskCategoryId = $categories[$categoryName];
-                foreach ($tasksArray as $taskName) {
+                foreach ($tasksArray as $task) {
                     DB::table('tasks')->insert([
                         'department_id' => $departmentId,
                         'task_category_id' => $taskCategoryId,
-                        'name' => $taskName,
+                        'name' => $task['name'],
+                        'description' => $task['description'],
                     ]);
                 }
             }
         }
+        
 
 
 

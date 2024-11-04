@@ -30,6 +30,10 @@ class TaskResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+                
+                Forms\Components\MarkdownEditor::make('description')
+                    ->label('Description')
+                    ->required(),
     
                 Forms\Components\Select::make('package_id')
                     ->label('Package')
@@ -49,6 +53,13 @@ class TaskResource extends Resource
                     ->relationship('category', 'name')
                     ->required()
                     ->preload(),
+
+                Forms\Components\Select::make('skill_id')
+                    ->label('Skills Required')
+                    ->relationship('skills', 'name')
+                    ->multiple()
+                    ->required()
+                    ->preload(),
                 
             ]);
     }
@@ -61,6 +72,9 @@ class TaskResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->limit(25),
+                Tables\Columns\TextColumn::make('description')
+                    ->searchable()
+                    ->limit(15),
                 Tables\Columns\TextColumn::make('packages.name')
                     ->searchable()
                     ->limit(25)
@@ -69,6 +83,9 @@ class TaskResource extends Resource
                     ->searchable()
                     ->limit(25),
                 Tables\Columns\TextColumn::make('category.name')
+                    ->searchable()
+                    ->limit(25),
+                Tables\Columns\TextColumn::make('skills.name')
                     ->searchable()
                     ->limit(25),
             ])

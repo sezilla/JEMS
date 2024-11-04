@@ -16,6 +16,7 @@ class Task extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'department_id',
         'task_category_id'
     ];
@@ -38,6 +39,11 @@ class Task extends Model
     public function tasks()
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'task_skills', 'task_id', 'skill_id');
     }
 
     public function scopeByDepartment($query, $departmentId)
