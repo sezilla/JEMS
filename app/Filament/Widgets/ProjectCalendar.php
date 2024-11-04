@@ -26,7 +26,7 @@ class ProjectCalendar extends FullCalendarWidget
                     ->end($event->end)
                     ->url(
                         url: ProjectResource::getUrl(name: 'view', parameters: ['record' => $event]),
-                        shouldOpenUrlInNewTab: true
+                        shouldOpenUrlInNewTab: false
                     )
             )
             ->toArray();
