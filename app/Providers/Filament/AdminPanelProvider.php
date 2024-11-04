@@ -26,6 +26,8 @@ use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 // use Filament\Navigation\NavigationItem;
 
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -104,6 +106,18 @@ class AdminPanelProvider extends PanelProvider
                     )
                     ->shouldShowDeleteAccountForm(false)
                     ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page')),
+
+                FilamentFullCalendarPlugin::make()
+                    ->schedulerLicenseKey('')
+                    ->selectable(false)
+                    ->editable(false)
+                    ->timezone(config('app.timezone'))
+                    ->locale(config('app.locale'))
+                    ->plugins([
+                        'dayGrid',
+                        'timeGrid',
+                    ])
+                    ->config([]),
             ]);
     }
 }

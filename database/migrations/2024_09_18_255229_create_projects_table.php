@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('package_id')->constrained('packages')->onDelete('cascade');
             $table->text('description')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // project is created by
-            $table->date('event_date');
+            // $table->date('event_date');
             $table->string('venue')->nullable();
 
             $table->string('groom_name');

@@ -39,8 +39,9 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                        ->required()
-                        ->maxLength(255),
+                            ->columnSpan(2)
+                            ->required()
+                            ->maxLength(255),
                         Forms\Components\Select::make('package_id')
                             ->label('Packages')
                             ->required()
@@ -49,13 +50,20 @@ class ProjectResource extends Resource
                             ->options(Package::all()->pluck('name', 'id')),
                         Forms\Components\MarkdownEditor::make('description')
                             ->columnSpanFull(),
-                        Forms\Components\DatePicker::make('event_date')
+                        Forms\Components\DatePicker::make('start')
+                            ->columnSpan(1)
+                            ->label('Start Date')
+                            ->required()
+                            ->default(now()->toDateString()), 
+                        Forms\Components\DatePicker::make('end')
+                            ->columnSpan(1)
+                            ->label('End Date')
                             ->required()
                             ->default(now()->toDateString()),
                         Forms\Components\TextInput::make('venue')
                             ->maxLength(255),
                     ])
-                    ->columns(2),
+                    ->columns(3),
 
                 Section::make()
                     ->description('Couple Details')
@@ -198,7 +206,10 @@ class ProjectResource extends Resource
                     ->label('Package')
                     ->searchable()
                     ->limit(15),
-                TextColumn::make('event_date')
+                TextColumn::make('start')
+                    ->date()
+                    ->sortable(),
+                TextColumn::make('end')
                     ->date()
                     ->sortable(),
                 TextColumn::make('user.name')
@@ -296,6 +307,7 @@ class ProjectResource extends Resource
             'index' => Pages\ListProjects::route('/'),
             'create' => Pages\CreateProject::route('/create'),
             'edit' => Pages\EditProject::route('/{record}/edit'),
+            'view' => Pages\ViewProject::route('/{record}/view'),
         ];
     }
 

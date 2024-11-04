@@ -22,7 +22,7 @@ class Project extends Model
         'package_id',
         'description',
         'user_id',
-        'event_date',
+        // 'event_date',
         'venue',
 
         'groom_name',
@@ -34,6 +34,9 @@ class Project extends Model
         'groom_coordinator',
         'bride_coordinator',
         'head_coordinator',
+
+        'start',
+        'end',
     ];
 
     //mostly ffor trello....
@@ -97,7 +100,7 @@ class Project extends Model
                 if ($projectDetailsList) {
                     Log::info('Project details list found.');
                     $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', 
-                    ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->event_date]);
+                    ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->end]);
                     $createOrUpdateCard($projectDetailsList['id'], 'package', ['desc' => $project->package->name]);
                     $createOrUpdateCard($projectDetailsList['id'], 'description', ['desc' => $project->description]);
                     $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
@@ -161,7 +164,7 @@ class Project extends Model
                 if ($projectDetailsList) {
                     Log::info('Updating Project details list.');
                     $coupleCardId = $createOrUpdateCard($projectDetailsList['id'], 'name of couple', 
-                        ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->event_date]);
+                        ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->end]);
                     $package = $createOrUpdateCard($projectDetailsList['id'], 'package', ['desc' => $project->package->name]);
                     $createOrUpdateCard($projectDetailsList['id'], 'description', ['desc' => $project->description]);
                     $venue = $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
@@ -228,6 +231,9 @@ class Project extends Model
     }
 
 
+
+
+    
     // Relationship with coordinators (users)
     public function coordinators()
     {
