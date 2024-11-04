@@ -19,7 +19,10 @@ class Package extends Model
 
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->belongsToMany(Task::class, 'task_package', 'package_id', 'task_id');
     }
+
+
+
 
 }

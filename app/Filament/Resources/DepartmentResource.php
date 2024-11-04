@@ -105,6 +105,7 @@ class DepartmentResource extends Resource
     {
         return [
             RelationManagers\TeamRelationManager::class,
+            RelationManagers\TaskRelationManager::class,
         ];
     }
 

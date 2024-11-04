@@ -33,9 +33,10 @@ class TaskResource extends Resource
     
                 Forms\Components\Select::make('package_id')
                     ->label('Package')
-                    ->relationship('package', 'name')
+                    ->relationship('packages', 'name')
                     ->required()
-                    ->preload(),
+                    ->preload()
+                    ->multiple(),
                 
                 Forms\Components\Select::make('department_id')
                     ->label('Department')
@@ -60,9 +61,10 @@ class TaskResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->limit(25),
-                Tables\Columns\TextColumn::make('package.name')
+                Tables\Columns\TextColumn::make('packages.name')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(25)
+                    ->badge(),
                 Tables\Columns\TextColumn::make('department.name')
                     ->searchable()
                     ->limit(25),
@@ -84,13 +86,6 @@ class TaskResource extends Resource
                     })
                     ->label('Category')
                     ->relationship('category', 'name'),
-
-                SelectFilter::make('package_id')
-                    ->options(function () {
-                        return Department::pluck('name', 'id');
-                    })
-                    ->label('Package')
-                    ->relationship('package', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

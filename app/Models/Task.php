@@ -12,20 +12,17 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $table = 'package_task_department';
-
     public $timestamps = false;
 
     protected $fillable = [
         'name',
-        'package_id',  
         'department_id',
         'task_category_id'
     ];
 
-    public function package()
+    public function packages()
     {
-        return $this->belongsTo(Package::class, 'package_id');
+        return $this->belongsToMany(Package::class, 'task_package', 'task_id', 'package_id');
     }
 
     public function department()
@@ -37,4 +34,15 @@ class Task extends Model
     {
         return $this->belongsTo(TaskCategory::class, 'task_category_id');
     }
+
+    public function tasks()
+    {
+        return $this->belongsTo(Task::class);
+    }
+
+    public function scopeByDepartment($query, $departmentId)
+    {
+        return $query->where('department_id', $departmentId);
+    }
+
 }

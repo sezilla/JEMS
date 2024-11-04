@@ -19,4 +19,10 @@ class Department extends Model
     {
         return $this->belongsToMany(Team::class, 'departments_has_teams', 'department_id', 'team_id');
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+
 }

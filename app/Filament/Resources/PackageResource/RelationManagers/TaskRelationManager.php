@@ -19,19 +19,34 @@ class TaskRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
                 Forms\Components\Select::make('department_id')
-                    ->label('Department')
-                    ->relationship('department', 'name') // Ensure this relationship exists in the Task model
-                    ->required()
-                    ->preload(),
-                Forms\Components\Select::make('task_category_id')
-                    ->label('Category')
-                    ->relationship('category', 'name') // Ensure this relationship exists in the Task model
-                    ->required()
-                    ->preload(),
+                ->label('Department')
+                ->relationship('department', 'name') 
+                ->required()
+                ->preload()
+                ->reactive() // Reacts to changes
+                ->afterStateUpdated(function (callable $set) {
+                    $set('name', null); // Reset name field when department changes
+                }),
+            
+            Forms\Components\Select::make('name')
+                ->label('Task')
+                ->options(function ($get) {
+                    // Fetch only tasks related to the selected department
+                    $departmentId = $get('department_id');
+                    return $departmentId 
+                        ? Task::where('department_id', $departmentId)->pluck('name', 'id')
+                        : [];
+                })
+                ->required()
+                ->preload(),
+            
+            Forms\Components\Select::make('task_category_id')
+                ->label('Category')
+                ->relationship('category', 'name') 
+                ->required()
+                ->preload(),
+            
             ]);
     }
     
