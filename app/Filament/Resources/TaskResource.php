@@ -87,7 +87,8 @@ class TaskResource extends Resource
                     ->limit(25),
                 Tables\Columns\TextColumn::make('skills.name')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(25)
+                    ->badge(),
             ])
             ->filters([
                 SelectFilter::make('department_id')
