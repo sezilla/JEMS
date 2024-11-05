@@ -16,20 +16,12 @@ class TestDataSeeder extends Seeder
      */
     public function run(): void
     {
-
-        // Seed Event Types
-        // DB::table('event_types')->insert([
-        //     ['name' => 'Event Type A', 'description' => 'Description for Event Type A'],
-        //     ['name' => 'Event Type B', 'description' => 'Description for Event Type B'],
-        //     ['name' => 'Event Type C', 'description' => 'Description for Event Type C'],
-        // ]);
-
         
         //test
         User::factory()->count(10)->create()->each(function ($user) {
             $user->assignRole('Admin');
         });
-        User::factory()->count(20)->create()->each(function ($user) {
+        User::factory()->count(40)->create()->each(function ($user) {
             $user->assignRole('Coordinator');
         });
 
@@ -38,9 +30,8 @@ class TestDataSeeder extends Seeder
         // Create teams
         $teams = Team::all();
 
-        // Create team leader and assign them to teams
         $leaders = User::factory()->count(36)->create();
-        $members = User::factory()->count(216)->create();
+        $members = User::factory()->count(432)->create();
 
         $teamCount = $teams->count();
 
@@ -49,7 +40,7 @@ class TestDataSeeder extends Seeder
             
             DB::table('users_has_teams')->insert([
                 'user_id' => $leader->id,
-                'team_id' => $teams[$index]->id,  // Assign each leader to a unique team
+                'team_id' => $teams[$index]->id, 
             ]);
         });
 
@@ -62,15 +53,6 @@ class TestDataSeeder extends Seeder
             ]);
         });
 
-
-
-
-        // User::factory()->count(36)->create()->each(function ($user) {
-        //     $user->assignRole('Team Leader');
-        // });
-        // User::factory()->count(216)->create()->each(function ($user) {
-        //     $user->assignRole('Member');
-        // });
         
     }
 }

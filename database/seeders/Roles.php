@@ -63,6 +63,8 @@ class Roles extends Seeder
             ['name' => 'Catering Team D', 'description' => 'Catering team D description', 'id' => 4],
             ['name' => 'Catering Team E', 'description' => 'Catering team E description', 'id' => 5],
             ['name' => 'Catering Team F', 'description' => 'Catering team F description', 'id' => 6],
+
+            ['name' => 'Catering Management', 'description' => 'Catering Management', 'id' => 37],
             
             // Hair and Makeup Teams
             ['name' => 'Hair and Makeup Team A', 'description' => 'Hair and Makeup team A description', 'id' => 7],
@@ -71,6 +73,8 @@ class Roles extends Seeder
             ['name' => 'Hair and Makeup Team D', 'description' => 'Hair and Makeup team D description', 'id' => 10],
             ['name' => 'Hair and Makeup Team E', 'description' => 'Hair and Makeup team E description', 'id' => 11],
             ['name' => 'Hair and Makeup Team F', 'description' => 'Hair and Makeup team F description', 'id' => 12],
+
+            ['name' => 'Hair and Makeup Management', 'description' => 'Hair and Makeup Management', 'id' => 38],
             
             // Photo and Video Teams
             ['name' => 'Photo and Video Team A', 'description' => 'Photo and Video team A description', 'id' => 13],
@@ -79,6 +83,8 @@ class Roles extends Seeder
             ['name' => 'Photo and Video Team D', 'description' => 'Photo and Video team D description', 'id' => 16],
             ['name' => 'Photo and Video Team E', 'description' => 'Photo and Video team E description', 'id' => 17],
             ['name' => 'Photo and Video Team F', 'description' => 'Photo and Video team F description', 'id' => 18],
+
+            ['name' => 'Photo and Video Management', 'description' => 'Photo and Video Management', 'id' => 39],
             
             // Designing Teams
             ['name' => 'Designing Team A', 'description' => 'Designing team A description', 'id' => 19],
@@ -87,6 +93,8 @@ class Roles extends Seeder
             ['name' => 'Designing Team D', 'description' => 'Designing team D description', 'id' => 22],
             ['name' => 'Designing Team E', 'description' => 'Designing team E description', 'id' => 23],
             ['name' => 'Designing Team F', 'description' => 'Designing team F description', 'id' => 24],
+
+            ['name' => 'Designing Management', 'description' => 'Designing Management', 'id' => 40],
             
             // Entertainment Teams
             ['name' => 'Entertainment Team A', 'description' => 'Entertainment team A description', 'id' => 25],
@@ -95,6 +103,8 @@ class Roles extends Seeder
             ['name' => 'Entertainment Team D', 'description' => 'Entertainment team D description', 'id' => 28],
             ['name' => 'Entertainment Team E', 'description' => 'Entertainment team E description', 'id' => 29],
             ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => 30],
+
+            ['name' => 'Entertainment Management', 'description' => 'Entertainment Management', 'id' => 41],
             
             // Coordination Teams
             ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
@@ -103,6 +113,8 @@ class Roles extends Seeder
             ['name' => 'Coordination Team D', 'description' => 'Coordination team D description', 'id' => 34],
             ['name' => 'Coordination Team E', 'description' => 'Coordination team E description', 'id' => 35],
             ['name' => 'Coordination Team F', 'description' => 'Coordination team F description', 'id' => 36],
+
+            ['name' => 'Coordination Management', 'description' => 'Coordination Management', 'id' => 42],
         ]);
 
         // Pivot Table Seed for Departments and Teams
@@ -114,6 +126,8 @@ class Roles extends Seeder
             ['department_id' => 1, 'team_id' => 4],
             ['department_id' => 1, 'team_id' => 5],
             ['department_id' => 1, 'team_id' => 6],
+
+            ['department_id' => 1, 'team_id' => 37],
             
             // Hair and Makeup Department
             ['department_id' => 2, 'team_id' => 7],
@@ -122,6 +136,8 @@ class Roles extends Seeder
             ['department_id' => 2, 'team_id' => 10],
             ['department_id' => 2, 'team_id' => 11],
             ['department_id' => 2, 'team_id' => 12],
+
+            ['department_id' => 2, 'team_id' => 38],
             
             // Photo and Video Department
             ['department_id' => 3, 'team_id' => 13],
@@ -130,6 +146,8 @@ class Roles extends Seeder
             ['department_id' => 3, 'team_id' => 16],
             ['department_id' => 3, 'team_id' => 17],
             ['department_id' => 3, 'team_id' => 18],
+
+            ['department_id' => 3, 'team_id' => 39],
             
             // Designing Department
             ['department_id' => 4, 'team_id' => 19],
@@ -138,6 +156,8 @@ class Roles extends Seeder
             ['department_id' => 4, 'team_id' => 22],
             ['department_id' => 4, 'team_id' => 23],
             ['department_id' => 4, 'team_id' => 24],
+
+            ['department_id' => 4, 'team_id' => 40],
             
             // Entertainment Department
             ['department_id' => 5, 'team_id' => 25],
@@ -146,6 +166,8 @@ class Roles extends Seeder
             ['department_id' => 5, 'team_id' => 28],
             ['department_id' => 5, 'team_id' => 29],
             ['department_id' => 5, 'team_id' => 30],
+
+            ['department_id' => 5, 'team_id' => 41],
             
             // Coordination Department
             ['department_id' => 6, 'team_id' => 31],
@@ -154,6 +176,8 @@ class Roles extends Seeder
             ['department_id' => 6, 'team_id' => 34],
             ['department_id' => 6, 'team_id' => 35],
             ['department_id' => 6, 'team_id' => 36],
+
+            ['department_id' => 6, 'team_id' => 42],
         ]);
 
         DB::table('task_category')->insert([
