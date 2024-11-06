@@ -114,3 +114,17 @@ php artisan db:seed --class=Roles
 php artisan db:seed --class=TestDataSeeder
 php artisan db:seed --class=PackageTaskSeeder
 php artisan db:seed --class=SkillTask
+
+new reload
+php artisan migrate:fresh
+php artisan db:seed
+php artisan shield:install --fresh
+php artisan shield:generate
+php artisan db:seed --class=Roles
+php artisan db:seed --class=PackageTaskSeeder
+php artisan db:seed --class=SkillTask
+php artisan db:seed --class=FakeUser
+php artisan db:seed --class=UserSkillSeeder
+
+
+

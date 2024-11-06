@@ -41,14 +41,18 @@ return new class extends Migration
             $table->primary(['user_id', 'team_id']); 
         });
         
-        // Schema::create('users_has_departments', function (Blueprint $table) {
-        //     $table->unsignedBigInteger('user_id');
-        //     $table->unsignedBigInteger('department_id');
+        Schema::create('users_has_departments', function (Blueprint $table) {
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('department_id');
             
-        //     $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
+            
+            $table->primary(['user_id', 'department_id']); // Optional: to ensure uniqueness
+        });
+
+        // Schema::table('users', function (Blueprint $table) {
         //     $table->foreign('department_id')->references('id')->on('departments')->onDelete('cascade');
-            
-        //     $table->primary(['user_id', 'department_id']); // Optional: to ensure uniqueness
         // });
     }
 

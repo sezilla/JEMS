@@ -24,6 +24,8 @@ use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
+use Filament\Tables\Columns\Layout\Split;
+
 
 
 
@@ -98,22 +100,30 @@ class TeamResource extends Resource
         return $table
             ->columns([
                 Stack::make([
-                    ImageColumn::make('image')
-                        ->width(200)
-                        ->height(200)
-                        ->rounded('lg')
-                        ->alignment(Alignment::Center),
-                    TextColumn::make('name')
-                        ->searchable()
-                        ->weight(FontWeight::Bold),
-                    TextColumn::make('departments.name')
-                        ->limit(15),
-                    ImageColumn::make('leaders.avatar_url')
-                        ->circular(),
+                    Split::make([
+                        ImageColumn::make('image')
+                            ->width(150)
+                            ->height(150)
+                            ->rounded('lg')
+                            ->alignment(Alignment::Center),
+                        Stack::make([
+                            TextColumn::make('name')
+                                ->searchable()
+                                ->weight(FontWeight::Bold),
+                            TextColumn::make('departments.name')
+                                ->limit(15),
+                            ImageColumn::make('leaders.avatar_url')
+                                ->circular(),
+                            TextColumn::make('leaders.name'),
+                        ]),
+                        
+                    ]),
                     ImageColumn::make('members.avatar_url')
                         ->circular()
-                        ->stacked(),
-                ]),
+                        ->stacked()
+                        ->limit(7)
+                        ->limitedRemainingText(),
+                ])->space(3),
             ])
             ->contentGrid([
                 'md' => 2,

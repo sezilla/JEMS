@@ -19,6 +19,8 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
+
 
 
 class DepartmentResource extends Resource
@@ -69,19 +71,24 @@ class DepartmentResource extends Resource
     {
         return $table
             ->columns([
-                Stack::make([
+                Split::make([
                     ImageColumn::make('image')
-                        ->width(200)
-                        ->height(200)
-                        ->rounded('lg')
-                        ->alignment(Alignment::Center),
-                    Tables\Columns\TextColumn::make('name')
-                        ->weight(FontWeight::Bold)
-                        ->description(fn($record): ?string => $record->description),
-                    ImageColumn::make('teams.image')
-                        ->circular()
-                        ->stacked(),
-                ])
+                    ->width(150)
+                    ->height(150)
+                    ->rounded('lg')
+                    ->alignment(Alignment::Left),
+                    Stack::make([
+                        Tables\Columns\TextColumn::make('name')
+                            ->weight(FontWeight::Bold)
+                            ->description(fn($record): ?string => $record->description),
+                        ImageColumn::make('teams.image')
+                            ->circular()
+                            ->stacked()
+                            ->limit(5)
+                            ->limitedRemainingText(),
+                    ])->space(3),
+                    
+                ]),
             ])
             ->contentGrid([
                 'md' => 2,

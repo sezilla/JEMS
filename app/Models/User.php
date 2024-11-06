@@ -40,14 +40,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
 
-
-
-
-
-    // public function departments()
-    // {
-    //     return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
-    // }
     
     public function teams()
     {
@@ -57,6 +49,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
 
     // public function leaderOfTeams()
