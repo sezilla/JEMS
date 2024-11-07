@@ -118,7 +118,7 @@ class TeamResource extends Resource
                         ]),
                         
                     ]),
-                    ImageColumn::make('members.avatar_url')
+                    ImageColumn::make('users.avatar_url')
                         ->circular()
                         ->stacked()
                         ->limit(7)
@@ -155,6 +155,7 @@ class TeamResource extends Resource
     {
         return [
             RelationManagers\UserRelationManager::class,
+            RelationManagers\ProjectRelationManager::class
         ];
     }
 

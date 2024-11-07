@@ -26,6 +26,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Support\Enums\FontFamily;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
+use Filament\Tables\Columns\TextColumn;
 
 
 
@@ -277,15 +278,16 @@ class UserResource extends Resource
                                 ->alignment(Alignment::Left),
                             Tables\Columns\TextColumn::make('roles')
                                 ->label('Role')
-                                ->badge()
-                                ->color(fn (string $state): string => match ($state) {
-                                    'Member' => 'gray',
-                                    'Team Leader' => 'warning',
-                                    'Coordinator' => 'success',
-                                    'Admin' => 'danger',
-                                    'Super Admin', 'super_admin' => 'gray',
-                                    default => 'secondary', // Fallback color
-                                })
+                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                // ->badge()
+                                // ->color(fn (string $state): string => match ($state) {
+                                //     'Member' => 'gray',
+                                //     'Team Leader' => 'warning',
+                                //     'Coordinator' => 'success',
+                                //     'Admin' => 'danger',
+                                //     'Super Admin', 'super_admin' => 'gray',
+                                //     default => 'secondary', // Fallback color
+                                // })
                                 ->alignment(Alignment::Left)
                                 ->verticallyAlignStart()
                                 ->getStateUsing(function ($record) {
