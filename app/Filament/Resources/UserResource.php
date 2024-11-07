@@ -24,6 +24,10 @@ use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Support\Enums\FontFamily;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Department;
+
+
 
 
 
@@ -293,7 +297,8 @@ class UserResource extends Resource
                                 ->html(),
                             Tables\Columns\TextColumn::make('skills.name')
                                 ->limit(7)
-                                ->badge(),
+                                ->badge()
+                                ->searchable(),
                             
                         ])->space(1)
                         
@@ -315,7 +320,12 @@ class UserResource extends Resource
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                
+                SelectFilter::make('departments')
+                    ->options(function () {
+                        return Department::pluck('name', 'id');
+                    })
+                    ->label('Department')
+                    ->relationship('departments', 'name'),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),
