@@ -49,13 +49,19 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Indigo,
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
-                'secondary' => Color::Gray,
+                'secondary' => Color::Slate,
                 'Catering' => Color::Green,
-                'Hair and Makeup' => Color::Red,
-                'Photo and Video' => Color::Blue,
+                'Hair' => Color::Red,
+                'Photo' => Color::Blue,
                 'Designing' => Color::Violet,
                 'Entertainment' => Color::Yellow,
                 'Coordination' => Color::Purple,
+
+                'ruby' => Color::Red,
+                'emerald' => Color::Emerald,
+                'garnet' => Color::Pink,
+                'sapphire' => Color::Indigo,
+                'infinity' => Color::Sky,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([

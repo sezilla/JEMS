@@ -313,8 +313,8 @@ class UserResource extends Resource
                         ->color(
                             fn (string $state): string => match ($state) {
                                 'Catering' => 'Catering',
-                                'Hair and Makeup' => 'Hair and Makeup',
-                                'Photo and Video' => 'Photo and Video',
+                                'Hair and Makeup' => 'Hair',
+                                'Photo and Video' => 'Photo',
                                 'Designing' => 'Designing',
                                 'Entertainment' => 'Entertainment',
                                 'Coordination' => 'Coordination',

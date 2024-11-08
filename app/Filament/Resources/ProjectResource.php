@@ -347,7 +347,16 @@ class ProjectResource extends Resource
                                     ->label('Package')
                                     ->searchable()
                                     ->limit(15)
-                                    ->badge(),
+                                    ->badge()
+                                    ->color(
+                                        fn (string $state): string => match ($state) {
+                                            'Ruby' => 'ruby',
+                                            'Garnet' => 'garnet',
+                                            'Emerald' => 'emerald',
+                                            'Infinity' => 'infinity',
+                                            'sapphire' => 'sapphire',
+                                        }
+                                    ),
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()

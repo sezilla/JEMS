@@ -40,6 +40,7 @@ class PackageResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->required()
+                            ->disabled(fn ($record) => $record !== null)
                             ->columnSpan('full'),
                         MarkdownEditor::make('description')
                             ->required(),

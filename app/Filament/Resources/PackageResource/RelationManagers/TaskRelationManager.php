@@ -56,7 +56,18 @@ class TaskRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('Name')
             ->columns([
-                Tables\Columns\TextColumn::make('department.name'),
+                Tables\Columns\TextColumn::make('department.name')
+                    ->badge()
+                    ->color(
+                        fn (string $state): string => match ($state) {
+                            'Catering' => 'Catering',
+                            'Hair and Makeup' => 'Hair',
+                            'Photo and Video' => 'Photo',
+                            'Designing' => 'Designing',
+                            'Entertainment' => 'Entertainment',
+                            'Coordination' => 'Coordination',
+                        }
+                    ),
                 Tables\Columns\TextColumn::make('category.name'),
                 Tables\Columns\TextColumn::make('name'),
             ])
