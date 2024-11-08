@@ -35,6 +35,10 @@ class Project extends Model
         'bride_coordinator',
         'head_coordinator',
 
+        'groom_coor_assistant',
+        'bride_coor_assistant',
+        'head_coor_assistant',
+
         'start',
         'end',
     ];
@@ -252,6 +256,7 @@ class Project extends Model
         return $this->belongsTo(User::class, 'head_coordinator');
     }
 
+
     
 
 
@@ -303,10 +308,10 @@ class Project extends Model
         });
     }
 
-    public function driversTeam()
+    public function coordinationTeam()
     {
         return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Drivers');
+            $q->where('name', 'Coordination');
         });
     }
 
