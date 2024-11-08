@@ -124,7 +124,7 @@ php artisan db:seed --class=Roles
 php artisan db:seed --class=PackageTaskSeeder
 php artisan db:seed --class=SkillTask
 php artisan db:seed --class=FakeUser
-php artisan db:seed --class=UserSkillSeeder
+
 
 
 

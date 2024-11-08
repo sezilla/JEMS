@@ -200,5 +200,26 @@ class SkillTask extends Seeder
             ['task_id' => 55, 'skill_id' => 20],
         ]);
 
+
+
+        $departmentSkills = [
+            6 => array_unique([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]),
+            1 => array_unique([18, 2, 19, 20, 21, 22, 23, 15, 2, 24, 25, 3, 4, 26, 27, 9, 28, 29]),
+            2 => array_unique([2, 30, 20, 31, 32, 33, 34, 9, 35, 13, 36]),
+            3 => array_unique([20, 37, 38, 31, 39, 40, 41, 42, 43, 9, 44, 3, 45]),
+            4 => array_unique([20, 49, 50, 51, 52, 53, 54, 45, 55, 4]),
+            5 => array_unique([2, 11, 20, 56, 2, 31, 57, 58, 59, 20, 60]),
+        ];
+        
+        foreach ($departmentSkills as $departmentId => $skills) {
+            foreach ($skills as $skillId) {
+                DB::table('department_has_skills')->insert([
+                    'department_id' => $departmentId,
+                    'skill_id' => $skillId,
+                ]);
+            }
+        }
+        
+
     }
 }

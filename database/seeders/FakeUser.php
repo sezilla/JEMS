@@ -20,9 +20,18 @@ class FakeUser extends Seeder
         User::factory()->count(10)->create()->each(function ($user) {
             $user->assignRole('Admin');
         });
-        User::factory()->count(40)->create()->each(function ($user) {
+        $coordinators = User::factory()->count(40)->create()->each(function ($user) {
             $user->assignRole('Coordinator');
         });
+
+        $departmentSkills = [
+            6 => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17], // Coordination Department
+            1 => [18, 2, 19, 20, 21, 22, 23, 15, 2, 24, 25, 3, 4, 26, 27, 9, 28, 29], // Catering Department
+            2 => [2, 30, 20, 31, 32, 33, 34, 9, 35, 13, 36], // Hair and Makeup Department
+            3 => [20, 37, 38, 31, 39, 40, 41, 42, 43, 9, 44, 3, 45], // Photo and Video Department
+            4 => [20, 49, 50, 51, 52, 53, 54, 45, 55, 4], // Designing Department
+            5 => [2, 11, 20, 56, 2, 31, 57, 58, 59, 20, 60], // Entertainment Department
+        ];
 
         $departments_has_teams = [
             ["department_id" => 1, "team_id" => 1],
@@ -70,29 +79,48 @@ class FakeUser extends Seeder
         ];
         
 
+        foreach ($coordinators as $index => $coordinator) {
+            $assignment = $departments_has_teams[$index % count($departments_has_teams)];
+            $departmentId = $assignment['department_id'];
+            $coordinator->departments()->attach($departmentId);
+            $coordinator->teams()->attach($assignment['team_id']);
+
+            // Attach 3 random skills from the department's skill list
+            $skills = $departmentSkills[$departmentId] ?? [];
+            $randomSkills = collect($skills)->random(3);
+            $coordinator->skills()->syncWithoutDetaching($randomSkills);
+        }
+
         $leaders = User::factory()->count(36)->create()->each(function ($user) {
             $user->assignRole('Team Leader');
         });
+
+        foreach ($leaders as $index => $leader) {
+            $assignment = $departments_has_teams[$index % count($departments_has_teams)];
+            $departmentId = $assignment['department_id'];
+            $leader->departments()->attach($departmentId);
+            $leader->teams()->attach($assignment['team_id']);
+
+            // Attach 3 random skills from the department's skill list
+            $skills = $departmentSkills[$departmentId] ?? [];
+            $randomSkills = collect($skills)->random(3);
+            $leader->skills()->syncWithoutDetaching($randomSkills);
+        }
+
         $members = User::factory()->count(432)->create()->each(function ($user) {
             $user->assignRole('Member');
         });
 
-
-        // $leaders = User::factory()->count(36)->create();
-        // $members = User::factory()->count(432)->create();
-
-        // Assign leaders to departments and teams
-        foreach ($leaders as $index => $leader) {
-            $assignment = $departments_has_teams[$index % count($departments_has_teams)];
-            $leader->departments()->attach($assignment['department_id']);
-            $leader->teams()->attach($assignment['team_id']);
-        }
-
-        // Assign members to departments and teams
         foreach ($members as $index => $member) {
             $assignment = $departments_has_teams[$index % count($departments_has_teams)];
-            $member->departments()->attach($assignment['department_id']);
+            $departmentId = $assignment['department_id'];
+            $member->departments()->attach($departmentId);
             $member->teams()->attach($assignment['team_id']);
+
+            // Attach 3 random skills from the department's skill list
+            $skills = $departmentSkills[$departmentId] ?? [];
+            $randomSkills = collect($skills)->random(3);
+            $member->skills()->syncWithoutDetaching($randomSkills);
         }
     }
 }

@@ -23,4 +23,9 @@ class Skill extends Model
     {
         return $this->belongsToMany(User::class, 'user_skills', 'skill_id', 'user_id');
     }
+
+    public function department()
+    {
+        return $this->belongsToMany(Department::class, 'department_has_skills', 'skill_id', 'department_id');
+    }
 }

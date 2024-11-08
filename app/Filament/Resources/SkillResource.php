@@ -29,7 +29,13 @@ class SkillResource extends Resource
                 Forms\Components\Select::make('task_id')
                     ->label('Task')
                     ->relationship('task', 'name')
-                    ->required(),
+                    ->required()
+                    ->multiple(),
+                Forms\Components\Select::make('department_id')
+                    ->label('Department')
+                    ->relationship('department', 'name')
+                    ->required()
+                    ->multiple(),
                 Forms\Components\MarkdownEditor::make('description')
                     ->required()
                     ->columnSpanFull(),
@@ -43,11 +49,19 @@ class SkillResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->searchable()
-                    ->limit(20),
+
                 Tables\Columns\TextColumn::make('task.name')
                     ->searchable()
+                    ->limit(20),
+
+                Tables\Columns\TextColumn::make('department.name')
+                    ->searchable()
+                    ->badge()
+                    ->width('10%'),
+
+                Tables\Columns\TextColumn::make('description')
+                    ->searchable()
+                    ->limit(15),
             ])
             ->filters([
                 //
