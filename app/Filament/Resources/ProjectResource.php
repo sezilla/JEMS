@@ -356,13 +356,23 @@ class ProjectResource extends Resource
                             ]),
                             
                             TextColumn::make('venue'),
-                            TextColumn::make('end')
-                                ->label('Event Date')
-                                ->date()
-                                ->sortable()
-                                ->fontFamily(FontFamily::Mono)
-                                ->size(TextColumn\TextColumnSize::Large)
-                                ->alignment(Alignment::Left),
+                            Stack::make([
+                                TextColumn::make('start')
+                                    ->date()
+                                    ->sortable()
+                                    ->formatStateUsing(function ($column, $state) {
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                    })
+                                    ->html(),
+                                TextColumn::make('end')
+                                    ->label('Event Date')
+                                    ->date()
+                                    ->sortable()
+                                    ->fontFamily(FontFamily::Mono)
+                                    ->size(TextColumn\TextColumnSize::Large)
+                                    ->alignment(Alignment::Left),
+                            ]),
+                            
                         ])->space(3),
                     ]),
                     Split::make([
@@ -418,11 +428,10 @@ class ProjectResource extends Resource
                                 ->limit(8),
                         ]),
                     ]),
-                    TextColumn::make('start')
-                        ->label('Date Added')
-                        ->date()
-                        ->sortable()
-                        ->hidden(),
+                    // TextColumn::make('start')
+                    //     ->label('Date Added')
+                    //     ->date()
+                    //     ->sortable(),
                     
                ])->space(3),
             ])
