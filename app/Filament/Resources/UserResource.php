@@ -309,7 +309,17 @@ class UserResource extends Resource
                     Tables\Columns\TextColumn::make('departments.name')
                         ->label('Department')
                         ->searchable()
-                        ->badge(),
+                        ->badge()
+                        ->color(
+                            fn (string $state): string => match ($state) {
+                                'Catering' => 'Catering',
+                                'Hair and Makeup' => 'Hair and Makeup',
+                                'Photo and Video' => 'Photo and Video',
+                                'Designing' => 'Designing',
+                                'Entertainment' => 'Entertainment',
+                                'Coordination' => 'Coordination',
+                            }
+                        ),
                     Tables\Columns\TextColumn::make('teams.name')
                         ->fontFamily(FontFamily::Mono)
                 ])->space(3),
