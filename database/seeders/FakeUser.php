@@ -64,23 +64,33 @@ class FakeUser extends Seeder
             ["department_id" => 5, "team_id" => 28],
             ["department_id" => 5, "team_id" => 29],
             ["department_id" => 5, "team_id" => 30],
+            // ["department_id" => 6, "team_id" => 31],
+            // ["department_id" => 6, "team_id" => 32],
+            // ["department_id" => 6, "team_id" => 33],
+            // ["department_id" => 6, "team_id" => 34],
+            // ["department_id" => 6, "team_id" => 35],
+            // ["department_id" => 6, "team_id" => 36],
+            ["department_id" => 1, "team_id" => 37],
+            ["department_id" => 2, "team_id" => 38],
+            ["department_id" => 3, "team_id" => 39],
+            ["department_id" => 4, "team_id" => 40],
+            ["department_id" => 5, "team_id" => 41],
+            // ["department_id" => 6, "team_id" => 42],
+        ];
+        
+
+        $coordinatorDepTeam = [
             ["department_id" => 6, "team_id" => 31],
             ["department_id" => 6, "team_id" => 32],
             ["department_id" => 6, "team_id" => 33],
             ["department_id" => 6, "team_id" => 34],
             ["department_id" => 6, "team_id" => 35],
             ["department_id" => 6, "team_id" => 36],
-            ["department_id" => 1, "team_id" => 37],
-            ["department_id" => 2, "team_id" => 38],
-            ["department_id" => 3, "team_id" => 39],
-            ["department_id" => 4, "team_id" => 40],
-            ["department_id" => 5, "team_id" => 41],
             ["department_id" => 6, "team_id" => 42],
         ];
-        
 
         foreach ($coordinators as $index => $coordinator) {
-            $assignment = $departments_has_teams[$index % count($departments_has_teams)];
+            $assignment = $coordinatorDepTeam[$index % count($coordinatorDepTeam)];
             $departmentId = $assignment['department_id'];
             $coordinator->departments()->attach($departmentId);
             $coordinator->teams()->attach($assignment['team_id']);

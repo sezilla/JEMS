@@ -24,6 +24,7 @@ use App\Http\Middleware\managepackage;
 
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
+use Filament\Enums\ThemeMode;
 // use Filament\Navigation\NavigationItem;
 
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
@@ -34,13 +35,27 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             // ->brandLogo(asset('storage/images/logo.svg'))
+            ->defaultThemeMode(ThemeMode::Light)
             ->brandName('JEM')
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
+            ->font('Poppins')
             ->colors([
-                'primary' => Color::Amber,
+                'danger' => Color::Rose,
+                'gray' => Color::Gray,
+                'info' => Color::Blue,
+                'primary' => Color::Indigo,
+                'success' => Color::Emerald,
+                'warning' => Color::Orange,
+                'secondary' => Color::Gray,
+                'Catering' => Color::Green,
+                'Hair and Makeup' => Color::Red,
+                'Photo and Video' => Color::Blue,
+                'Designing' => Color::Violet,
+                'Entertainment' => Color::Yellow,
+                'Coordination' => Color::Purple,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([

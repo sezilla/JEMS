@@ -138,16 +138,46 @@ class ProjectResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('other_coordinators')
+                        Forms\Components\Select::make('groom_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->multiple()
-                            ->label('Other Coordinators')
+                            ->label('Groom Coordinator Assistant')
                             ->searchable()
                             ->preload(),
+                        Forms\Components\Select::make('bride_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Bride Coordinator Assistant')
+                            ->searchable()
+                            ->preload(),
+                        Forms\Components\Select::make('head_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Head Coordinator Assistant')
+                            ->searchable()
+                            ->preload(),
+                        // Forms\Components\Select::make('other_coordinators')
+                        //     ->relationship('coordinators', 'name', function ($query) {
+                        //         $query->whereHas('roles', function ($q) {
+                        //             $q->where('name', 'Coordinator');
+                        //         });
+                        //     })
+                        //     ->multiple()
+                        //     ->label('Other Coordinators')
+                        //     ->searchable()
+                        //     ->preload(),
                         
                     ]),
                 Section::make()
@@ -191,8 +221,8 @@ class ProjectResource extends Resource
                             ->searchable(),
 
                         Forms\Components\Select::make('team6')
-                            ->relationship('driversTeam', 'name') 
-                            ->label('Drivers')
+                            ->relationship('coordinationTeam', 'name') 
+                            ->label('Other Coordination')
                             // ->multiple()
                             ->preload()
                             ->searchable(),
