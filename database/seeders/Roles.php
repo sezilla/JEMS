@@ -37,11 +37,11 @@ class Roles extends Seeder
 
         // Seed Packages
         DB::table('packages')->insert([
-            ['name' => 'Ruby', 'description' => 'Description for Package One'],
-            ['name' => 'Garnet', 'description' => 'Description for Package Two'],
-            ['name' => 'Emerald', 'description' => 'Description for Package Three'],
-            ['name' => 'Infinity', 'description' => 'Description for Package Four'],
-            ['name' => 'Sapphire', 'description' => 'Description for Package Five'],
+            ['name' => 'Ruby', 'description' => 'Description for Package One', 'trello_board_template_id' => '672005ebbe4e5d63395fdb71'],
+            ['name' => 'Garnet', 'description' => 'Description for Package Two', 'trello_board_template_id' => '6720067b832a7827b2adcf9b'],
+            ['name' => 'Emerald', 'description' => 'Description for Package Three', 'trello_board_template_id' => '672006f1b976b21096aa85c1'],
+            ['name' => 'Infinity', 'description' => 'Description for Package Four', 'trello_board_template_id' => '67200700704b0514a4591cbe'],
+            ['name' => 'Sapphire', 'description' => 'Description for Package Five', 'trello_board_template_id' => '67200712519e80e1e1ddf9d4'],
         ]);
 
         // Seed Departments

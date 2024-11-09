@@ -355,6 +355,7 @@ class ProjectResource extends Resource
                                             'Emerald' => 'emerald',
                                             'Infinity' => 'infinity',
                                             'sapphire' => 'sapphire',
+                                            default => 'gray',
                                         }
                                     ),
                                 ColorColumn::make('theme_color')

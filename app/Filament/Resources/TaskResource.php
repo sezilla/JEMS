@@ -71,24 +71,39 @@ class TaskResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(20)
+                    ->grow(false),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable()
-                    ->limit(15),
+                    ->limit(15)
+                    ->grow(false)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('packages.name')
                     ->searchable()
                     ->limit(25)
-                    ->badge(),
+                    ->badge()
+                    ->width('10%'),
                 Tables\Columns\TextColumn::make('department.name')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(25)
+                    ->badge()
+                    ->color(
+                        fn (string $state): string => match ($state) {
+                            'Catering' => 'Catering',
+                            'Hair and Makeup' => 'Hair',
+                            'Photo and Video' => 'Photo',
+                            'Designing' => 'Designing',
+                            'Entertainment' => 'Entertainment',
+                            'Coordination' => 'Coordination',
+                        }
+                    ),
                 Tables\Columns\TextColumn::make('category.name')
                     ->searchable()
-                    ->limit(25),
+                    ->limit(15),
                 Tables\Columns\TextColumn::make('skills.name')
                     ->searchable()
-                    ->limit(25)
-                    ->badge(),
+                    ->badge()
+                    ->width('10%'),
             ])
             ->filters([
                 SelectFilter::make('department_id')
@@ -109,9 +124,9 @@ class TaskResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 

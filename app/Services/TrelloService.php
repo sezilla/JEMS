@@ -5,6 +5,7 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
+use App\Models\Package;
 
 class TrelloService
 {
@@ -24,13 +25,15 @@ class TrelloService
         $this->token = env('TRELLO_API_TOKEN');
         $this->workspace = env('TRELLO_WORKSPACE_ID');
 
-        $this->templateBoardIds = [
-            'Ruby' => env('TRELLO_TEMPLATE_ID_RUBY'),
-            'Garnet' => env('TRELLO_TEMPLATE_ID_GARNET'),
-            'Emerald' => env('TRELLO_TEMPLATE_ID_EMERALD'),
-            'Infinity' => env('TRELLO_TEMPLATE_ID_INFINITY'),
-            'Sapphire' => env('TRELLO_TEMPLATE_ID_SAPPHIRE'),
-        ];
+        // $this->templateBoardIds = [
+        //     'Ruby' => env('TRELLO_TEMPLATE_ID_RUBY'),
+        //     'Garnet' => env('TRELLO_TEMPLATE_ID_GARNET'),
+        //     'Emerald' => env('TRELLO_TEMPLATE_ID_EMERALD'),
+        //     'Infinity' => env('TRELLO_TEMPLATE_ID_INFINITY'),
+        //     'Sapphire' => env('TRELLO_TEMPLATE_ID_SAPPHIRE'),
+        // ];
+
+        $this->templateBoardIds = Package::pluck('trello_board_template_id', 'name')->filter()->toArray();
 
         Log::info('Loaded Trello configuration.');
     }

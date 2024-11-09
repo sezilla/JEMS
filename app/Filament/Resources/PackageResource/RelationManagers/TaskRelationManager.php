@@ -10,6 +10,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Models\Task;
+use Filament\Tables\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Department;
+use App\Models\TaskCategory;
+
+
 
 class TaskRelationManager extends RelationManager
 {
@@ -19,7 +26,7 @@ class TaskRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('department_id')
+            Forms\Components\Select::make('department_id')
                 ->label('Department')
                 ->relationship('department', 'name') 
                 ->required()
@@ -28,25 +35,28 @@ class TaskRelationManager extends RelationManager
                 ->afterStateUpdated(function (callable $set) {
                     $set('name', null); // Reset name field when department changes
                 }),
-            
-            Forms\Components\Select::make('name')
-                ->label('Task')
-                ->options(function ($get) {
-                    // Fetch only tasks related to the selected department
-                    $departmentId = $get('department_id');
-                    return $departmentId 
-                        ? Task::where('department_id', $departmentId)->pluck('name', 'id')
-                        : [];
-                })
-                ->required()
-                ->preload(),
-            
+
             Forms\Components\Select::make('task_category_id')
                 ->label('Category')
                 ->relationship('category', 'name') 
                 ->required()
                 ->preload(),
             
+            Forms\Components\TextInput::make('name')
+                ->label('Task')
+                ->required(), 
+            
+            Forms\Components\Select::make('skill_id')
+                ->label('Skills Required')
+                ->relationship('skills', 'name')
+                ->multiple()
+                ->required()
+                ->preload(),
+                
+            Forms\Components\MarkdownEditor::make('description')
+                ->label('Description')
+                ->required()
+                ->columnSpanFull(),
             ]);
     }
     
@@ -66,20 +76,86 @@ class TaskRelationManager extends RelationManager
                             'Designing' => 'Designing',
                             'Entertainment' => 'Entertainment',
                             'Coordination' => 'Coordination',
+                            default => 'gray',
                         }
                     ),
                 Tables\Columns\TextColumn::make('category.name'),
                 Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
-                //
+                SelectFilter::make('department_id')
+                    ->options(function () {
+                        return Department::pluck('name', 'id');
+                    })
+                    ->label('Department')
+                    ->relationship('department', 'name'),
+
+                SelectFilter::make('task_category_id')
+                    ->options(function () {
+                        return TaskCategory::pluck('name', 'id');
+                    })
+                    ->label('Category')
+                    ->relationship('category', 'name'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Create Task'),
+
+                Tables\Actions\Action::make('addTask')
+                    ->label('Add Task')
+                    ->action(function (array $data) {
+                        // Link the selected task to the current package
+                        $taskId = $data['name'];
+                        $packageId = $this->ownerRecord->id; // Get the current package's ID
+
+                        $this->ownerRecord->tasks()->attach($taskId, ['package_id' => $packageId]);
+
+                        Notification::make()
+                            ->title('Task added successfully!')
+                            ->success()
+                            ->send();
+                    })
+                    ->form([
+                        Forms\Components\Select::make('department_id')
+                            ->label('Department')
+                            ->relationship('department', 'name') 
+                            ->required()
+                            ->preload()
+                            ->reactive() // Reacts to changes
+                            ->afterStateUpdated(function (callable $set) {
+                                $set('name', null); // Reset name field when department changes
+                            }),
+
+                        Forms\Components\Select::make('name')
+                            ->label('Task')
+                            ->options(function ($get) {
+                                // Fetch only tasks related to the selected department
+                                $departmentId = $get('department_id');
+                                return $departmentId 
+                                    ? Task::where('department_id', $departmentId)->pluck('name', 'id')
+                                    : [];
+                            })
+                            ->required()
+                            ->preload(),
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('removeTask')
+                    ->label('Remove')
+                    ->color('danger')
+                    ->icon('heroicon-s-trash')
+                    ->action(function (Task $record) {
+                        $packageId = $this->ownerRecord->id; // Get the current package ID
+                        
+                        // Detach the task from the package in the task_package table
+                        $this->ownerRecord->tasks()->detach($record->id);
+
+                        Notification::make()
+                            ->title('Task removed from package successfully!')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
