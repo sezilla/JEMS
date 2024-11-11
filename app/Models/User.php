@@ -102,5 +102,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         // Checks if the user has any role without specification
         return $this->roles()->exists(); // Ensure 'roles' relationship is correctly defined in your User model
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
     
 }

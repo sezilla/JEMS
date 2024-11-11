@@ -36,9 +36,9 @@
     <div x-show="showDirect" class="mb-6">
         <h2 class="text-lg font-semibold mb-2">Direct Contacts</h2>
         <ul class="space-y-2">
-            @foreach ($directContacts as $contact)
+            {{-- @foreach ($directContacts as $contact)
                 <li>{{ $contact->name }}</li>
-            @endforeach
+            @endforeach --}}
         </ul>
     </div>
 
@@ -46,9 +46,9 @@
     <div x-show="!showDirect" class="mb-6">
         <h2 class="text-lg font-semibold mb-2">Group Contacts</h2>
         <ul class="space-y-2">
-            @foreach ($groupChats as $group)
+            {{-- @foreach ($groupChats as $group)
                 <li>{{ $group->name }}</li>
-            @endforeach
+            @endforeach --}}
         </ul>
     </div>
 </x-filament::section>
