@@ -4,6 +4,8 @@ namespace App\Filament\App\Pages;
 
 use Filament\Pages\Page;
 use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\Support\Htmlable;
+
 
 class Chatify extends Page
 {
@@ -20,5 +22,9 @@ class Chatify extends Page
         $this->id = auth()->id();
         $this->messengerColor = config('chatify.messengerColor', '#FF748C');
         $this->dark_mode = config('chatify.dark_mode', false); // Add default value
+    }
+    public function getTitle(): string|Htmlable
+    {
+        return '';
     }
 }
