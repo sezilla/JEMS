@@ -42,39 +42,57 @@ class ProjectResource extends Resource
     {
         return $table
         ->query(Project::forUser(Auth::user()))
-            ->columns([
-                Stack::make([
-                    Split::make([
-                        ImageColumn::make('thumbnail_path')
-                            ->disk('public')
-                            ->label('Thumbnail')
-                            ->width(150)
-                            ->height(200)
-                            ->extraImgAttributes(['class' => 'rounded-md']),
-                        Stack::make([
-                            TextColumn::make('groom_name')
-                                ->label('Names')
+        ->columns([
+            Stack::make([
+                Split::make([
+                    ImageColumn::make('thumbnail_path')
+                        ->disk('public')
+                        ->label('Thumbnail')
+                        ->width(150)
+                        ->height(200)
+                        ->extraImgAttributes(['class' => 'rounded-md']),
+                    Stack::make([
+                        TextColumn::make('groom_name')
+                            ->label('Names')
+                            ->searchable()
+                            ->size(TextColumn\TextColumnSize::Large)
+                            ->getStateUsing(function ($record) {
+                                return $record->groom_name . ' & ' . $record->bride_name;
+                            }),
+                        TextColumn::make('name')
+                            ->searchable(),
+                        Split::make([
+                            TextColumn::make('package.name')
+                                ->label('Package')
                                 ->searchable()
-                                ->size(TextColumn\TextColumnSize::Large)
-                                ->getStateUsing(function ($record) {
-                                    return $record->groom_name . ' & ' . $record->bride_name;
-                                }),
-                            TextColumn::make('name')
-                                ->searchable(),
-                            Split::make([
-                                TextColumn::make('package.name')
-                                    ->label('Package')
-                                    ->searchable()
-                                    ->limit(15)
-                                    ->badge(),
-                                ColorColumn::make('theme_color')
-                                    ->label('Theme Color')
-                                    ->copyable()
-                                    ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500)
-                            ]),
-                            
-                            TextColumn::make('venue'),
+                                ->limit(15)
+                                ->badge()
+                                ->color(
+                                    fn (string $state): string => match ($state) {
+                                        'Ruby' => 'ruby',
+                                        'Garnet' => 'garnet',
+                                        'Emerald' => 'emerald',
+                                        'Infinity' => 'infinity',
+                                        'sapphire' => 'sapphire',
+                                        default => 'gray',
+                                    }
+                                ),
+                            ColorColumn::make('theme_color')
+                                ->label('Theme Color')
+                                ->copyable()
+                                ->copyMessage('Color code copied')
+                                ->copyMessageDuration(1500)
+                        ]),
+                        
+                        TextColumn::make('venue'),
+                        Stack::make([
+                            TextColumn::make('start')
+                                ->date()
+                                ->sortable()
+                                ->formatStateUsing(function ($column, $state) {
+                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                })
+                                ->html(),
                             TextColumn::make('end')
                                 ->label('Event Date')
                                 ->date()
@@ -82,69 +100,70 @@ class ProjectResource extends Resource
                                 ->fontFamily(FontFamily::Mono)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->alignment(Alignment::Left),
-                        ])->space(3),
+                        ]),
+                        
+                    ])->space(3),
+                ]),
+                Split::make([
+                    Stack::make([
+                        TextColumn::make('headCoordinator.name') 
+                            ->getStateUsing(function ($record) {
+                                return 'Head coor';
+                            })
+                            ->size(TextColumn\TextColumnSize::ExtraSmall)
+                            ->weight(FontWeight::Thin)
+                            ->formatStateUsing(function ($column, $state) {
+                                return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                            })
+                            ->html(),
+                        TextColumn::make('headCoordinator.name') 
+                            ->label('Head Coordinator') 
+                            ->searchable()
+                            ->badge()
+                            ->limit(8),
                     ]),
-                    Split::make([
-                        Stack::make([
-                            TextColumn::make('headCoordinator.name') 
-                                ->getStateUsing(function ($record) {
-                                    return 'Head coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('headCoordinator.name') 
-                                ->label('Head Coordinator') 
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
-                        Stack::make([
-                            TextColumn::make('groomCoordinator.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('groomCoordinator.name') 
-                                ->label('Groom Coordinator') 
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
-                        Stack::make([
-                            TextColumn::make('brideCoordinator.name') 
-                                ->getStateUsing(function ($record) {
-                                    return 'Bride coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('brideCoordinator.name') 
-                                ->label('Bride Coordinator') 
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
+                    Stack::make([
+                        TextColumn::make('groomCoordinator.name')
+                            ->getStateUsing(function ($record) {
+                                return 'Groom coor';
+                            })
+                            ->size(TextColumn\TextColumnSize::ExtraSmall)
+                            ->weight(FontWeight::Thin)
+                            ->formatStateUsing(function ($column, $state) {
+                                return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                            })
+                            ->html(),
+                        TextColumn::make('groomCoordinator.name') 
+                            ->label('Groom Coordinator') 
+                            ->searchable()
+                            ->badge()
+                            ->limit(8),
                     ]),
-                    TextColumn::make('start')
-                        ->label('Date Added')
-                        ->date()
-                        ->sortable()
-                        ->hidden(),
-                    
-            ])->space(3),
-            ])
+                    Stack::make([
+                        TextColumn::make('brideCoordinator.name') 
+                            ->getStateUsing(function ($record) {
+                                return 'Bride coor';
+                            })
+                            ->size(TextColumn\TextColumnSize::ExtraSmall)
+                            ->weight(FontWeight::Thin)
+                            ->formatStateUsing(function ($column, $state) {
+                                return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                            })
+                            ->html(),
+                        TextColumn::make('brideCoordinator.name') 
+                            ->label('Bride Coordinator') 
+                            ->searchable()
+                            ->badge()
+                            ->limit(8),
+                    ]),
+                ]),
+                // TextColumn::make('start')
+                //     ->label('Date Added')
+                //     ->date()
+                //     ->sortable(),
+                
+           ])->space(3),
+        ])
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,

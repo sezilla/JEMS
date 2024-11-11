@@ -13,8 +13,10 @@ class ProjectCalendar extends FullCalendarWidget
     public function fetchEvents(array $fetchInfo): array
     {
         return Project::query()
-            ->where('start', '>=', $fetchInfo['start'])
-            ->where('end', '<=', $fetchInfo['end'])
+            ->where(function ($query) use ($fetchInfo) {
+                $query->where('start', '<=', $fetchInfo['end'])
+                      ->where('end', '>=', $fetchInfo['start']);
+            })
             ->get()
             ->map(
                 fn (Project $event) => EventData::make()
@@ -31,4 +33,5 @@ class ProjectCalendar extends FullCalendarWidget
             )
             ->toArray();
     }
+    
 }

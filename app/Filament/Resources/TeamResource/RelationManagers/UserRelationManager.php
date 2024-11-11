@@ -18,7 +18,7 @@ use Filament\Notifications\Notification;
 
 class UserRelationManager extends RelationManager
 {
-    protected static string $relationship = 'users';
+    protected static string $relationship = 'members';
 
     public function form(Form $form): Form
     {
@@ -41,14 +41,19 @@ class UserRelationManager extends RelationManager
             ->columns([
                 ImageColumn::make('avatar_url')
                     ->label('Avatar')
-                    ->circular(),
+                    ->circular()
+                    ->grow(false),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('skills.name')
                     ->label('Skills')
                     ->searchable()
-                    ->badge(),
+                    ->badge()
+                    ->width('10%'),
             ])
             ->filters([
                 //
@@ -73,6 +78,8 @@ class UserRelationManager extends RelationManager
                                 $query->where('teams.id', $this->ownerRecord->id);
                             })->pluck('name', 'id'))
                             ->required()
+                            ->multiple()
+                            ->preload()
                             ->label('Select Member')
                             ->searchable(),
                     ])

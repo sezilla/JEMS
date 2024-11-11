@@ -347,7 +347,17 @@ class ProjectResource extends Resource
                                     ->label('Package')
                                     ->searchable()
                                     ->limit(15)
-                                    ->badge(),
+                                    ->badge()
+                                    ->color(
+                                        fn (string $state): string => match ($state) {
+                                            'Ruby' => 'ruby',
+                                            'Garnet' => 'garnet',
+                                            'Emerald' => 'emerald',
+                                            'Infinity' => 'infinity',
+                                            'sapphire' => 'sapphire',
+                                            default => 'gray',
+                                        }
+                                    ),
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()
@@ -356,13 +366,23 @@ class ProjectResource extends Resource
                             ]),
                             
                             TextColumn::make('venue'),
-                            TextColumn::make('end')
-                                ->label('Event Date')
-                                ->date()
-                                ->sortable()
-                                ->fontFamily(FontFamily::Mono)
-                                ->size(TextColumn\TextColumnSize::Large)
-                                ->alignment(Alignment::Left),
+                            Stack::make([
+                                TextColumn::make('start')
+                                    ->date()
+                                    ->sortable()
+                                    ->formatStateUsing(function ($column, $state) {
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                    })
+                                    ->html(),
+                                TextColumn::make('end')
+                                    ->label('Event Date')
+                                    ->date()
+                                    ->sortable()
+                                    ->fontFamily(FontFamily::Mono)
+                                    ->size(TextColumn\TextColumnSize::Large)
+                                    ->alignment(Alignment::Left),
+                            ]),
+                            
                         ])->space(3),
                     ]),
                     Split::make([
@@ -418,11 +438,10 @@ class ProjectResource extends Resource
                                 ->limit(8),
                         ]),
                     ]),
-                    TextColumn::make('start')
-                        ->label('Date Added')
-                        ->date()
-                        ->sortable()
-                        ->hidden(),
+                    // TextColumn::make('start')
+                    //     ->label('Date Added')
+                    //     ->date()
+                    //     ->sortable(),
                     
                ])->space(3),
             ])

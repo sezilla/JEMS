@@ -28,10 +28,10 @@ class Team extends Model
     
     public function members()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id')
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'Member');
-            });;
+        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+            // ->whereHas('roles', function ($query) {
+            //     $query->where('name', 'Member');
+            // });;
     }
     public function users()
     {

@@ -43,19 +43,27 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->font('Poppins')
             ->colors([
-                'danger' => Color::Rose,
-                'gray' => Color::Gray,
-                'info' => Color::Blue,
                 'primary' => Color::Indigo,
+                'secondary' => Color::Slate,
+
+                'info' => Color::Blue,
+
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
-                'secondary' => Color::Gray,
+                'danger' => Color::Rose,
+
                 'Catering' => Color::Green,
-                'Hair and Makeup' => Color::Red,
-                'Photo and Video' => Color::Blue,
+                'Hair' => Color::Red,
+                'Photo' => Color::Blue,
                 'Designing' => Color::Violet,
                 'Entertainment' => Color::Yellow,
                 'Coordination' => Color::Purple,
+
+                'ruby' => Color::Red,
+                'emerald' => Color::Emerald,
+                'garnet' => Color::Pink,
+                'sapphire' => Color::Indigo,
+                'infinity' => Color::Sky,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
@@ -75,7 +83,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                // Widgets\AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -37,19 +37,70 @@ class PackageResource extends Resource
             ->schema([
                 Section::make()
                     ->columns(2)
+                    ->columnSpan(2)
                     ->schema([
                         TextInput::make('name')
                             ->required()
+                            ->disabled(fn ($record) => $record !== null)
                             ->columnSpan('full'),
                         MarkdownEditor::make('description')
-                            ->required(),
+                            ->required()
+                            ->columnSpan('full'),
+                    ]),
+                Section::make()
+                    ->columns(1)
+                    ->columnSpan(1)
+                    ->schema([
                         FileUpload::make('image')
                             ->image()
                             ->imageEditor()
                             ->disk('public')
                             ->directory('packages'),
+                    ]),
+                Section::make('Assign Tasks')
+                    ->visible(fn ($livewire) => $livewire instanceof Pages\CreatePackage)
+                    ->description('Assign tasks to this package per Department')
+                    ->columns(3)
+                    // ->columnSpan(1)
+                    ->schema([
+                        Select::make('coordination')
+                            ->label('Coordination')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 6)),
+                        Select::make('catering')
+                            ->label('Catering')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 1)),
+                        Select::make('hair_and_makeup')
+                            ->label('Hair and Makeup')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 2)),
+                        Select::make('photo_and_video')
+                            ->label('Photo and Video')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 3)),
+                        Select::make('designing')
+                            ->label('Designing')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 4)),
+                        Select::make('entertainment')
+                            ->label('Entertainment')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 5)),
                     ])
-            ]);
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -105,10 +156,10 @@ class PackageResource extends Resource
         ];
     }
     
-    public static function canCreate(): bool
-    {
-        return false;
-    }
+    // public static function canCreate(): bool
+    // {
+    //     return false;
+    // }
 
     public static function getNavigationGroup(): ?string
     {

@@ -114,7 +114,8 @@ class TeamResource extends Resource
                                 ->limit(15),
                             ImageColumn::make('leaders.avatar_url')
                                 ->circular(),
-                            TextColumn::make('leaders.name'),
+                            TextColumn::make('leaders.name')
+                                ->label('Team Leaders'),
                         ]),
                         
                     ]),
