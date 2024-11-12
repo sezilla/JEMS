@@ -128,7 +128,10 @@ class AdminPanelProvider extends PanelProvider
                         rules: 'mimes:jpeg,png|max:1024'
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page')),
+                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page'))
+                    ->customProfileComponents([
+                        \App\Livewire\AddSkills::class,
+                    ]),
 
                 FilamentFullCalendarPlugin::make()
                     ->schedulerLicenseKey('')
