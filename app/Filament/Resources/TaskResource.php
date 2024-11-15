@@ -30,6 +30,12 @@ class TaskResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
+
+                Forms\Components\TextInput::make('duration')
+                    ->required()
+                    ->numeric()
+                    ->minValue(1)
+                    ->suffix('days'),
                 
                 Forms\Components\MarkdownEditor::make('description')
                     ->label('Description')
@@ -73,6 +79,11 @@ class TaskResource extends Resource
                     ->searchable()
                     ->limit(20)
                     ->grow(false),
+                Tables\Columns\TextColumn::make('duration')
+                    ->searchable()
+                    ->limit(20)
+                    ->grow(false)
+                    ->suffix(' days'),
                 Tables\Columns\TextColumn::make('description')
                     ->searchable()
                     ->limit(15)
@@ -103,7 +114,8 @@ class TaskResource extends Resource
                 Tables\Columns\TextColumn::make('skills.name')
                     ->searchable()
                     ->badge()
-                    ->width('10%'),
+                    ->width('10%')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('department_id')

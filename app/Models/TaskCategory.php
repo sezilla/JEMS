@@ -13,7 +13,7 @@ class TaskCategory extends Model
     
     protected $fillable = [
         'name',
-        'start_percentage',
-        'max_percentage',
+        // 'start_percentage',
+        // 'max_percentage',
     ];
 }
