@@ -107,19 +107,11 @@ class Project extends Model
         return $this->belongsTo(User::class, 'head_coordinator');
     }
 
-
     
-
-
-    public function departments()
-    {
-        return $this->hasMany(Department::class);
-    }
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id')
-        ->withPivot('department_id');
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
     }
 
 
