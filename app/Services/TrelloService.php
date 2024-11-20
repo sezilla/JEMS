@@ -25,14 +25,6 @@ class TrelloService
         $this->token = env('TRELLO_API_TOKEN');
         $this->workspace = env('TRELLO_WORKSPACE_ID');
 
-        // $this->templateBoardIds = [
-        //     'Ruby' => env('TRELLO_TEMPLATE_ID_RUBY'),
-        //     'Garnet' => env('TRELLO_TEMPLATE_ID_GARNET'),
-        //     'Emerald' => env('TRELLO_TEMPLATE_ID_EMERALD'),
-        //     'Infinity' => env('TRELLO_TEMPLATE_ID_INFINITY'),
-        //     'Sapphire' => env('TRELLO_TEMPLATE_ID_SAPPHIRE'),
-        // ];
-
         $this->templateBoardIds = Package::pluck('trello_board_template_id', 'name')->filter()->toArray();
 
         Log::info('Loaded Trello configuration.');
@@ -64,7 +56,7 @@ class TrelloService
                     'name' => $name,
                     'idBoardSource' => $templateBoardId,
                     'idOrganization' => $this->workspace,
-                    'prefs_permissionLevel' => 'private'
+                    'prefs_permissionLevel' => 'public'
                 ]),
             ]);
 
