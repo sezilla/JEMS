@@ -50,6 +50,7 @@ php artisan migrate --seed
 
 
  setup trello
+ ////////////////////vvvvvv
  trello.com/power-ups/admin
 
 
