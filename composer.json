@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "bezhansalleh/filament-shield": "^3.2",
+        "bezhansalleh/filament-shield": "3.2.6",
         "filament/filament": "*",
         "guzzlehttp/guzzle": "^7.9",
         "joaopaulolndev/filament-edit-profile": "^1.0",

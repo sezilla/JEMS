@@ -43,6 +43,125 @@ class Project extends Model
         'end',
     ];
 
+
+    
+    public function scopeForUser($query, $user)
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->whereHas('coordinators', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->orWhereHas('groomCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->orWhereHas('brideCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->orWhereHas('headCoordinator', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->orWhereHas('teams', function ($query) use ($user) {
+                $query->whereHas('users', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            });
+        })
+        ->orWhereHas('roles', function ($query) {
+            $query->whereIn('name', ['Admin', 'Super Admin']);
+        });
+    }
+
+
+
+    //for database....
+
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    public function package()
+    {
+        return $this->belongsTo(Package::class);
+    }
+
+
+    
+    // Relationship with coordinators (users)
+    public function coordinators()
+    {
+        return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
+    }
+    public function groomCoordinator()
+    {
+        return $this->belongsTo(User::class, 'groom_coordinator');
+    }
+    public function brideCoordinator()
+    {
+        return $this->belongsTo(User::class, 'bride_coordinator');
+    }
+    public function headCoordinator()
+    {
+        return $this->belongsTo(User::class, 'head_coordinator');
+    }
+
+    
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
+    }
+
+
+    public function cateringTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Catering');
+        });
+    }
+
+    public function hairAndMakeupTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Hair and Makeup');
+        });
+    }
+
+    public function photoAndVideoTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Photo and Video');
+        });
+    }
+
+    public function designingTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Designing');
+        });
+    }
+
+    public function entertainmentTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Entertainment');
+        });
+    }
+
+    public function coordinationTeam()
+    {
+        return $this->teams()->whereHas('departments', function ($q) {
+            $q->where('name', 'Coordination');
+        });
+    }
+
+
+
+
+
+
     //mostly ffor trello....
     protected static function boot()
     {
@@ -190,129 +309,4 @@ class Project extends Model
         
         
     }
-    
-    public function scopeForUser($query, $user)
-    {
-        return $query->where(function ($q) use ($user) {
-            $q->whereHas('coordinators', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->orWhereHas('groomCoordinator', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->orWhereHas('brideCoordinator', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->orWhereHas('headCoordinator', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->orWhereHas('teams', function ($query) use ($user) {
-                $query->whereHas('users', function ($query) use ($user) {
-                    $query->where('user_id', $user->id);
-                });
-            });
-        })
-        ->orWhereHas('roles', function ($query) {
-            $query->whereIn('name', ['Admin', 'Super Admin']);
-        });
-    }
-
-
-
-
-    //for database....
-
-
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-    
-    public function package()
-    {
-        return $this->belongsTo(Package::class);
-    }
-
-
-
-
-    
-    // Relationship with coordinators (users)
-    public function coordinators()
-    {
-        return $this->belongsToMany(User::class, 'project_coordinators', 'project_id', 'user_id');
-    }
-    public function groomCoordinator()
-    {
-        return $this->belongsTo(User::class, 'groom_coordinator');
-    }
-    public function brideCoordinator()
-    {
-        return $this->belongsTo(User::class, 'bride_coordinator');
-    }
-    public function headCoordinator()
-    {
-        return $this->belongsTo(User::class, 'head_coordinator');
-    }
-
-
-    
-
-
-
-
-
-
-
-
-
-
-    public function teams()
-    {
-        return $this->belongsToMany(Team::class, 'project_teams', 'project_id', 'team_id');
-    }
-
-    public function cateringTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Catering');
-        });
-    }
-
-    public function hairAndMakeupTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Hair and Makeup');
-        });
-    }
-
-    public function photoAndVideoTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Photo and Video');
-        });
-    }
-
-    public function designingTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Designing');
-        });
-    }
-
-    public function entertainmentTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Entertainment');
-        });
-    }
-
-    public function coordinationTeam()
-    {
-        return $this->teams()->whereHas('departments', function ($q) {
-            $q->where('name', 'Coordination');
-        });
-    }
-
 }

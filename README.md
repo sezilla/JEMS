@@ -95,7 +95,7 @@ https://trello.com/power-ups
 https://filamentphp.com/plugins/joaopaulolndev-edit-profile
 
 
-
+STRICTLY NO COMPOSER UPDATE
 
 
 newwww
