@@ -26,34 +26,34 @@ class TaskCategoryResource extends Resource
             ->schema([
                 TextInput::make('name')
                     ->required(),
-                TextInput::make('start_percentage')
-                    ->required()
-                    ->numeric()
-                    ->suffix('%')
-                    ->default(0)
-                    ->afterStateHydrated(function (TextInput $component, $state) {
-                        $component->state($state * 100);
-                    })
-                    ->dehydrateStateUsing(function ($state) {
-                        return $state / 100;
-                    })
-                    ->minValue(0)
-                    ->maxValue(100),
-                TextInput::make('max_percentage')
-                    ->required()
-                    ->numeric()
-                    ->suffix('%')
-                    ->default(0)
-                    ->afterStateHydrated(function (TextInput $component, $state) {
-                        // Convert the stored decimal value to a percentage for display
-                        $component->state($state * 100);
-                    })
-                    ->dehydrateStateUsing(function ($state) {
-                        // Convert the percentage back to a decimal for storage
-                        return $state / 100;
-                    })
-                    ->minValue(0)
-                    ->maxValue(100),
+                // TextInput::make('start_percentage')
+                //     ->required()
+                //     ->numeric()
+                //     ->suffix('%')
+                //     ->default(0)
+                //     ->afterStateHydrated(function (TextInput $component, $state) {
+                //         $component->state($state * 100);
+                //     })
+                //     ->dehydrateStateUsing(function ($state) {
+                //         return $state / 100;
+                //     })
+                //     ->minValue(0)
+                //     ->maxValue(100),
+                // TextInput::make('max_percentage')
+                //     ->required()
+                //     ->numeric()
+                //     ->suffix('%')
+                //     ->default(0)
+                //     ->afterStateHydrated(function (TextInput $component, $state) {
+                //         // Convert the stored decimal value to a percentage for display
+                //         $component->state($state * 100);
+                //     })
+                //     ->dehydrateStateUsing(function ($state) {
+                //         // Convert the percentage back to a decimal for storage
+                //         return $state / 100;
+                //     })
+                //     ->minValue(0)
+                //     ->maxValue(100),
             ]);
     }
 
@@ -63,12 +63,12 @@ class TaskCategoryResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('start_percentage')
-                    ->label('progress range')
-                    ->formatStateUsing(fn ($record) => 
-                        ($record->start_percentage * 100) . '% - ' . ($record->max_percentage * 100) . '%'
-                    )
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('start_percentage')
+                //     ->label('progress range')
+                //     ->formatStateUsing(fn ($record) => 
+                //         ($record->start_percentage * 100) . '% - ' . ($record->max_percentage * 100) . '%'
+                //     )
+                //     ->searchable(),
             ])
             ->filters([
                 //

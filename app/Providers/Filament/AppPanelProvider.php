@@ -100,7 +100,10 @@ class AppPanelProvider extends PanelProvider
                         directory: 'avatars', 
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page')),
+                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page'))
+                    ->customProfileComponents([
+                        \App\Livewire\AddSkills::class,
+                    ]),
             ])
      
                 ->navigationGroups([

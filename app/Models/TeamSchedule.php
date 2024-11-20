@@ -5,15 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TaskCategory extends Model
+class TeamSchedule extends Model
 {
     use HasFactory;
 
-    protected $table = 'task_category';
-    
+    protected $table = 'team_schedule';
+
     protected $fillable = [
-        'name',
-        // 'start_percentage',
-        // 'max_percentage',
+        'team_id',
+        'project_id',
+        'task_id',
+        'start',
+        'end',
     ];
 }

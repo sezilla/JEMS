@@ -55,16 +55,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
-
-    // public function leaderOfTeams()
-    // {
-    //     return $this->belongsToMany(Team::class, 'team_leader', 'user_id', 'team_id');
-    // }
-
     
-
-
-
 
 
     /**
@@ -102,5 +93,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         // Checks if the user has any role without specification
         return $this->roles()->exists(); // Ensure 'roles' relationship is correctly defined in your User model
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
     
 }
