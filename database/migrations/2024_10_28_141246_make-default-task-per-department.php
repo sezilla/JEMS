@@ -35,13 +35,16 @@ return new class extends Migration
         });
 
         Schema::create('task_package', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('task_id');
             $table->unsignedBigInteger('package_id');
             
             $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('cascade');
+
+            $table->string('trello_checklist_item_id')->nullable();
             
-            $table->primary(['task_id', 'package_id']); 
+            // $table->primary(['task_id', 'package_id']); 
         });
     }
 

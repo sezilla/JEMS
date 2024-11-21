@@ -287,6 +287,19 @@ class TrelloService
         }
     }
 
+    public function markChecklistItemAsDone($checkItemId)
+    {
+        $url = "https://api.trello.com/1/checklists/{$checkItemId}/state";
+        $response = Http::put($url, [
+            'state' => 'complete',
+            'key' => $this->apiKey,
+            'token' => $this->apiToken,
+        ]);
+
+        if ($response->failed()) {
+            throw new \Exception('Failed to mark checklist item as done on Trello');
+        }
+    }
     public function addAttachmentToCard($cardId, $filePath)
     {
         $url = "https://api.trello.com/1/cards/{$cardId}/attachments";
