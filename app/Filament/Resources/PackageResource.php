@@ -99,6 +99,12 @@ class PackageResource extends Resource
                             ->preload()
                             ->columnSpan(1)
                             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 5)),
+                        Select::make('entertainment')
+                            ->label('Entertainment')
+                            ->multiple()
+                            ->preload()
+                            ->columnSpan(1)
+                            ->relationship('tasks', 'name'),
                     ])
             ])->columns(3);
     }
