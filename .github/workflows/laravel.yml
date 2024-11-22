@@ -20,7 +20,11 @@ jobs:
       # Step 2: Check out the code
       - uses: actions/checkout@v4
 
-      # Step 3: Copy .env and set up environment variables
+      # Step 3: Install Composer dependencies
+      - name: Install Dependencies
+        run: composer install --no-ansi --no-interaction --prefer-dist
+
+      # Step 4: Copy .env and set up environment variables
       - name: Set up .env
         run: |
           cp .env.example .env
@@ -36,32 +40,24 @@ jobs:
           echo "PUSHER_APP_CLUSTER=ap1" >> .env
           echo "BROADCAST_DRIVER=pusher" >> .env
 
-      # Step 4: Install Composer dependencies
-      - name: Install Dependencies
-        run: composer install --no-ansi --no-interaction --prefer-dist
-
-      # Step 5: Generate app key
-      - name: Generate Key
-        run: php artisan key:generate
-
-      # Step 6: Set directory permissions
+      # Step 5: Set directory permissions
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
 
-      # Step 7: Set up SQLite database
+      # Step 6: Set up SQLite database
       - name: Create Database
         run: |
           mkdir -p database
           touch database/database.sqlite
 
-      # Step 8: Run Laravel migrations
+      # Step 7: Run Laravel migrations
       - name: Run Migrations
         run: php artisan migrate --force
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
 
-      # Step 9: Seed the database
+      # Step 8: Seed the database
       - name: Seed Database
         run: |
           php artisan db:seed
@@ -75,7 +71,7 @@ jobs:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
 
-      # Step 10: Execute tests (Unit and Feature tests)
+      # Step 9: Execute tests (Unit and Feature tests)
       - name: Execute Tests
         run: php artisan test
         env:
