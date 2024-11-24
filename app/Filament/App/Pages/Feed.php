@@ -4,6 +4,8 @@ namespace App\Filament\App\Pages;
 
 use Filament\Pages\Page;
 use App\Models\Post;
+use App\Models\Comment;
+use App\Models\Reply;
 
 class Feed extends Page
 {
