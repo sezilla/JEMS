@@ -3,102 +3,68 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Services\TrelloService;
-use App\Models\Project;
 use Filament\Tables;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
+use App\Services\TrelloService;
 
 
 class TrelloTask extends Component implements HasTable
 {
     use Tables\Concerns\InteractsWithTable;
 
-    public $projectId;
-    public ?array $trelloCards = null;
+    public $listId = 'your-departments-list-id'; // Replace with the actual Trello "Departments" list ID
+    protected $trelloService;
 
-    public function mount($projectId)
+    public function __construct($id = null)
     {
-        $this->projectId = $projectId;
-        $this->fetchTrelloCards();
+        parent::__construct($id);
+        $this->trelloService = app(TrelloService::class);
     }
 
-    public function fetchTrelloCards()
+    public function fetchChecklistItems()
     {
-        $project = Project::find($this->projectId);
-        if ($project && $project->trello_board_id) {
-            $trelloService = app(TrelloService::class);
-            $this->trelloCards = $trelloService->fetchTrelloCards($project->trello_board_id);
-        }
-    }
+        $cards = $this->trelloService->getListCards($this->listId);
 
-    public function getChecklistItems(): array
-    {
-        $items = [];
-        if (!empty($this->trelloCards)) {
-            foreach ($this->trelloCards as $card) {
-                if (!empty($card['checklist'])) {
-                    foreach ($card['checklist'] as $checklist) {
-                        foreach ($checklist['checkItems'] as $checkItem) {
-                            $items[] = [
-                                'id' => $checkItem['id'],
-                                'task' => $checkItem['name'],
-                                'state' => $checkItem['state'],
-                                'due' => $checkItem['due'] ? date('Y-m-d', strtotime($checkItem['due'])) : 'No deadline',
-                                'cardName' => $card['name'], // Card name for context
-                            ];
-                        }
-                    }
+        $checklistItems = [];
+        foreach ($cards as $card) {
+            $cardChecklists = $this->trelloService->getCardData($card['id'])['checklists'] ?? [];
+            foreach ($cardChecklists as $checklist) {
+                foreach ($checklist['checkItems'] as $item) {
+                    $checklistItems[] = [
+                        'card_name' => $card['name'],
+                        'checklist_name' => $checklist['name'],
+                        'item_name' => $item['name'],
+                        'item_state' => $item['state'], // complete or incomplete
+                    ];
                 }
             }
         }
-        return $items;
+
+        return $checklistItems;
     }
 
     protected function getTableQuery()
     {
-        return collect($this->getChecklistItems());
+        // No query used here, as data is fetched dynamically.
+        return [];
     }
 
     protected function getTableColumns(): array
     {
         return [
-            Tables\Columns\TextColumn::make('task')
-                ->label('Task')
-                ->searchable()
-                ->sortable(),
-            Tables\Columns\TextColumn::make('state')
-                ->label('State')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('due')
-                ->label('Due Date')
-                ->sortable(),
-            Tables\Columns\TextColumn::make('cardName')
-                ->label('Card Name')
-                ->searchable(),
+            TextColumn::make('card_name')->label('Card Name')->sortable(),
+            TextColumn::make('checklist_name')->label('Checklist Name')->sortable(),
+            TextColumn::make('item_name')->label('Item Name')->sortable(),
+            TextColumn::make('item_state')->label('Status')->sortable(),
         ];
     }
 
-    protected function getTableActions(): array
+    protected function getTableData(): array
     {
-        return [
-            Action::make('markDone')
-                ->label('Mark as Done')
-                ->action(function ($record) {
-                    $this->markAsDone($record['id']);
-                })
-                ->color('success')
-                ->visible(fn ($record) => $record['state'] !== 'complete'),
-        ];
+        return $this->fetchChecklistItems();
     }
-
-    public function markAsDone($checkItemId)
-    {
-        $trelloService = app(TrelloService::class);
-        $trelloService->markChecklistItemAsDone($checkItemId);
-        $this->fetchTrelloCards(); // Refresh the cards after marking as done
-    }
-
+    
     public function render()
     {
         return view('livewire.trello-task');

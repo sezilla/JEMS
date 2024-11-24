@@ -29,14 +29,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('reactions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('post_id')->nullable()->constrained('posts')->onDelete('cascade');
-            $table->foreignId('comment_id')->nullable()->constrained('comments')->onDelete('cascade');
-            $table->string('type'); // e.g., 'like', 'love', etc.
-            $table->timestamps();
-        });
+        // Schema::create('reactions', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+        //     $table->foreignId('post_id')->nullable()->constrained('posts')->onDelete('cascade');
+        //     $table->foreignId('comment_id')->nullable()->constrained('comments')->onDelete('cascade');
+        //     $table->string('type'); // e.g., 'like', 'love', etc.
+        //     $table->timestamps();
+        // });
 
         Schema::create('replies', function (Blueprint $table) {
             $table->id();
@@ -54,7 +54,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('posts');
         Schema::dropIfExists('comments');
-        Schema::dropIfExists('reactions');
+        // Schema::dropIfExists('reactions');
         Schema::dropIfExists('replies');
     }
 };
