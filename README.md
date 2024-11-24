@@ -127,5 +127,8 @@ php artisan db:seed --class=SkillTask
 php artisan db:seed --class=FakeUser
 
 
+run:
+php artisan serve
+php artisan queue:work
 
 

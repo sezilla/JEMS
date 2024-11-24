@@ -2,13 +2,33 @@
     <!-- Chat Messages Section -->
 
     <div class="flex gap-4">
-        <x-filament::section class="col-span-1">
-            <h1 class="text-2xl font-bold">Messages</h1>  
-              
+        <x-filament::section class="w-1/4">
+            <div class="flex">
+                <!-- Sidebar with list of conversations -->
+                <div class="w-1/4">
+                    <h2 class="text-xl font-bold mb-4">Conversations</h2>
+                    <ul class="space-y-2">
+                        
+                        @foreach ($conversations as $conversation)
+                            <li>
+                                <x-filament::card>
+                                    <button 
+                                        wire:click="$set('selectedConversationId', {{ $conversation->id }})" 
+                                        class="w-full text-left px-4 py-2 rounded-md {{ $selectedConversationId == $conversation->id }}">
+                                        {{ $conversation->name }}
+                                    </button>
+                                </x-filament::card>
+                            </li>
+                        @endforeach
+                    
+                    </ul>
+                </div>
+            </div>
         </x-filament::section>
+        
 
     
-        <x-filament::section class="col-span-2">
+        <x-filament::section class="flex-grow">
             <x-slot name="header">
                 <h1 class="text-2xl font-bold">{{ $selectedConversationName }}</h1>
             </x-slot>

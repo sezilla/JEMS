@@ -112,11 +112,11 @@ class Chat extends Page implements Forms\Contracts\HasForms
     protected function getFormSchema(): array
     {
         return [
-            Forms\Components\Select::make('selectedConversationId')
-                ->label('Select Conversation')
-                ->options($this->conversations->pluck('name', 'id'))
-                ->reactive()
-                ->afterStateUpdated(fn ($state) => $this->loadMessages($state)),
+            // Forms\Components\Select::make('selectedConversationId')
+            //     ->label('Select Conversation')
+            //     ->options($this->conversations->pluck('name', 'id'))
+            //     ->reactive()
+            //     ->afterStateUpdated(fn ($state) => $this->loadMessages($state)),
 
             Forms\Components\TextInput::make('messageBody')
                 ->label('')
