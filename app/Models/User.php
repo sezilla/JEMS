@@ -57,6 +57,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
     
 
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+
 
     /**
      * The attributes that should be hidden for serialization.
