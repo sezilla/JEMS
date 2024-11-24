@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Events\PostCreated;
 
 class Post extends Model
 {
     use HasFactory;
+
+    protected $dispatchesEvents = [
+        'created' => PostCreated::class,
+    ];
+    
 
     protected $fillable = [
         'title',
@@ -40,11 +46,6 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class);
-    }
-
-    public function reactions()
-    {
-        return $this->hasMany(Reaction::class);
     }
 
     public function projects()

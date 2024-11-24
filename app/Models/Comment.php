@@ -43,10 +43,5 @@ class Comment extends Model
     {
         return $this->hasMany(Reply::class);
     }
-
-    public function reactions()
-    {
-        return $this->hasMany(Reaction::class);
-    }
 }
 
