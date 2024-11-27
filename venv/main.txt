@@ -14,34 +14,19 @@ from logging.config import dictConfig
 import os
 from dotenv import load_dotenv
 
-from sqlalchemy.orm import sessionmaker
-from sshtunnel import SSHTunnelForwarder
-
 # Load environment variables
-DATABASE_HOST = os.getenv("DB_HOST")
-DATABASE_PORT = int(os.getenv("DB_PORT", "3306"))
-DATABASE_NAME = os.getenv("DB_DATABASE")
-DATABASE_USER = os.getenv("DB_USERNAME")
-DATABASE_PASSWORD = os.getenv("DB_PASSWORD")
-SSH_HOST = os.getenv("SSH_HOST")
-SSH_USER = os.getenv("SSH_USERNAME")
-SSH_PRIVATE_KEY_PATH = "/path/to/ssh-private-key"  # Replace with Render's secret file path
+load_dotenv('.env')
 
-# SSH Tunnel
-ssh_tunnel = SSHTunnelForwarder(
-    (SSH_HOST, 22),
-    ssh_username=SSH_USER,
-    ssh_private_key=SSH_PRIVATE_KEY_PATH,
-    remote_bind_address=(DATABASE_HOST, DATABASE_PORT),
-    local_bind_address=('127.0.0.1', 3306)
-)
+# Database Setup
+DATABASE_URL = os.getenv("DB_CONNECTION", "mysql") + "+pymysql://" + \
+               os.getenv("DB_USERNAME", "root") + ":" + \
+               os.getenv("DB_PASSWORD", "") + "@" + \
+               os.getenv("DB_HOST", "127.0.0.1") + ":" + \
+               os.getenv("DB_PORT", "3306") + "/" + \
+               os.getenv("DB_DATABASE", "forge") + "?" + \
+               os.getenv("SSH_HOST", "127.0.0.1") + ":" + \
+               os.getenv("SSH_USERNAME", "forge")
 
-ssh_tunnel.start()
-
-# Database URL
-DATABASE_URL = f"mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@127.0.0.1:3306/{DATABASE_NAME}"
-
-# SQLAlchemy setup
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -125,17 +110,6 @@ class ProjectTeam(Base):
 
 # FastAPI App
 app = FastAPI()
-
-@app.on_event("startup")
-def startup_event():
-    # Verify the SSH tunnel
-    if not ssh_tunnel.is_active:
-        raise RuntimeError("SSH tunnel failed to start")
-
-@app.on_event("shutdown")
-def shutdown_event():
-    # Stop the SSH tunnel
-    ssh_tunnel.stop()
 
 # Dependency
 def get_db():
