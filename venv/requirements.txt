@@ -1,0 +1,5 @@
+pip install numpy pandas
+pip install fastapi uvicorn pydantic
+pip install sqlalchemy pymysql
+pip install python-dotenv
+

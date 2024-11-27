@@ -22,16 +22,12 @@ yarn-error.log
 /.zed
 
 # Python-specific
-/venv/
-__pycache__/
-/*.pyc
-*.pyo
-*.pyd
-.Python
-/venv/*
-/env/
-/ENV/
-*.env
+/venv/bin/*
+/venv/lib/*
+/venv/lib64/*
+/venv/pyvenv.cfg
+/venv/include/*
+/venv/Scripts/*
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
