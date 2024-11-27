@@ -25,7 +25,7 @@ DATABASE_USER = os.getenv("DB_USERNAME")
 DATABASE_PASSWORD = os.getenv("DB_PASSWORD")
 SSH_HOST = os.getenv("SSH_HOST")
 SSH_USER = os.getenv("SSH_USERNAME")
-SSH_PRIVATE_KEY_PATH = "/path/to/ssh-private-key"  # Replace with Render's secret file path
+SSH_PRIVATE_KEY_PATH = "/etc/secrets/jem"  # Replace with Render's secret file path
 
 # SSH Tunnel
 ssh_tunnel = SSHTunnelForwarder(
