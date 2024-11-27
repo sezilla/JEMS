@@ -158,6 +158,8 @@ class Project extends Model
         });
     }
 
+
+
     public function allocateTeams($projectName, $packageId, $start, $end)
     {
         $pythonServiceUrl = env('PYTHON_SERVICE_URL');
@@ -221,6 +223,9 @@ class Project extends Model
                     'message' => $e->getMessage(),
                 ]);
             }
+            
+
+
 
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();

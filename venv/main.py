@@ -1,28 +1,32 @@
 import random
 from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, select
+from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
-from fastapi import FastAPI, HTTPException
+from sqlalchemy.sql import text
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 import uvicorn
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from Laravel's .env file
-load_dotenv('.env')  # Ensure your Laravel .env is in the same directory or provide the correct path
+# Load environment variables
+load_dotenv('.env')
 
-# Database Setup: Use values from the .env file
+# Database Setup
 DATABASE_URL = os.getenv("DB_CONNECTION", "mysql") + "+pymysql://" + \
-              os.getenv("DB_USERNAME", "root") + ":" + \
-              os.getenv("DB_PASSWORD", "") + "@" + \
-              os.getenv("DB_HOST", "localhost") + ":" + \
-              os.getenv("DB_PORT", "3306") + "/" + \
-              os.getenv("DB_DATABASE", "your_database_name")
+               os.getenv("DB_USERNAME", "root") + ":" + \
+               os.getenv("DB_PASSWORD", "") + "@" + \
+               os.getenv("DB_HOST", "localhost") + ":" + \
+               os.getenv("DB_PORT", "3306") + "/" + \
+               os.getenv("DB_DATABASE", "your_database_name")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
 
 # Models
 class Package(Base):
@@ -31,6 +35,7 @@ class Package(Base):
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
 
+
 class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True, index=True)
@@ -38,21 +43,25 @@ class Task(Base):
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
 
+
 class TaskPackage(Base):
     __tablename__ = 'task_package'
     task_id = Column(Integer, ForeignKey('tasks.id'), primary_key=True)
     package_id = Column(Integer, ForeignKey('packages.id'), primary_key=True)
+
 
 class Department(Base):
     __tablename__ = 'departments'
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    
+
+
 class DepartmentTeam(Base):
     __tablename__ = 'departments_has_teams'
     department_id = Column(Integer, ForeignKey('departments.id'), primary_key=True)
     team_id = Column(Integer, ForeignKey('teams.id'), primary_key=True)
+
 
 class Team(Base):
     __tablename__ = 'teams'
@@ -61,15 +70,39 @@ class Team(Base):
     description = Column(Text, nullable=True)
 
 
+class Project(Base):
+    __tablename__ = 'projects'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+
+
+class ProjectTeam(Base):
+    __tablename__ = 'project_teams'
+    project_id = Column(Integer, ForeignKey('projects.id'), primary_key=True)
+    team_id = Column(Integer, ForeignKey('teams.id'), primary_key=True)
+
+
 # FastAPI App
 app = FastAPI()
 
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# Request Schema
 class ProjectAllocationRequest(BaseModel):
     project_name: str
     package_id: int
     start: str
     end: str
 
+
+# Allocator Class
 class EventTeamAllocator:
     def __init__(self):
         self.team_schedules = {}
@@ -98,27 +131,22 @@ class EventTeamAllocator:
         start_dt = datetime.strptime(start, '%Y-%m-%d')
         end_dt = datetime.strptime(end, '%Y-%m-%d')
 
-        # Fetch tasks and departments
         package_tasks = self.get_package_tasks(db, package_id)
         departments_needed = {self.get_department_for_task(db, task_id) for task_id in package_tasks}
 
         allocated_teams = {}
 
         for dept_id in departments_needed:
-            # Fetch teams for the department
             department_teams = self.get_teams_for_department(db, dept_id)
-            # Filter available teams
             available_teams = [t for t in department_teams if self.is_team_available(t, start, end)]
 
             if not available_teams:
                 continue
 
-            # Select the best team (highest probability or other criteria)
-            selected_team = random.choice(available_teams)  # Simplified to random choice
+            selected_team = random.choice(available_teams)
             allocated_teams[dept_id] = selected_team
             self.team_schedules.setdefault(selected_team, []).append((start_dt, end_dt))
 
-        # Save allocations in Laravel database (project_teams table)
         self.save_allocated_teams_to_laravel(db, project_name, allocated_teams)
 
         result = {
@@ -132,37 +160,22 @@ class EventTeamAllocator:
         return result
 
     def save_allocated_teams_to_laravel(self, db, project_name, allocated_teams):
-        # Find the project by name (adjust field names as needed)
         project = db.query(Project).filter(Project.name == project_name).first()
         if not project:
             raise ValueError(f"Project with name '{project_name}' not found")
 
-        # Insert into the Laravel model function's related table (project_teams)
         for department_id, team_id in allocated_teams.items():
             project_team_entry = ProjectTeam(project_id=project.id, team_id=team_id)
             db.add(project_team_entry)
         db.commit()
 
 
-# Models for Laravel's Project and ProjectTeam
-class Project(Base):
-    __tablename__ = 'projects'
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-
-class ProjectTeam(Base):
-    __tablename__ = 'project_teams'
-    project_id = Column(Integer, ForeignKey('projects.id'), primary_key=True)
-    team_id = Column(Integer, ForeignKey('teams.id'), primary_key=True)
-
-
-# Create global allocator instance
+# Global Allocator
 allocator = EventTeamAllocator()
 
-# API Endpoints
+
 @app.post("/allocate-teams")
-async def allocate_teams(request: ProjectAllocationRequest):
-    db = SessionLocal()
+def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
     try:
         result = allocator.allocate_teams(
             db,
@@ -173,14 +186,28 @@ async def allocate_teams(request: ProjectAllocationRequest):
         )
         return result
     except Exception as e:
-        print(f"Error occurred during team allocation: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
-    finally:
-        db.close()
+
 
 @app.get("/project-history")
-async def get_project_history():
+def get_project_history():
     return allocator.project_history
+
+
+@app.get("/test")
+def test_endpoint(db: Session = Depends(get_db)):
+    """
+    A basic endpoint to test if the API and database connection work.
+    """
+    try:
+        # Run a basic query to test the database connection
+        db.execute(text("SELECT 1"))
+        return {"message": "API is working and database connection is successful!"}
+    except SQLAlchemyError as e:
+        return {"error": "Database connection failed!", "details": str(e)}
+
+# Initialize Database Tables
+Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

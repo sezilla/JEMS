@@ -12,7 +12,7 @@ class PythonService
     public function __construct()
     {
         // Set the base URL for your Python FastAPI service
-        $this->baseUrl = env('PYTHON_SERVICE_URL', 'http://127.0.0.1:8000'); // Update to your Python API URL
+        $this->baseUrl = env('PYTHON_SERVICE_URL');
     }
 
     /**
