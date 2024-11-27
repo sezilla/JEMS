@@ -15,19 +15,55 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv('.env')
+# load_dotenv('.env')
 
-# Database Setup
-DATABASE_URL = os.getenv("DB_CONNECTION", "mysql") + "+pymysql://" + \
-               os.getenv("DB_USERNAME", "root") + ":" + \
-               os.getenv("DB_PASSWORD", "") + "@" + \
-               os.getenv("DB_HOST", "localhost") + ":" + \
-               os.getenv("DB_PORT", "3306") + "/" + \
-               os.getenv("DB_DATABASE", "your_database_name")
+# # Database Setup
+# DATABASE_URL = os.getenv("DB_CONNECTION", "mysql") + "+pymysql://" + \
+#                os.getenv("DB_USERNAME", "root") + ":" + \
+#                os.getenv("DB_PASSWORD", "") + "@" + \
+#                os.getenv("DB_HOST", "localhost") + ":" + \
+#                os.getenv("DB_PORT", "3306") + "/" + \
+#                os.getenv("DB_DATABASE", "your_database_name")
 
-engine = create_engine(DATABASE_URL)
+# engine = create_engine(DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Base = declarative_base()
+
+
+
+DB_CONNECTION = os.getenv("DB_CONNECTION")
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_DATABASE = os.getenv("DB_DATABASE")
+SSH_HOST = os.getenv("SSH_HOST")
+SSH_USERNAME = os.getenv("SSH_USERNAME")
+
+# Get the private key from environment variable
+PRIVATE_KEY = os.getenv("SSH_PRIVATE_KEY")
+
+# Ensure the private key is available
+if not PRIVATE_KEY:
+    raise ValueError("Private key not found in environment variables")
+
+# Build the database URL (for local MySQL connection after SSH tunneling)
+DATABASE_URL = f"mysql+ssh://{DB_USERNAME}@{SSH_HOST}/{DB_DATABASE}?host={DB_HOST}&port={DB_PORT}&user={DB_USERNAME}&password={DB_PASSWORD}"
+
+# Use SQLAlchemy to create the engine, passing the private key as connect_args
+engine = create_engine(DATABASE_URL, connect_args={
+    "private_key": PRIVATE_KEY,
+    "host": DB_HOST,
+    "port": DB_PORT,
+    "username": SSH_USERNAME,
+})
+
+# Set up session and base
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+
+
 
 logging_config = {
     "version": 1,
