@@ -180,9 +180,11 @@ class ProjectResource extends Resource
                         //     ->preload(),
                         
                     ]),
+
                 Section::make()
                     ->columns(3)
                     ->description('Teams')
+                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
                     ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('team1')
@@ -437,7 +439,25 @@ class ProjectResource extends Resource
                                 ->badge()
                                 ->limit(8),
                         ]),
+                        
                     ]),
+                    TextColumn::make('teams.name') 
+                        ->getStateUsing(function ($record) {
+                            return 'Teams';
+                        })
+                        ->size(TextColumn\TextColumnSize::ExtraSmall)
+                        ->weight(FontWeight::Thin)
+                        ->formatStateUsing(function ($column, $state) {
+                            return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                        })
+                        ->html(),
+                    ImageColumn::make('teams.image') 
+                        ->label('Bride Coordinator') 
+                        ->searchable()
+                        ->stacked()
+                        ->limit(6)
+                        ->circular()
+                        ->limitedRemainingText(),
                     // TextColumn::make('start')
                     //     ->label('Date Added')
                     //     ->date()
@@ -449,6 +469,7 @@ class ProjectResource extends Resource
                 'md' => 2,
                 'xl' => 3,
             ])
+            ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 //
             ])
