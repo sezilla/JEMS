@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 import uvicorn
+import logging
+from logging.config import dictConfig
 import os
 from dotenv import load_dotenv
 
@@ -26,6 +28,28 @@ DATABASE_URL = os.getenv("DB_CONNECTION", "mysql") + "+pymysql://" + \
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+logging_config = {
+    "version": 1,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+    },
+    "root": {
+        "level": "DEBUG",
+        "handlers": ["console"],
+    },
+}
+dictConfig(logging_config)
+
+logger = logging.getLogger(__name__)
 
 
 # Models
@@ -107,6 +131,7 @@ class EventTeamAllocator:
     def __init__(self):
         self.team_schedules = {}
         self.project_history = []
+        self.allocated_teams = {}  # Store allocated teams by project name
 
     def get_package_tasks(self, db, package_id):
         tasks = db.query(TaskPackage.task_id).filter(TaskPackage.package_id == package_id).all()
@@ -157,6 +182,7 @@ class EventTeamAllocator:
             'allocated_teams': allocated_teams
         }
         self.project_history.append(result)
+        self.allocated_teams[project_name] = allocated_teams  # Store allocated teams
         return result
 
     def save_allocated_teams_to_laravel(self, db, project_name, allocated_teams):
@@ -170,12 +196,13 @@ class EventTeamAllocator:
         db.commit()
 
 
+
 # Global Allocator
 allocator = EventTeamAllocator()
 
-
 @app.post("/allocate-teams")
 def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
+    logger.info("Received allocation request: %s", request)
     try:
         result = allocator.allocate_teams(
             db,
@@ -184,15 +211,24 @@ def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
             request.start,
             request.end
         )
+        logger.info("Allocation result: %s", result)
         return result
     except Exception as e:
+        logger.error("Error during team allocation: %s", str(e))
         raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
-
+    
+@app.get("/allocated-teams/{project_name}")
+def get_allocated_teams(project_name: str):
+    logger.info("Fetching allocated teams for project: %s", project_name)
+    if project_name in allocator.allocated_teams:
+        return allocator.allocated_teams[project_name]
+    else:
+        logger.warning("No allocated teams found for project: %s", project_name)
+        raise HTTPException(status_code=404, detail=f"No allocated teams found for project '{project_name}'")
 
 @app.get("/project-history")
 def get_project_history():
     return allocator.project_history
-
 
 @app.get("/test")
 def test_endpoint(db: Session = Depends(get_db)):

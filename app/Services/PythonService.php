@@ -92,4 +92,41 @@ class PythonService
             ];
         }
     }
+
+    /**
+     * Retrieve allocated teams for a specific project from the Python service.
+     *
+     * @param string $projectName
+     * @return array
+     */
+    public function getAllocatedTeams(string $projectName): array
+    {
+        $url = "{$this->baseUrl}/allocated-teams/{$projectName}";
+
+        try {
+            $response = Http::get($url);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('PythonService::getAllocatedTeams Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return [
+                'error' => 'Failed to fetch allocated teams. Please try again.',
+            ];
+        } catch (\Exception $e) {
+            Log::error('PythonService::getAllocatedTeams Exception', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return [
+                'error' => 'An error occurred while fetching allocated teams. Please check the logs.',
+            ];
+        }
+    }
+
 }

@@ -49,4 +49,16 @@ class ProjectController extends Controller
         $response = $this->pythonService->getProjectHistory();
         return response()->json($response);
     }
+
+    /**
+     * Get allocated teams for a specific project.
+     *
+     * @param string $projectName
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllocatedTeams($projectName)
+    {
+        $response = $this->pythonService->getAllocatedTeams($projectName);
+        return response()->json($response);
+    }
 }

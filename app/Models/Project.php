@@ -211,7 +211,7 @@ class Project extends Model
                     $project->start,
                     $project->end
                 );
-
+            
                 if (isset($allocationResponse['allocated_teams'])) {
                     Log::info('Teams allocated successfully', $allocationResponse['allocated_teams']);
                 } else {
@@ -224,8 +224,25 @@ class Project extends Model
                 ]);
             }
             
-
-
+            try {
+                $allocatedTeams = $pythonService->getAllocatedTeams($project->name);
+                
+                if (is_array($allocatedTeams) && !empty($allocatedTeams)) {
+                    // Attach the allocated team IDs to the pivot table (project_teams)
+                    $project->teams()->sync($allocatedTeams); // 'sync' will remove any existing teams and attach the new ones
+                    
+                    Log::info('Project teams updated successfully', ['project_id' => $project->id, 'teams' => $allocatedTeams]);
+                } else {
+                    Log::warning('Allocated teams response missing or empty.', ['response' => $allocatedTeams]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error during fetching allocated teams', [
+                    'project_name' => $project->name,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+                       
+        
 
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
