@@ -40,28 +40,25 @@ DB_PORT = os.getenv("DB_PORT")
 DB_DATABASE = os.getenv("DB_DATABASE")
 SSH_HOST = os.getenv("SSH_HOST")
 SSH_USERNAME = os.getenv("SSH_USERNAME")
-
-# Get the private key from environment variable
 PRIVATE_KEY = os.getenv("SSH_PRIVATE_KEY")
 
-# Ensure the private key is available
 if not PRIVATE_KEY:
     raise ValueError("Private key not found in environment variables")
 
-# Build the database URL (for local MySQL connection after SSH tunneling)
-DATABASE_URL = f"mysql+ssh://{DB_USERNAME}@{SSH_HOST}/{DB_DATABASE}?host={DB_HOST}&port={DB_PORT}&user={DB_USERNAME}&password={DB_PASSWORD}"
+with SSHTunnelForwarder(
+    (SSH_HOST, 22),
+    ssh_username=SSH_USERNAME,
+    ssh_pkey=PRIVATE_KEY,
+    remote_bind_address=(DB_HOST, int(DB_PORT))
+) as tunnel:
+    # After the tunnel is created, we can connect to MySQL via the tunnel
+    DATABASE_URL = f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1:{tunnel.local_bind_port}/{DB_DATABASE}"
 
-# Use SQLAlchemy to create the engine, passing the private key as connect_args
-engine = create_engine(DATABASE_URL, connect_args={
-    "private_key": PRIVATE_KEY,
-    "host": DB_HOST,
-    "port": DB_PORT,
-    "username": SSH_USERNAME,
-})
+    engine = create_engine(DATABASE_URL)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Set up session and base
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+    # Now you can proceed with your database operations
+    Base.metadata.create_all(bind=engine)
 
 
 
