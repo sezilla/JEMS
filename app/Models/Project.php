@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
+use App\Services\PythonService;
 // use app\Models\
 
 class Project extends Model
@@ -157,8 +158,29 @@ class Project extends Model
         });
     }
 
+    public function allocateTeams($projectName, $packageId, $start, $end)
+    {
+        $pythonServiceUrl = env('PYTHON_SERVICE_URL');
 
+        try {
+            $response = Http::post("{$pythonServiceUrl}/allocate-teams", [
+                'project_name' => $projectName,
+                'package_id' => $packageId,
+                'start' => $start,
+                'end' => $end,
+            ]);
 
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            \Log::warning('Team allocation response missing allocated teams.', ['error' => $response->body()]);
+        } catch (\Exception $e) {
+            \Log::error('PythonService::allocateTeams Exception', ['message' => $e->getMessage()]);
+        }
+
+        return false;
+    }
 
 
 
@@ -174,6 +196,32 @@ class Project extends Model
         });
 
         static::created(function ($project) {
+
+            // Allocate teams using PythonService
+            Log::info('Allocating teams for project: ' . $project->name);
+
+            $pythonService = app(PythonService::class);
+
+            try {
+                $allocationResponse = $pythonService->allocateTeams(
+                    $project->name,
+                    $project->package_id,
+                    $project->start,
+                    $project->end
+                );
+
+                if (isset($allocationResponse['allocated_teams'])) {
+                    Log::info('Teams allocated successfully', $allocationResponse['allocated_teams']);
+                } else {
+                    Log::warning('Team allocation response missing allocated teams.', $allocationResponse);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error during team allocation', [
+                    'project_name' => $project->name,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
 
