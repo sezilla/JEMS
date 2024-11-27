@@ -9,6 +9,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
+use App\Services\PythonService;
 // use app\Models\
 
 class Project extends Model
@@ -159,6 +160,29 @@ class Project extends Model
 
 
 
+    public function allocateTeams($projectName, $packageId, $start, $end)
+    {
+        $pythonServiceUrl = env('PYTHON_SERVICE_URL');
+
+        try {
+            $response = Http::post("{$pythonServiceUrl}/allocate-teams", [
+                'project_name' => $projectName,
+                'package_id' => $packageId,
+                'start' => $start,
+                'end' => $end,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            \Log::warning('Team allocation response missing allocated teams.', ['error' => $response->body()]);
+        } catch (\Exception $e) {
+            \Log::error('PythonService::allocateTeams Exception', ['message' => $e->getMessage()]);
+        }
+
+        return false;
+    }
 
 
 
@@ -174,6 +198,52 @@ class Project extends Model
         });
 
         static::created(function ($project) {
+
+            // Allocate teams using PythonService
+            Log::info('Allocating teams for project: ' . $project->name);
+
+            $pythonService = app(PythonService::class);
+
+            try {
+                $allocationResponse = $pythonService->allocateTeams(
+                    $project->name,
+                    $project->package_id,
+                    $project->start,
+                    $project->end
+                );
+            
+                if (isset($allocationResponse['allocated_teams'])) {
+                    Log::info('Teams allocated successfully', $allocationResponse['allocated_teams']);
+                } else {
+                    Log::warning('Team allocation response missing allocated teams.', $allocationResponse);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error during team allocation', [
+                    'project_name' => $project->name,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+            
+            try {
+                $allocatedTeams = $pythonService->getAllocatedTeams($project->name);
+                
+                if (is_array($allocatedTeams) && !empty($allocatedTeams)) {
+                    // Attach the allocated team IDs to the pivot table (project_teams)
+                    $project->teams()->sync($allocatedTeams); // 'sync' will remove any existing teams and attach the new ones
+                    
+                    Log::info('Project teams updated successfully', ['project_id' => $project->id, 'teams' => $allocatedTeams]);
+                } else {
+                    Log::warning('Allocated teams response missing or empty.', ['response' => $allocatedTeams]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Error during fetching allocated teams', [
+                    'project_name' => $project->name,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+                       
+        
+
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
 
