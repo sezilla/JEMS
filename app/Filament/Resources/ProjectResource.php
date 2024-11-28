@@ -468,6 +468,7 @@ class ProjectResource extends Resource
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,
+                'sm' => 1,
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
