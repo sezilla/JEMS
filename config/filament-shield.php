@@ -28,7 +28,23 @@ return [
     //other roles
     'panel_user' => [
         'enabled' => false,
+        'name' => 'panel_user',
+    ],
+    'admin_user' => [
+        'enabled' => true,
         'name' => 'Admin',
+    ],
+    'coordinator_user' => [
+        'enabled' => true,
+        'name' => 'Coordinator',
+    ],
+    'leader_user' => [
+        'enabled' => true,
+        'name' => 'Team Leader',
+    ],
+    'member_user' => [
+        'enabled' => true,
+        'name' => 'Member',
     ],
 
     'permission_prefixes' => [
