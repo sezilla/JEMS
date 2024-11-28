@@ -7,3 +7,4 @@ sqlalchemy
 pymysql
 python-dotenv
 gunicorn
+sshtunnel
