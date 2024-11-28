@@ -48,7 +48,7 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->columnSpan(2)
+                            ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Select::make('package_id')
@@ -77,7 +77,7 @@ class ProjectResource extends Resource
                 Section::make()
                     ->description('Couple Details')
                     ->collapsible()
-                    ->columns(3)
+                    ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('groom_name')
                             ->label('Groom Name')
@@ -89,12 +89,15 @@ class ProjectResource extends Resource
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
-                        ColorPicker::make('theme_color'),
                         Forms\Components\MarkdownEditor::make('special_request')
                             ->label('Special Requests')
-                            ->columnSpan(2),
+                            ->columnSpan('full'),
+                        ColorPicker::make('theme_color')
+                            ->columnSpan(1),
+                        
                         FileUpload::make('thumbnail_path')
                             ->disk('public')
+                            ->columnSpan(1)
                             ->label('Thumbnail')
                             ->directory('thumbnails'),
                     ]),
