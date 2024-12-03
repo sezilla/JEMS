@@ -1,28 +1,28 @@
-from app import app
-import uvicorn
+from fastapi import FastAPI
+from app.routes import include_routes
+from app.database import Base, engine
+from app.allocator import ssh_tunnel
+
+# Initialize FastAPI
+app = FastAPI()
+
+@app.on_event("startup")
+def startup_event():
+    # Verify SSH tunnel
+    if not ssh_tunnel.is_active:
+        raise RuntimeError("SSH tunnel failed to start")
+    Base.metadata.create_all(bind=engine)  # Ensure database tables are created
+
+@app.on_event("shutdown")
+def shutdown_event():
+    ssh_tunnel.stop()  # Stop SSH tunnel
+
+# Include all routes
+include_routes(app)
 
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

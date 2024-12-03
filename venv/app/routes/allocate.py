@@ -4,10 +4,10 @@ from app.database import get_db
 from app.allocator import EventTeamAllocator
 from app.schemas import ProjectAllocationRequest
 
-router = APIRouter(prefix="/allocate", tags=["Allocate"])
+router = APIRouter()
 allocator = EventTeamAllocator()
 
-@router.post("/allocate-teams")
+@router.post("/teams")
 def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_db)):
     try:
         result = allocator.allocate_teams(
