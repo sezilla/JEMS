@@ -13,6 +13,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Support\Facades\Storage;
 use Filament\Panel;
+use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
@@ -35,6 +36,33 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     ];
 
     //php
+
+    protected static function booted(): void
+    {
+        if(config('filament-shield.member_user.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
+            static::created(function ($user) {
+                $user->assignRole(config('filament-shield.member_user.name', 'Member'));
+            });
+            static::deleting(function ($user) {
+                $user->removeRole(config('filament-shield.member_user.name', 'Member'));
+            });
+        }
+        FilamentShield::createRole(name: config('filament-shield.admin_user.name', 'Admin'));
+        FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
+        FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
+    }
+
+    // public function usersPanel(): string
+    // {
+    //     return match ($this->getRoleNames()->first()) {
+    //         'Admin' => url('/admin'), // Use `url()` instead of `getUrl()`
+    //         default => url('/app'),
+    //     };
+    // }
+    
+
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
@@ -92,17 +120,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             'custom_fields' => 'array'
         ];
     }
-
-    public function canAccessAdminPanel(): bool
-    {
-        // Checks if the user has either 'super_admin' or 'Admin' roles
-        return $this->hasRole(['super_admin', 'Admin', 'Coordinator']);
-    }
     
     public function canAccessPanel(Panel $panel): bool
     {
-        // Checks if the user has any role without specification
-        return $this->roles()->exists(); // Ensure 'roles' relationship is correctly defined in your User model
+        if($panel->getId() === 'admin') {
+            return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_user.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
+        } else {
+            return true;
+        } 
     }
 
     public function posts()
