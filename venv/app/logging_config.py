@@ -1,4 +1,7 @@
-import logging.config
+# app/logging_config.py
+
+import logging
+from logging.config import dictConfig
 
 logging_config = {
     "version": 1,
@@ -19,5 +22,6 @@ logging_config = {
     },
 }
 
-logging.config.dictConfig(logging_config)
+dictConfig(logging_config)
+
 logger = logging.getLogger(__name__)

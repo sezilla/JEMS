@@ -1,3 +1,5 @@
+# app/allocator.py
+
 import random
 from datetime import datetime
 from .models import TaskPackage, Task, DepartmentTeam, Project, ProjectTeam
@@ -7,7 +9,7 @@ class EventTeamAllocator:
     def __init__(self):
         self.team_schedules = {}
         self.project_history = []
-        self.allocated_teams = {}
+        self.allocated_teams = {}  # Store allocated teams by project name
 
     def get_package_tasks(self, db, package_id):
         tasks = db.query(TaskPackage.task_id).filter(TaskPackage.package_id == package_id).all()
@@ -58,7 +60,7 @@ class EventTeamAllocator:
             'allocated_teams': allocated_teams
         }
         self.project_history.append(result)
-        self.allocated_teams[project_name] = allocated_teams
+        self.allocated_teams[project_name] = allocated_teams  # Store allocated teams
         return result
 
     def save_allocated_teams_to_laravel(self, db, project_name, allocated_teams):
