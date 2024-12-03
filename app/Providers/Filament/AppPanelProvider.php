@@ -36,7 +36,7 @@ class AppPanelProvider extends PanelProvider
             // ->brandLogo(asset('storage/images/logo.svg'))
             ->brandName('JEM')
             ->id('app')
-            ->login(Login::class)
+            ->login()
             // ->profile()
             ->path('app')
             ->colors([
