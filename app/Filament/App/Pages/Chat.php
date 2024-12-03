@@ -6,10 +6,12 @@ use Filament\Forms;
 use App\Models\Message;
 use App\Models\Conversation;
 use Filament\Pages\Page;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Chat extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
+    // use HasPageShield;
 
     public $conversations;
     public $selectedConversationId;

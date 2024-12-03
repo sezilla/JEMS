@@ -25,7 +25,7 @@ use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Filament\Navigation\NavigationGroup;
 use App\Http\Middleware\AddUserProjectsMiddleware;
-
+use App\Filament\pages\Auth\Login;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -37,6 +37,7 @@ class AppPanelProvider extends PanelProvider
             ->brandName('JEM')
             ->id('app')
             ->login()
+            // ->profile()
             ->path('app')
             ->colors([
                 'primary' => '#6366f1',
@@ -87,7 +88,7 @@ class AppPanelProvider extends PanelProvider
             ])
             
             ->plugins([
-                // \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
 
                 FilamentEditProfilePlugin::make()
                     // ->slug('profile')
