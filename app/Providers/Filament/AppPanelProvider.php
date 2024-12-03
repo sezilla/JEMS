@@ -88,7 +88,7 @@ class AppPanelProvider extends PanelProvider
             ])
             
             ->plugins([
-                // \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
 
                 FilamentEditProfilePlugin::make()
                     // ->slug('profile')
