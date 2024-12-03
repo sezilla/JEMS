@@ -5,3 +5,10 @@ class ProjectAllocationRequest(BaseModel):
     package_id: int
     start: str
     end: str
+
+class ProjectHistoryResponse(BaseModel):
+    project_name: str
+    package_id: int
+    start: str
+    end: str
+    allocated_teams: dict
