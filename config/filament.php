@@ -87,9 +87,15 @@ return [
     'livewire_loading_delay' => 'default',
 
 
+
+
     //profile
     'pages' => [
         App\Filament\Pages\MyProfile::class,
+    ],
+
+    'auth' => [
+        'login' => \App\Filament\Pages\Auth\Login::class, // Ensure this is correct
     ],
 
 

@@ -6,9 +6,13 @@ use Filament\Pages\Page;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Models\Reply;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Feed extends Page
 {
+
+    // use HasPageShield;
+    
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static string $view = 'filament.app.pages.feed';
