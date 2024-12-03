@@ -1,28 +1,42 @@
-from fastapi import FastAPI
-from app.routes import include_routes
-from app.database import Base, engine
-from app.allocator import ssh_tunnel
+from fastapi import FastAPI, HTTPException, Depends
+from .schemas import ProjectAllocationRequest
+from .allocator import EventTeamAllocator
+from .dependencies import get_db
+from sqlalchemy.orm import Session
+import logging
 
-# Initialize FastAPI
+# Initialize FastAPI app
 app = FastAPI()
+allocator = EventTeamAllocator()
 
-@app.on_event("startup")
-def startup_event():
-    # Verify SSH tunnel
-    if not ssh_tunnel.is_active:
-        raise RuntimeError("SSH tunnel failed to start")
-    Base.metadata.create_all(bind=engine)  # Ensure database tables are created
+@app.post("/allocate-teams")
+def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_db)):
+    try:
+        result = allocator.allocate_teams(
+            db, request.project_name, request.package_id, request.start, request.end
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
 
-@app.on_event("shutdown")
-def shutdown_event():
-    ssh_tunnel.stop()  # Stop SSH tunnel
+@app.get("/allocated-teams/{project_name}")
+def get_allocated_teams(project_name: str):
+    if project_name in allocator.allocated_teams:
+        return allocator.allocated_teams[project_name]
+    raise HTTPException(status_code=404, detail=f"No allocated teams found for project '{project_name}'")
 
-# Include all routes
-include_routes(app)
+@app.get("/project-history")
+def get_project_history():
+    return allocator.project_history
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("/test")
+def test_endpoint(db: Session = Depends(get_db)):
+    try:
+        db.execute("SELECT 1")
+        return {"message": "API is working and database connection is successful!"}
+    except Exception as e:
+        return {"error": "Database connection failed!", "details": str(e)}
+
 
 
 

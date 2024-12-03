@@ -1,6 +1,7 @@
 import random
 from datetime import datetime
-from app.models import TaskPackage, Task, DepartmentTeam, ProjectTeam, Project
+from .models import TaskPackage, Task, DepartmentTeam, Project, ProjectTeam
+from sqlalchemy.orm import Session
 
 class EventTeamAllocator:
     def __init__(self):
@@ -8,10 +9,9 @@ class EventTeamAllocator:
         self.project_history = []
         self.allocated_teams = {}
 
-    # All methods as before...
     def get_package_tasks(self, db, package_id):
-            tasks = db.query(TaskPackage.task_id).filter(TaskPackage.package_id == package_id).all()
-            return [task.task_id for task in tasks]
+        tasks = db.query(TaskPackage.task_id).filter(TaskPackage.package_id == package_id).all()
+        return [task.task_id for task in tasks]
 
     def get_department_for_task(self, db, task_id):
         task = db.query(Task).filter(Task.id == task_id).first()
@@ -58,7 +58,7 @@ class EventTeamAllocator:
             'allocated_teams': allocated_teams
         }
         self.project_history.append(result)
-        self.allocated_teams[project_name] = allocated_teams  # Store allocated teams
+        self.allocated_teams[project_name] = allocated_teams
         return result
 
     def save_allocated_teams_to_laravel(self, db, project_name, allocated_teams):
