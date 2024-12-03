@@ -1,5 +1,6 @@
-from datetime import datetime
 import random
+from datetime import datetime
+from app.models import TaskPackage, Task, DepartmentTeam, Project, ProjectTeam
 
 class EventTeamAllocator:
     def __init__(self):
@@ -68,3 +69,6 @@ class EventTeamAllocator:
             project_team_entry = ProjectTeam(project_id=project.id, team_id=team_id)
             db.add(project_team_entry)
         db.commit()
+    pass
+
+allocator = EventTeamAllocator()

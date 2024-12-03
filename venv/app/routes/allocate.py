@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.schemas import ProjectAllocationRequest
 from app.database import get_db
-from app.services.allocator import EventTeamAllocator
+from app.schemas import ProjectAllocationRequest
+from app.services import allocator
+import logging
 
 router = APIRouter()
-allocator = EventTeamAllocator()
+logger = logging.getLogger(__name__)
 
-@router.post("/allocate-teams")
-def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_db)):
+@router.post("/")
+def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
     try:
         result = allocator.allocate_teams(
             db,

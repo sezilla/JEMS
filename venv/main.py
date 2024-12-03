@@ -1,27 +1,26 @@
 from fastapi import FastAPI
-from app.database import init_db
-from app.utils.logging_config import setup_logging
-from app.routes import allocation, projects, test
+from app.routes import allocate, test
+from app.core.ssh_tunnel import ssh_tunnel
 
 app = FastAPI()
 
-setup_logging()
-
 @app.on_event("startup")
 def startup_event():
-    init_db()
+    # Verify SSH tunnel
+    if not ssh_tunnel.is_active:
+        raise RuntimeError("SSH tunnel failed to start")
 
-app.include_router(allocation.router, prefix="/allocate", tags=["Allocation"])
-app.include_router(projects.router, prefix="/projects", tags=["Projects"])
-app.include_router(test.router, prefix="/test", tags=["Test"])
+@app.on_event("shutdown")
+def shutdown_event():
+    ssh_tunnel.stop()
+
+# Include routers
+app.include_router(allocate.router, prefix="/allocate-teams", tags=["Allocation"])
+app.include_router(test.router, prefix="/test", tags=["Testing"])
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
 
 
 
