@@ -54,6 +54,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
     }
 
+    // public function usersPanel(): string
+    // {
+    //     return match ($this->getRoleNames()->first()) {
+    //         'Admin' => url('/admin'), // Use `url()` instead of `getUrl()`
+    //         default => url('/app'),
+    //     };
+    // }
+    
+
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
@@ -114,7 +123,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     
     public function canAccessPanel(Panel $panel): bool
     {
-        if($panel->getId() !== 'app') {
+        if($panel->getId() === 'admin') {
             return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_user.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
         } else {
             return true;

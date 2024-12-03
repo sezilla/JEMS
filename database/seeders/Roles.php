@@ -15,10 +15,10 @@ class Roles extends Seeder
      */
     public function run(): void
     {
-        $coorRole = Role::create(['name' => 'Coordinator']);
-        Role::create(['name' => 'Admin']);
-        Role::create(['name' => 'Team Leader']);
-        Role::create(['name' => 'Member']);
+        // $coorRole = Role::create(['name' => 'Coordinator']);
+        // Role::create(['name' => 'Admin']);
+        // Role::create(['name' => 'Team Leader']);
+        // Role::create(['name' => 'Member']);
 
         //test admin
         $admin = User::factory()->create([
