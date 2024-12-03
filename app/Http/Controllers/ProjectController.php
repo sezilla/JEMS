@@ -7,7 +7,7 @@ use App\Services\PythonService;
 
 class ProjectController extends Controller
 {
-    protected $pythonService;
+    protected PythonService $pythonService;
 
     public function __construct(PythonService $pythonService)
     {
@@ -36,6 +36,10 @@ class ProjectController extends Controller
             $validated['end']
         );
 
+        if (isset($response['error'])) {
+            return response()->json(['error' => $response['error']], 400);
+        }
+
         return response()->json($response);
     }
 
@@ -47,6 +51,11 @@ class ProjectController extends Controller
     public function getProjectHistory()
     {
         $response = $this->pythonService->getProjectHistory();
+
+        if (isset($response['error'])) {
+            return response()->json(['error' => $response['error']], 400);
+        }
+
         return response()->json($response);
     }
 
@@ -56,9 +65,14 @@ class ProjectController extends Controller
      * @param string $projectName
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAllocatedTeams($projectName)
+    public function getAllocatedTeams(string $projectName)
     {
         $response = $this->pythonService->getAllocatedTeams($projectName);
+
+        if (isset($response['error'])) {
+            return response()->json(['error' => $response['error']], 404);
+        }
+
         return response()->json($response);
     }
 }
