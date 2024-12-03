@@ -1,67 +1,16 @@
-# main.py
-
 import uvicorn
+from app.database import Base, engine
+from app.routes import allocation, utility
 from fastapi import FastAPI
-from app import EventTeamAllocator, ProjectAllocationRequest, SessionLocal, logger
-from app.database import engine, SessionLocal
-from app.models import Package, Task, TaskPackage, Department, DepartmentTeam, Team, Project, ProjectTeam
-from app.schemas import ProjectAllocationRequest
-from app.allocator import EventTeamAllocator
-from app.logging_config import logger
 
-# Create FastAPI app
 app = FastAPI()
 
-# Initialize Database Tables (migrate or create the tables)
-@app.on_event("startup")
-def startup_event():
-    # Verify the SSH tunnel and DB connection
-    if not ssh_tunnel.is_active:
-        raise RuntimeError("SSH tunnel failed to start")
-    Base.metadata.create_all(bind=engine)
+# Include routers
+app.include_router(allocation.router, prefix="/allocation", tags=["Allocation"])
+app.include_router(utility.router, prefix="/utility", tags=["Utility"])
 
-@app.on_event("shutdown")
-def shutdown_event():
-    # Stop the SSH tunnel
-    ssh_tunnel.stop()
-
-@app.post("/allocate-teams")
-def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
-    logger.info("Received allocation request: %s", request)
-    try:
-        result = allocator.allocate_teams(
-            db, request.project_name, request.package_id, request.start, request.end
-        )
-        logger.info("Allocation result: %s", result)
-        return result
-    except Exception as e:
-        logger.error("Error during team allocation: %s", str(e))
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
-
-@app.get("/allocated-teams/{project_name}")
-def get_allocated_teams(project_name: str):
-    logger.info("Fetching allocated teams for project: %s", project_name)
-    if project_name in allocator.allocated_teams:
-        return allocator.allocated_teams[project_name]
-    else:
-        logger.warning("No allocated teams found for project: %s", project_name)
-        raise HTTPException(status_code=404, detail=f"No allocated teams found for project '{project_name}'")
-
-@app.get("/project-history")
-def get_project_history():
-    return allocator.project_history
-
-@app.get("/test")
-def test_endpoint(db: Session = Depends(get_db)):
-    """
-    A basic endpoint to test if the API and database connection work.
-    """
-    try:
-        # Run a basic query to test the database connection
-        db.execute("SELECT 1")
-        return {"message": "API is working and database connection is successful!"}
-    except SQLAlchemyError as e:
-        return {"error": "Database connection failed!", "details": str(e)}
+# Initialize database tables
+Base.metadata.create_all(bind=engine)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
