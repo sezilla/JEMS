@@ -10,6 +10,6 @@ def get_allocated_teams(project_name: str):
         return allocator.allocated_teams[project_name]
     raise HTTPException(status_code=404, detail=f"No allocated teams found for project '{project_name}'")
 
-@router.get("/history")
+@router.get("/project-history")
 def get_project_history():
     return allocator.project_history
