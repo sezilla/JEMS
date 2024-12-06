@@ -6,7 +6,7 @@ class ProjectAllocationRequest(BaseModel):
     start: str
     end: str
 
-class ProjectHistoryResponse(BaseModel):
+class ProjectAllocationResponse(BaseModel):
     project_name: str
     package_id: int
     start: str

@@ -15,7 +15,7 @@ def on_startup():
 
 app = FastAPI(on_startup=[on_startup])
 
-@router.get("/test")
+@router.get("/")
 def test_endpoint(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))

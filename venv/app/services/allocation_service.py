@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from app.models import Task, TaskPackage, DepartmentTeam, ProjectTeam, Project
 
 class EventTeamAllocator:
     def __init__(self):

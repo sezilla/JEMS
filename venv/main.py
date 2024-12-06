@@ -1,15 +1,5 @@
 import uvicorn
-from fastapi import FastAPI
-from app.db import Base, engine
-from app.routers import allocation, history, test
-
-app = FastAPI()
-Base.metadata.create_all(bind=engine)
-
-# Include routers
-app.include_router(allocation.router, prefix="/allocation", tags=["Allocation"])
-app.include_router(history.router, prefix="/history", tags=["History"])
-app.include_router(test.router, prefix="/test", tags=["Test"])
+from app import app
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
@@ -69,6 +59,27 @@ if __name__ == "__main__":
 
 
 
+# ├── app
+# │   ├── __init__.py
+# │   ├── app.py
+# │   ├── config.py
+# │   ├── db.py
+# │   ├── models.py
+# │   ├── schemas.py
+# │   ├── services
+# │   │   ├── __init__.py
+# │   │   ├── allocation_service.py
+# │   │   ├── team_service.py
+# │   ├── utils
+# │   │   ├── __init__.py
+# │   │   ├── ssh_tunnel.py
+# │   │   ├── logger.py
+# │   └── routers
+# │       ├── __init__.py
+# │       ├── allocation.py
+# │       ├── history.py
+# │       ├── test.py
+# └── main.py
 
 
 
@@ -355,3 +366,4 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     uvicorn.run(app, host="0.0.0.0", port=8000)
+

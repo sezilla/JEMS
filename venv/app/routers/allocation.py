@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 allocator = EventTeamAllocator()
 
-@router.post("/allocate-teams")
+@router.post("/")
 def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_db)):
     logger.info("Received allocation request: %s", request)
     try:
@@ -27,7 +27,7 @@ def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_
         logger.error("Error during team allocation: %s", str(e))
         raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
     
-@router.get("/allocated-teams/{project_name}")
+@router.get("/{project_name}")
 def get_allocated_teams(project_name: str):
     logger.info("Fetching allocated teams for project: %s", project_name)
     if project_name in allocator.allocated_teams:
