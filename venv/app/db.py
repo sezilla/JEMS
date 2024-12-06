@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.utils.ssh_tunnel import SSH_TUNNEL
+from app.config import Config
 
 DATABASE_URL = (
     f"mysql+pymysql://{Config.DATABASE_USER}:{Config.DATABASE_PASSWORD}"
