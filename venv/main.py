@@ -1,20 +1,18 @@
 import uvicorn
 from fastapi import FastAPI
-from app.routes.team_allocation import router as team_allocation_router
-from app.routes.project_history import router as project_history_router
+from app.db import Base, engine
+from app.routers import allocation, history, test
 
 app = FastAPI()
+Base.metadata.create_all(bind=engine)
 
-# Include routes
-app.include_router(team_allocation_router, prefix="/team-allocation", tags=["team-allocation"])
-app.include_router(project_history_router, prefix="/project-history", tags=["project-history"])
+# Include routers
+app.include_router(allocation.router, prefix="/allocation", tags=["Allocation"])
+app.include_router(history.router, prefix="/history", tags=["History"])
+app.include_router(test.router, prefix="/test", tags=["Test"])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-
-
-
 
 
 
