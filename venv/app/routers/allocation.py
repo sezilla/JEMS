@@ -11,7 +11,7 @@ router = APIRouter()
 allocator = EventTeamAllocator()
 
 @router.post("/allocate-teams")
-def allocate_teams(request: ProjectAllocationRequest, db: Session = Depends(get_db)):
+def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
     logger.info("Received allocation request: %s", request)
     try:
         result = allocator.allocate_teams(
