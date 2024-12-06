@@ -14,19 +14,7 @@ class Task(Base):
     department_id = Column(Integer, ForeignKey('departments.id'))
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-
-class Package(Base):
-    __tablename__ = 'packages'
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-
-class Task(Base):
-    __tablename__ = 'tasks'
-    id = Column(Integer, primary_key=True, index=True)
-    department_id = Column(Integer, ForeignKey('departments.id'))
-    name = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
+    packages = relationship('Package', secondary='task_package', back_populates='tasks')
 
 class TaskPackage(Base):
     __tablename__ = 'task_package'
