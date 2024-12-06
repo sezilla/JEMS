@@ -7,6 +7,7 @@ from app.db import get_db
 router = APIRouter()
 allocator = EventTeamAllocator()
 
-@router.get("/")
+@router.get("/project-history")
 def get_project_history():
-    return allocator.project_history
+    # Return project history
+    return {}

@@ -1,19 +1,10 @@
 from sshtunnel import SSHTunnelForwarder
-from app.config import Config
+from app.config import SSH_HOST, SSH_USER, SSH_PRIVATE_KEY_PATH, DATABASE_HOST, DATABASE_PORT
 
-SSH_TUNNEL = None
-
-def start_tunnel():
-    global SSH_TUNNEL
-    SSH_TUNNEL = SSHTunnelForwarder(
-        (Config.SSH_HOST, 22),
-        ssh_username=Config.SSH_USER,
-        ssh_private_key=Config.SSH_PRIVATE_KEY_PATH,
-        remote_bind_address=(Config.DATABASE_HOST, Config.DATABASE_PORT),
-        local_bind_address=("127.0.0.1", 3306),
-    )
-    SSH_TUNNEL.start()
-
-def stop_tunnel():
-    if SSH_TUNNEL:
-        SSH_TUNNEL.stop()
+ssh_tunnel = SSHTunnelForwarder(
+    (SSH_HOST, 22),
+    ssh_username=SSH_USER,
+    ssh_private_key=SSH_PRIVATE_KEY_PATH,
+    remote_bind_address=(DATABASE_HOST, DATABASE_PORT),
+    local_bind_address=('127.0.0.1', 3306)
+)

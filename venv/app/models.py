@@ -14,7 +14,6 @@ class Task(Base):
     department_id = Column(Integer, ForeignKey('departments.id'))
     name = Column(String, nullable=False)
     description = Column(Text, nullable=True)
-    packages = relationship('Package', secondary='task_package', back_populates='tasks')
 
 class TaskPackage(Base):
     __tablename__ = 'task_package'
