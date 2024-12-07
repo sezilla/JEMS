@@ -28,7 +28,7 @@
                         <li>
                             <button 
                                 wire:click="$set('selectedConversationId', {{ $conversation->id }})" 
-                                class="w-full text-left px-4 py-2 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
+                                class="w-full text-left px-4 py-2 border border-slate-800 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
                             >
                                 {{ $conversation->name }}
                             </button>
@@ -102,33 +102,47 @@
                 encrypted: true,
             });
 
-            const channel = pusher.subscribe(`conversation.{{ $selectedConversationId }}`);
+            const channel = pusher.subscribe('conversation.' + {{ $selectedConversationId }});
             channel.bind('MessageSent', function (data) {
-                // Emit the Livewire event to add the message
                 Livewire.emit('messageReceived', data.message);
             });
+
+            channel.bind('UserTyping', function (data) {
+                Livewire.emit('userTyping', data);
+            });
+
         });
 
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('DOMContentLoaded', function () {
             const chatContainer = document.getElementById('chat-container');
 
-            // Function to scroll to the bottom
+            // Scroll to the bottom initially
             function scrollToBottom() {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
 
-            // Scroll to the bottom when the page loads
+            // Initial scroll to the bottom
             scrollToBottom();
 
-            // Listen for new messages and scroll to the bottom
             Livewire.on('messageReceived', function () {
-                setTimeout(scrollToBottom, 100); // Allow time for DOM updates
+                setTimeout(scrollToBottom, 100); // Delay to ensure the message is added
+            });
+
+            Livewire.on('userTyping', function (user) {
+                document.getElementById('typing-indicator').textContent = `${user} is typing...`;
             });
         });
 
-        window.addEventListener('scroll-to-bottom', function () {
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        // Detect typing
+        let typingTimeout;
+        document.getElementById('messageBody').addEventListener('input', function () {
+            clearTimeout(typingTimeout);
+            Livewire.emit('userTyping');
+            typingTimeout = setTimeout(() => {
+                // Stop typing event after 3 seconds of inactivity
+                Livewire.emit('userTyping', null);
+            }, 3000);
         });
     </script>
 </x-filament-panels::page>

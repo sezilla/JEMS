@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Filament\App\Pages;
+
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms;
 use App\Models\Message;
 use App\Models\Conversation;
 use Filament\Pages\Page;
+use App\Events\UserTyping;
+use App\Events\MessageSent;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class Chat extends Page implements Forms\Contracts\HasForms
@@ -18,6 +21,7 @@ class Chat extends Page implements Forms\Contracts\HasForms
     public $messages = [];
     public $messageBody;
     public $selectedConversationName;
+    public $typingUser = null;
 
     public function mount()
     {
@@ -73,12 +77,14 @@ class Chat extends Page implements Forms\Contracts\HasForms
         $this->messageBody = '';
         $this->messages[] = $message->load('user')->toArray();
         
+        broadcast(new MessageSent($message));
     }
 
     public function getListeners()
     {
         return [
             'messageReceived' => 'addMessage',
+            'userTyping' => 'setTypingUser',
         ];
     }
 
@@ -95,6 +101,19 @@ class Chat extends Page implements Forms\Contracts\HasForms
                 'avatar' => $message['user']['getFilamentAvatarUrl'] ?? asset('images/default-avatar.png'),
             ],
         ];
+    
+        $this->dispatchBrowserEvent('scroll-to-bottom');
+    }
+
+    public function setTypingUser($data)
+    {
+        $this->typingUser = $data['user']['name'];
+        $this->emit('userTyping', $this->typingUser);
+    }
+
+    public function userTyping()
+    {
+        broadcast(new UserTyping(auth()->user(), $this->selectedConversationId));
     }
 
     public function getTitle(): string|Htmlable
