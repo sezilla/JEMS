@@ -1,0 +1,79 @@
+name: Laravel
+
+on:
+  push:
+    branches: [ "deploy" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Set up PHP
+      - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, bcmath
+
+      # Step 2: Check out the code
+      - uses: actions/checkout@v4
+
+      # Step 3: Install Composer dependencies
+      - name: Install Dependencies
+        run: composer install --no-ansi --no-interaction --prefer-dist
+
+      # Step 4: Copy .env and set up environment variables
+      - name: Set up .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=database/database.sqlite" >> .env
+          echo "TRELLO_API_KEY=a966cd777b1855838147db28239fd51a" >> .env
+          echo "TRELLO_API_TOKEN=ATTA500156500da7361a28ff6a1cbfe7523f07ac69294538d657e654c78b1e56f3835EA21F83" >> .env
+          echo "TRELLO_WORKSPACE_ID=6642fc6f2dd78abab717e158" >> .env
+          echo "PUSHER_APP_ID=1879623" >> .env
+          echo "PUSHER_APP_KEY=9728f391d06b3c4ac8d0" >> .env
+          echo "PUSHER_APP_SECRET=6190985f83040b97714e" >> .env
+          echo "PUSHER_APP_CLUSTER=ap1" >> .env
+          echo "BROADCAST_DRIVER=pusher" >> .env
+
+      # Step 5: Set directory permissions
+      - name: Directory Permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      # Step 6: Set up SQLite database
+      - name: Create Database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      # Step 7: Run Laravel migrations
+      - name: Run Migrations
+        run: php artisan migrate --force
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      # Step 8: Seed the database
+      - name: Seed Database
+        run: |
+          php artisan db:seed
+          php artisan shield:install --fresh
+          php artisan shield:generate
+          php artisan db:seed --class=Roles
+          php artisan db:seed --class=PackageTaskSeeder
+          php artisan db:seed --class=SkillTask
+          php artisan db:seed --class=FakeUser
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+
+      # Step 9: Execute tests (Unit and Feature tests)
+      - name: Execute Tests
+        run: php artisan test
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite

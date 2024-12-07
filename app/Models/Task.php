@@ -25,7 +25,7 @@ class Task extends Model
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'task_package', 'task_id', 'package_id')
-                    ->using(TaskPackage::class)
+                    // ->using(TaskPackage::class)
                     ->withPivot('trello_checklist_item_id');
     }
 
