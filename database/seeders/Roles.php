@@ -21,17 +21,17 @@ class Roles extends Seeder
         // Role::create(['name' => 'Member']);
 
         //test admin
-        $admin = User::factory()->create([
-            'name' => 'ako',
-            'email' => 'ako@me.com',
-        ]);
+        // $admin = User::factory()->create([
+        //     'name' => 'ako',
+        //     'email' => 'ako@me.com',
+        // ]);
 
-        //test coor
-        $coor = User::factory()->create([
-            'name' => 'coor',
-            'email' => 'coor@email.com',
-        ]);
-        $coor->assignRole($coorRole);
+        // //test coor
+        // $coor = User::factory()->create([
+        //     'name' => 'coor',
+        //     'email' => 'coor@email.com',
+        // ]);
+        // $coor->assignRole($coorRole);
 
         
 

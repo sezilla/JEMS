@@ -27,6 +27,7 @@ use Filament\Support\Enums\FontFamily;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 
 
 
@@ -64,7 +65,13 @@ class UserResource extends Resource
                             ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser),
                         Forms\Components\Select::make('roles')
                             ->multiple()
-                            ->relationship('roles', 'name')
+                            // ->relationship('roles', 'name')
+                            ->options([
+                                'Admin' => 'Admin',
+                                'Coordinator' => 'Coordinator',
+                                'Member' => 'Member',
+                                'Team Leader' => 'Team Leader',
+                            ])
                             ->label('Role')
                             ->columnSpan(1)
                             ->preload()
@@ -276,27 +283,44 @@ class UserResource extends Resource
                                 ->weight(FontWeight::Thin)
                                 ->searchable()
                                 ->alignment(Alignment::Left),
-                            Tables\Columns\TextColumn::make('roles')
-                                ->label('Role')
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                // ->badge()
-                                // ->color(fn (string $state): string => match ($state) {
-                                //     'Member' => 'gray',
-                                //     'Team Leader' => 'warning',
-                                //     'Coordinator' => 'success',
-                                //     'Admin' => 'danger',
-                                //     'Super Admin', 'super_admin' => 'gray',
-                                //     default => 'secondary', // Fallback color
-                                // })
-                                ->alignment(Alignment::Left)
-                                ->verticallyAlignStart()
-                                ->getStateUsing(function ($record) {
-                                    if ($record->roles) {
-                                        return implode('<br/>', $record->roles->pluck('name')->toArray());
-                                    }
-                                    return 'No Role';
-                                })
-                                ->html(),
+
+                            Split::make([
+                                Tables\Columns\TextColumn::make('roles')
+                                    ->label('Role')
+                                    ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                    // ->badge()
+                                    // ->color(fn (string $state): string => match ($state) {
+                                    //     'Member' => 'gray',
+                                    //     'Team Leader' => 'warning',
+                                    //     'Coordinator' => 'success',
+                                    //     'Admin' => 'danger',
+                                    //     'Super Admin', 'super_admin' => 'gray',
+                                    //     default => 'secondary', // Fallback color
+                                    // })
+                                    ->alignment(Alignment::Left)
+                                    ->verticallyAlignStart()
+                                    ->getStateUsing(function ($record) {
+                                        if ($record->roles) {
+                                            return implode('<br/>', $record->roles->pluck('name')->toArray());
+                                        }
+                                        return 'No Role';
+                                    })
+                                    ->html(),
+
+                                IconColumn::make('email_verified_at')
+                                    ->size(IconColumn\IconColumnSize::Small)
+                                    ->label('Verified')
+                                    ->alignment(Alignment::Center)
+                                    ->options([
+                                        'heroicon-o-check-badge' => fn ($state): bool => !is_null($state), // Check icon if verified
+                                        'heroicon-o-clock' => fn ($state): bool => is_null($state), // Pending icon otherwise
+                                    ])
+                                    ->colors([
+                                        'success' => fn ($state): bool => !is_null($state), // Green for verified
+                                        'danger' => fn ($state): bool => is_null($state),   // Red for pending
+                                    ]),
+                                ]),
+                            
                             Tables\Columns\TextColumn::make('skills.name')
                                 ->limit(7)
                                 ->badge()

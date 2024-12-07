@@ -1,27 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.schemas import ProjectAllocationRequest
-from app.database import SessionLocal
-from app.models import Project, Task, TaskPackage, DepartmentTeam, ProjectTeam
-from datetime import datetime
 import random
+from datetime import datetime
+from app.models import Task, TaskPackage, DepartmentTeam, ProjectTeam, Project
 
-router = APIRouter()
-
-# Dependency to get the DB session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Allocator class and methods
 class EventTeamAllocator:
     def __init__(self):
         self.team_schedules = {}
         self.project_history = []
-        self.allocated_teams = {}
+        self.allocated_teams = {}  # Store allocated teams by project name
 
     def get_package_tasks(self, db, package_id):
         tasks = db.query(TaskPackage.task_id).filter(TaskPackage.package_id == package_id).all()
@@ -72,7 +57,7 @@ class EventTeamAllocator:
             'allocated_teams': allocated_teams
         }
         self.project_history.append(result)
-        self.allocated_teams[project_name] = allocated_teams
+        self.allocated_teams[project_name] = allocated_teams  # Store allocated teams
         return result
 
     def save_allocated_teams_to_laravel(self, db, project_name, allocated_teams):
@@ -84,19 +69,3 @@ class EventTeamAllocator:
             project_team_entry = ProjectTeam(project_id=project.id, team_id=team_id)
             db.add(project_team_entry)
         db.commit()
-
-allocator = EventTeamAllocator()
-
-@router.post("/allocate-teams")
-def allocate_teams(request: ProjectAllocationRequest, db=Depends(get_db)):
-    try:
-        result = allocator.allocate_teams(
-            db,
-            request.project_name,
-            request.package_id,
-            request.start,
-            request.end
-        )
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
