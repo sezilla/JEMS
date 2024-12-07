@@ -26,6 +26,7 @@ use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Filament\Enums\ThemeMode;
 // use Filament\Navigation\NavigationItem;
+use App\Filament\pages\Auth\CustomLogin;
 
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
@@ -42,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->passwordReset()
             ->emailVerification()
-            ->login()
+            ->login(CustomLogin::class)
             ->font('Poppins')
             ->colors([
                 'primary' => Color::Indigo,
