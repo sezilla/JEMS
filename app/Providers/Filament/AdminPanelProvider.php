@@ -40,6 +40,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->passwordReset()
+            ->emailVerification()
             ->login()
             ->font('Poppins')
             ->colors([

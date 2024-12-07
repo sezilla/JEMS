@@ -37,6 +37,8 @@ class AppPanelProvider extends PanelProvider
             ->brandName('JEM')
             ->id('app')
             ->login()
+            ->passwordReset()
+            ->emailVerification()
             // ->profile()
             ->path('app')
             ->colors([

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Filament\Panel;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -125,9 +125,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         if($panel->getId() === 'admin') {
             return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_user.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
-        } else {
-            return true;
         } 
+
+        if($panel->getId() === 'app') {
+            return true;
+        }
+
+        return false;
     }
 
     public function posts()
