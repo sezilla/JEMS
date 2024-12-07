@@ -32,7 +32,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'email',
         'password',
         'avatar_url',
-        'custom_fields'
+        'custom_fields',
+        'email_verified_at'
     ];
 
     //php
