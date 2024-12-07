@@ -2,7 +2,7 @@
     <!-- Chat Messages Section -->
     <div x-data="{ isOpen: window.innerWidth >= 1024 }" class="flex flex-col lg:flex-row gap-4">
         <!-- Collapsible Sidebar -->
-        <x-filament::section class="lg:w-1/4 w-full">
+        <x-filament::section class=" w-1/3">
             <!-- Toggle Button -->
             <button 
                 @click="isOpen = !isOpen" 
@@ -26,14 +26,12 @@
                 <ul class="space-y-2">
                     @foreach ($conversations as $conversation)
                         <li>
-                            <x-filament::card>
-                                <button 
-                                    wire:click="$set('selectedConversationId', {{ $conversation->id }})" 
-                                    class="w-full text-left px-4 py-2 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
-                                >
-                                    {{ $conversation->name }}
-                                </button>
-                            </x-filament::card>
+                            <button 
+                                wire:click="$set('selectedConversationId', {{ $conversation->id }})" 
+                                class="w-full text-left px-4 py-2 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
+                            >
+                                {{ $conversation->name }}
+                            </button>
                         </li>
                     @endforeach
                 </ul>
@@ -41,7 +39,7 @@
         </x-filament::section>
 
         <!-- Chat Section -->
-        <x-filament::section class="flex-grow w-full">
+        <x-filament::section class="flex-grow w-full lg:w-3/4">
             <x-slot name="header">
                 <h1 class="text-2xl font-bold">{{ $selectedConversationName }}</h1>
             </x-slot>
