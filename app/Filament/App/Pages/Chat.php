@@ -80,6 +80,12 @@ class Chat extends Page implements Forms\Contracts\HasForms
         broadcast(new MessageSent($message));
     }
 
+    public function refreshMessages()
+    {
+        $this->loadMessages($this->selectedConversationId);
+    }
+
+
     public function getListeners()
     {
         return [

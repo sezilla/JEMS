@@ -97,52 +97,69 @@
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const chatContainer = document.getElementById('chat-container');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const messageBodyInput = document.getElementById('messageBody');
+            let typingTimeout;
+    
+            // Pusher Setup
             const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
                 cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
                 encrypted: true,
             });
-
+    
+            // Subscribe to the conversation channel
             const channel = pusher.subscribe('conversation.' + {{ $selectedConversationId }});
+    
+            // Listen for "MessageSent" events
             channel.bind('MessageSent', function (data) {
                 Livewire.emit('messageReceived', data.message);
+                scrollToBottom();
             });
-
+    
+            // Listen for "UserTyping" events
             channel.bind('UserTyping', function (data) {
-                Livewire.emit('userTyping', data);
+                if (data.user) {
+                    typingIndicator.textContent = `${data.user.name} is typing...`;
+                    setTimeout(() => {
+                        typingIndicator.textContent = '';
+                    }, 3000); // Clear the indicator after 3 seconds
+                }
             });
-
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const chatContainer = document.getElementById('chat-container');
-
-            // Scroll to the bottom initially
+    
+            // Scroll to the bottom of the chat container
             function scrollToBottom() {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
-
-            // Initial scroll to the bottom
+    
+            // Scroll to the bottom initially
             scrollToBottom();
-
+    
+            // Detect when the user is typing
+            messageBodyInput.addEventListener('input', function () {
+                clearTimeout(typingTimeout);
+    
+                // Emit a "UserTyping" event via Livewire
+                Livewire.emit('userTyping');
+    
+                // Stop the typing status after 3 seconds of inactivity
+                typingTimeout = setTimeout(() => {
+                    Livewire.emit('userTyping', null);
+                }, 3000);
+            });
+    
+            // Listen for Livewire events to handle UI updates
             Livewire.on('messageReceived', function () {
-                setTimeout(scrollToBottom, 100); // Delay to ensure the message is added
+                setTimeout(scrollToBottom, 100); // Ensure message is rendered before scrolling
             });
-
+    
             Livewire.on('userTyping', function (user) {
-                document.getElementById('typing-indicator').textContent = `${user} is typing...`;
+                if (user) {
+                    typingIndicator.textContent = `${user} is typing...`;
+                } else {
+                    typingIndicator.textContent = '';
+                }
             });
         });
-
-
-        // Detect typing
-        let typingTimeout;
-        document.getElementById('messageBody').addEventListener('input', function () {
-            clearTimeout(typingTimeout);
-            Livewire.emit('userTyping');
-            typingTimeout = setTimeout(() => {
-                // Stop typing event after 3 seconds of inactivity
-                Livewire.emit('userTyping', null);
-            }, 3000);
-        });
-    </script>
+    </script>    
 </x-filament-panels::page>
