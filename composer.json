@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-shield": "3.2.6",
-        "filament/filament": "*",
+        "filament/filament": "^3.2",
         "guzzlehttp/guzzle": "^7.9",
         "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^11.9",

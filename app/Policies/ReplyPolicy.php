@@ -63,7 +63,7 @@ class ReplyPolicy
      */
     public function forceDelete(User $user, Reply $reply): bool
     {
-        return $user->can('force_delete_reply');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class ReplyPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_reply');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class ReplyPolicy
      */
     public function restore(User $user, Reply $reply): bool
     {
-        return $user->can('restore_reply');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class ReplyPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_reply');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class ReplyPolicy
      */
     public function replicate(User $user, Reply $reply): bool
     {
-        return $user->can('replicate_reply');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class ReplyPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_reply');
+        return $user->can('{{ Reorder }}');
     }
 }

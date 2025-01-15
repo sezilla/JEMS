@@ -63,7 +63,7 @@ class TaskCategoryPolicy
      */
     public function forceDelete(User $user, TaskCategory $taskCategory): bool
     {
-        return $user->can('force_delete_task::category');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class TaskCategoryPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_task::category');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class TaskCategoryPolicy
      */
     public function restore(User $user, TaskCategory $taskCategory): bool
     {
-        return $user->can('restore_task::category');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class TaskCategoryPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_task::category');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class TaskCategoryPolicy
      */
     public function replicate(User $user, TaskCategory $taskCategory): bool
     {
-        return $user->can('replicate_task::category');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class TaskCategoryPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_task::category');
+        return $user->can('{{ Reorder }}');
     }
 }

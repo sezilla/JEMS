@@ -63,7 +63,7 @@ class CommentPolicy
      */
     public function forceDelete(User $user, Comment $comment): bool
     {
-        return $user->can('force_delete_comment');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class CommentPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_comment');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class CommentPolicy
      */
     public function restore(User $user, Comment $comment): bool
     {
-        return $user->can('restore_comment');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class CommentPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_comment');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class CommentPolicy
      */
     public function replicate(User $user, Comment $comment): bool
     {
-        return $user->can('replicate_comment');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class CommentPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_comment');
+        return $user->can('{{ Reorder }}');
     }
 }

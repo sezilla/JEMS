@@ -201,9 +201,11 @@ class Project extends Model
 
             // Allocate teams using PythonService
             Log::info('Allocating teams for project: ' . $project->name);
-
             $pythonService = app(PythonService::class);
 
+            // Start a database transaction to ensure atomicity
+            \DB::beginTransaction();
+    
             try {
                 $allocationResponse = $pythonService->allocateTeams(
                     $project->name,
@@ -211,34 +213,37 @@ class Project extends Model
                     $project->start,
                     $project->end
                 );
-            
-                if (isset($allocationResponse['allocated_teams'])) {
-                    Log::info('Teams allocated successfully', $allocationResponse['allocated_teams']);
+    
+                // Check if the response contains allocated teams
+                if (isset($allocationResponse['allocated_teams']) && is_array($allocationResponse['allocated_teams'])) {
+                    Log::info('Teams allocated successfully', ['project_name' => $project->name, 'allocated_teams' => json_encode($allocationResponse['allocated_teams'])]);
                 } else {
-                    Log::warning('Team allocation response missing allocated teams.', $allocationResponse);
+                    Log::warning('Team allocation response missing or incorrect structure', ['response' => $allocationResponse]);
                 }
-            } catch (\Exception $e) {
-                Log::error('Error during team allocation', [
-                    'project_name' => $project->name,
-                    'message' => $e->getMessage(),
-                ]);
-            }
-            
-            try {
+    
+                // Fetch the allocated teams for this project
                 $allocatedTeams = $pythonService->getAllocatedTeams($project->name);
-                
+    
+                // Check if the allocated teams data is valid
                 if (is_array($allocatedTeams) && !empty($allocatedTeams)) {
-                    // Attach the allocated team IDs to the pivot table (project_teams)
-                    $project->teams()->sync($allocatedTeams); // 'sync' will remove any existing teams and attach the new ones
-                    
-                    Log::info('Project teams updated successfully', ['project_id' => $project->id, 'teams' => $allocatedTeams]);
+                    // Attach the allocated teams to the pivot table (project_teams)
+                    $project->teams()->sync($allocatedTeams);
+    
+                    Log::info('Project teams updated successfully', ['project_id' => $project->id, 'teams' => json_encode($allocatedTeams)]);
                 } else {
                     Log::warning('Allocated teams response missing or empty.', ['response' => $allocatedTeams]);
                 }
+    
+                // Commit the transaction if everything succeeded
+                \DB::commit();
             } catch (\Exception $e) {
-                Log::error('Error during fetching allocated teams', [
+                // Rollback the transaction in case of failure
+                \DB::rollBack();
+    
+                Log::error('Error during team allocation and updating project teams', [
                     'project_name' => $project->name,
                     'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
                 ]);
             }
                        

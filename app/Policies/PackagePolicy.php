@@ -63,7 +63,7 @@ class PackagePolicy
      */
     public function forceDelete(User $user, Package $package): bool
     {
-        return $user->can('force_delete_package');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class PackagePolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_package');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class PackagePolicy
      */
     public function restore(User $user, Package $package): bool
     {
-        return $user->can('restore_package');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class PackagePolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_package');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class PackagePolicy
      */
     public function replicate(User $user, Package $package): bool
     {
-        return $user->can('replicate_package');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class PackagePolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_package');
+        return $user->can('{{ Reorder }}');
     }
 }
