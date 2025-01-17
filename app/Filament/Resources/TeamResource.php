@@ -49,20 +49,27 @@ class TeamResource extends Resource
                             ->columnSpan('full')
                             ->required()
                             ->maxLength(255),
-                        Select::make('departments')
+                            Select::make('departments')
                             ->relationship('departments', 'name')
                             ->label('Department')
                             ->preload()
-                            ->searchable(),
+                            ->searchable()
+                            ->reactive() // Make the field reactive
+                            ->afterStateUpdated(fn (callable $set) => $set('leader_id', null)), // Reset leader_id when department changes
+                        
                         Select::make('leader_id')
-                            ->relationship('leaders', 'name', function ($query) {
+                            ->relationship('leaders', 'name', function ($query, $get) {
+                                $departmentId = $get('departments'); // Get the selected department ID
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Team Leader');
-                                })->whereDoesntHave('teams');
+                                })->whereHas('departments', function ($q) use ($departmentId) {
+                                    $q->where('departments.id', $departmentId); // Filter by selected department
+                                });
                             })
                             ->label('Team Leader')
                             ->preload()
                             ->searchable(),
+                        
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
                             ->columnSpan('full'),
