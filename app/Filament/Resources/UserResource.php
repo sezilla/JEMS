@@ -86,7 +86,7 @@ class UserResource extends Resource
                             ->multiple()
                             ->label('Department')
                             ->preload()
-                            ->searchable()
+                            // ->searchable()
                             // Uncomment if you want departments to be reactive and reset teams when changed
                             ->reactive()
                             ->afterStateUpdated(fn ($state, callable $set) => 
@@ -103,8 +103,7 @@ class UserResource extends Resource
                             )
                             ->label('Team')
                             ->preload()
-                            ->multiple()
-                            ->searchable(),
+                            ->multiple(),
                         Select::make('skill_id')
                             ->relationship('skills', 'name')
                             ->label('Skill')
