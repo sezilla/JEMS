@@ -58,7 +58,7 @@ class TeamResource extends Resource
                             ->relationship('leaders', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Team Leader');
-                                });
+                                })->whereDoesntHave('teams');
                             })
                             ->label('Team Leader')
                             ->preload()
