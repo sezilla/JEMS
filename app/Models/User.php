@@ -43,12 +43,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         if(config('filament-shield.member_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
-            static::created(function ($user) {
-                $user->assignRole(config('filament-shield.member_user.name', 'Member'));
-            });
-            static::deleting(function ($user) {
-                $user->removeRole(config('filament-shield.member_user.name', 'Member'));
-            });
+            // static::created(function ($user) {
+            //     $user->assignRole(config('filament-shield.member_user.name', 'Member'));
+            // });
+            // static::deleting(function ($user) {
+            //     $user->removeRole(config('filament-shield.member_user.name', 'Member'));
+            // });
         }
         FilamentShield::createRole(name: config('filament-shield.admin_user.name', 'Admin'));
         FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
@@ -69,16 +69,23 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
 
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
+    }
     
     public function teams()
     {
         return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
     }
-
-    public function departments()
-    {
-        return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
-    }
+    // public function scopeFilterTeamsByDepartments(Builder $query, $departments)
+    // {
+    //     if (!empty($departments)) {
+    //         $query->whereHas('departments', function (Builder $query) use ($departments) {
+    //             $query->whereIn('departments.id', $departments);
+    //         });
+    //     }
+    // }
 
     public function skills()
     {

@@ -64,14 +64,9 @@ class UserResource extends Resource
                             ->maxLength(255)
                             ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser),
                         Forms\Components\Select::make('roles')
-                            ->multiple()
-                            // ->relationship('roles', 'name')
-                            ->options([
-                                'Admin' => 'Admin',
-                                'Coordinator' => 'Coordinator',
-                                'Member' => 'Member',
-                                'Team Leader' => 'Team Leader',
-                            ])
+                            ->relationship('roles', 'name', function ($query) {
+                                $query->where('name', '!=', 'super_admin');
+                            })
                             ->label('Role')
                             ->columnSpan(1)
                             ->preload()
