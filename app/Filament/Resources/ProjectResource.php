@@ -359,7 +359,7 @@ class ProjectResource extends Resource
                                             'Garnet' => 'garnet',
                                             'Emerald' => 'emerald',
                                             'Infinity' => 'infinity',
-                                            'sapphire' => 'sapphire',
+                                            'Sapphire' => 'sapphire',
                                             default => 'gray',
                                         }
                                     ),
