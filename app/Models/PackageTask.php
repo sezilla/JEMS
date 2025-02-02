@@ -43,18 +43,18 @@ class PackageTask extends Pivot
     protected static function boot()
     {
         parent::boot();
-
+    
         static::created(function ($packageTask) { 
             $trelloPackage = new TrelloPackage();
-
+    
             // Fetch related models
             $package = $packageTask->package;
             $task = $packageTask->task;
             $department = $task ? $task->department : null;
             $category = $task ? $task->category : null;
-
+    
             $boardId = $trelloPackage->getPackageBoardId($package);
-
+    
             if (!$boardId) {
                 Log::error("Trello board ID not found for package: " . ($package->name ?? 'Unknown'));
                 return;
@@ -65,17 +65,17 @@ class PackageTask extends Pivot
                 Log::error("Trello board is closed. Reopen it before proceeding.");
                 return;
             }
-
+    
             if (!$department) {
                 Log::warning("Department not found for Task ID: {$packageTask->task_id}");
                 return;
             }
-
+    
             Log::info("Processing department: {$department->name}");
-
+    
             // Check if department Trello card exists
             $departmentCard = $trelloPackage->getCardsInDepartmentsList($boardId, $department->name);
-
+    
             if (!$departmentCard) {
                 Log::info("Department card not found. Creating new card: {$department->name}");
                 $departmentCard = $trelloPackage->createDepartmentCard($boardId, $department->name);
@@ -85,20 +85,20 @@ class PackageTask extends Pivot
                     return;
                 }
             }
-
+    
             $departmentCardId = $departmentCard['id'];
             Log::info("Department Card ID: {$departmentCardId}");
-
+    
             if (!$category) {
                 Log::warning("Category not found for Task ID: {$packageTask->task_id}");
                 return;
             }
-
+    
             Log::info("Processing category: {$category->name}");
             
             // Check if checklist exists inside the department card
             $categoryChecklist = $trelloPackage->getChecklistByName($departmentCardId, $category->name);
-
+    
             if (!$categoryChecklist) {
                 Log::info("Checklist not found. Creating new checklist: {$category->name}");
                 $categoryChecklist = $trelloPackage->createChecklist($departmentCardId, $category->name);
@@ -108,26 +108,31 @@ class PackageTask extends Pivot
                     return;
                 }
             }
-
+    
             $categoryChecklistId = $categoryChecklist['id'];
             Log::info("Category Checklist ID: {$categoryChecklistId}");
-
+    
             if (!$task) {
                 Log::warning("Task not found for ID: {$packageTask->task_id}");
                 return;
             }
-
+    
             Log::info("Adding task item: {$task->name} to checklist: {$category->name}");
             
             $checklistItem = $trelloPackage->createChecklistItem($categoryChecklistId, $task->name);
             
             if ($checklistItem) {
                 Log::info("Checklist item created successfully: {$task->name}");
+                
+                // Save checklist item ID to the database
+                $packageTask->update(['trello_checklist_item_id' => $checklistItem['id']]);
+                Log::info("Checklist item ID saved to database: {$checklistItem['id']}");
             } else {
                 Log::error("Failed to create checklist item: {$task->name}");
             }
         });
     }
+    
 
 
 }

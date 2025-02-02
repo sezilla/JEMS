@@ -15,6 +15,8 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
 use App\Models\TaskCategory;
+use Filament\Forms\Get;
+
 
 
 
@@ -32,6 +34,7 @@ class TaskRelationManager extends RelationManager
                 ->required()
                 ->preload()
                 ->reactive() // Reacts to changes
+                ->disabled(fn (Get $get) => $get('id') !== null)
                 ->afterStateUpdated(function (callable $set) {
                     $set('name', null); // Reset name field when department changes
                 }),
@@ -39,6 +42,7 @@ class TaskRelationManager extends RelationManager
             Forms\Components\Select::make('task_category_id')
                 ->label('Category')
                 ->relationship('category', 'name') 
+                ->disabled(fn (Get $get) => $get('id') !== null)
                 ->required()
                 ->preload(),
             
