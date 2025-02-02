@@ -117,18 +117,21 @@ php artisan db:seed --class=PackageTaskSeeder
 php artisan db:seed --class=SkillTask
 
 new reload
-php artisan migrate:fresh
-php artisan db:seed
-php artisan shield:install --fresh
-php artisan shield:generate
-php artisan db:seed --class=Roles
-php artisan db:seed --class=PackageTaskSeeder
-php artisan db:seed --class=SkillTask
-php artisan db:seed --class=FakeUser
+    php artisan migrate:fresh
+    php artisan db:seed
+    php artisan shield:install --fresh
+    php artisan shield:generate
+    php artisan db:seed --class=Roles
+    php artisan db:seed --class=PackageTaskSeeder
+    php artisan db:seed --class=SkillTask
+    php artisan db:seed --class=FakeUser
 
 
 run:
-php artisan serve
-php artisan queue:work
+    php artisan serve
+    php artisan queue:work
 
+if trello not working::
+    php artisan config:clear
+    php artisan cache:clear
 
