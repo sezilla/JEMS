@@ -108,7 +108,11 @@ class TaskRelationManager extends RelationManager
                         $taskId = $data['name'];
                         $packageId = $this->ownerRecord->id; // Get the current package's ID
 
-                        $this->ownerRecord->tasks()->attach($taskId, ['package_id' => $packageId]);
+                        // $this->ownerRecord->tasks()->attach($taskId, ['package_id' => $packageId]);
+                        PackageTask::create([
+                            'package_id' => $packageId,
+                            'task_id' => $taskId,
+                        ]);
 
                         Notification::make()
                             ->title('Task added successfully!')
@@ -149,7 +153,11 @@ class TaskRelationManager extends RelationManager
                         $packageId = $this->ownerRecord->id; // Get the current package ID
                         
                         // Detach the task from the package in the task_package table
-                        $this->ownerRecord->tasks()->detach($record->id);
+                        // $this->ownerRecord->tasks()->detach($record->id);
+
+                        PackageTask::where('package_id', $packageId)
+                            ->where('task_id', $record->id)
+                            ->delete();
 
                         Notification::make()
                             ->title('Task removed from package successfully!')

@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Task;
-use App\Models\Department; 
-// use App\Models\TaskPackage;
+use App\Models\Department;
+use App\Models\PackageTask;
 use Illuminate\Support\Facades\Log;
-
 use App\Services\TrelloPackage;
 
 class Package extends Model
@@ -39,48 +38,9 @@ class Package extends Model
                 $package->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
 
-                // Create "Departments" list on the Trello board
-                $trelloPackage->createList($boardResponse['id'], 'Coordinators');
                 $departmentsList = $trelloPackage->createList($boardResponse['id'], 'Departments');
+                $trelloPackage->createList($boardResponse['id'], 'Coordinators');
                 $projectDetailsList = $trelloPackage->createList($boardResponse['id'], 'Project details');
-
-                if ($departmentsList && isset($departmentsList['id'])) {
-                    // Fetch all departments
-                    $departments = Department::all();
-            
-                    // Create a card for each department in the "Departments" list
-                    foreach ($departments as $department) {
-                        $cardResponse = $trelloPackage->createCard($departmentsList['id'], $department->name);
-    
-                        if ($cardResponse && isset($cardResponse['id'])) {
-                            // Create a single checklist for the department card
-                            $checklistResponse = $trelloPackage->createChecklist($cardResponse['id'], 'Department Tasks'); // Create a checklist titled "Department Tasks"
-    
-                            if ($checklistResponse && isset($checklistResponse['id'])) {
-                                $checklistId = $checklistResponse['id'];
-    
-                                // Add each task as a checklist item to that checklist
-                                $tasks = $department->tasks; // Assuming you have a relationship between Department and Task
-                                
-                                foreach ($tasks as $task) {
-                                    // Add checklist item for each task in the created checklist
-                                    $checklistItem = $trelloPackage->createChecklistItem($checklistId, $task->name);
-        
-                                    if ($checklistItem && isset($checklistItem['id'])) {
-                                        // Save checklist item ID to the pivot table (task_package)
-                                        $taskPackage = TaskPackage::where('task_id', $task->id)
-                                                                  ->where('package_id', $package->id)
-                                                                  ->first();
-                                        if ($taskPackage) {
-                                            $taskPackage->trello_checklist_item_id = $checklistItem['id'];
-                                            $taskPackage->save();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
 
                 if ($projectDetailsList && isset($projectDetailsList['id'])) {
                     $trelloPackage->createCard($projectDetailsList['id'], 'name of couple');
@@ -94,11 +54,36 @@ class Package extends Model
         });
 
         static::updated(function ($package) {
-            // Code to handle updates if needed
-        });
+            Log::info('Checking for updated tasks in package: ' . $package->name);
+            $trelloPackage = new TrelloPackage();
 
-        static::deleting(function ($package) {
-            // Code to handle deletion if needed
+            foreach ($package->tasks as $task) {
+                $department = $task->department;
+                if (!$department) {
+                    Log::warning('Task ' . $task->name . ' does not have a department. Skipping.');
+                    continue;
+                }
+
+                if (!$department->trello_card_id) {
+                    Log::info('Creating Trello card for department: ' . $department->name);
+                    $departmentCard = $trelloPackage->createDepartmentCard($package->trello_board_template_id, $department->name);
+                    if ($departmentCard && isset($departmentCard['id'])) {
+                        $department->trello_card_id = $departmentCard['id'];
+                        $department->save();
+                    }
+                }
+
+                if ($department->trello_card_id) {
+                    Log::info('Adding checklist item for task: ' . $task->name . ' in department card ID: ' . $department->trello_card_id);
+                    $checklistItem = $trelloPackage->createChecklistItem($department->trello_card_id, $task->name);
+
+                    if ($checklistItem && isset($checklistItem['id'])) {
+                        DB::table('task_package')->where('package_id', $package->id)->where('task_id', $task->id)->update([
+                            'trello_checklist_item_id' => $checklistItem['id']
+                        ]);
+                    }
+                }
+            }
         });
     }
 
@@ -106,7 +91,8 @@ class Package extends Model
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'task_package', 'package_id', 'task_id')
-                    ->withPivot('trello_checklist_item_id');
+                ->using(PackageTask::class)
+                ->withPivot('trello_checklist_item_id');
     }
 
     public function department()

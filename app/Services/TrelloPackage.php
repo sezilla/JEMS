@@ -43,7 +43,8 @@ class TrelloPackage
                     'name' => $name,
                     'idOrganization' => $this->workspace,
                     'prefs_permissionLevel' => 'private',
-                    'prefs_isTemplate' => true
+                    'prefs_isTemplate' => true,
+                    // 'prefs_backgroundImage' => $image,
                 ]),
             ]);
 
@@ -116,6 +117,39 @@ class TrelloPackage
         }
     }
 
+
+
+
+
+    //mainly for tasks
+    public function createDepartmentCard($listName = 'Departments', $name,)
+    {
+        try {
+            Log::info('Creating Trello card with name: ' . $name . ' in list ID: ' . $listId);
+            $response = $this->client->post('cards', [
+                'query' => $this->getAuthParams(),
+                'json' => [
+                    'idList' => $listId,
+                    'name' => $name,
+                    'desc' => $description,
+                ],
+            ]);
+
+            $responseBody = $response->getBody()->getContents();
+            Log::info('Trello API Response: ' . $responseBody);
+
+            return json_decode($responseBody, true);
+        } catch (RequestException $e) {
+            Log::error('Failed to create Trello card: ' . $e->getMessage());
+            if ($e->hasResponse()) {
+                $responseContent = $e->getResponse()->getBody()->getContents();
+                Log::error('Response: ' . $responseContent);
+                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+            }
+            return null;
+        }
+    }
+
     public function createChecklist($cardId, $name)
     {
         try {
@@ -130,23 +164,32 @@ class TrelloPackage
             return null;
         }
     }
-    
-    public function createChecklistItem($checklistId, $taskName)
+
+    public function createChecklistItem($boardId, $name)
     {
         try {
-            // Adds a checklist item to an existing checklist
-            $response = $this->client->post("checklists/{$checklistId}/checkItems", [
-                'query' => $this->getAuthParams(),
-                'json' => ['name' => $taskName],
+            Log::info('Creating Trello checklist item with name: ' . $name . ' on board ID: ' . $boardId);
+            $response = $this->client->post('checklists', [
+                'query' => array_merge($this->getAuthParams(), [
+                    'idBoard' => $boardId,
+                    'name' => $name,
+                ]),
             ]);
-    
-            return json_decode($response->getBody()->getContents(), true);
+
+            $responseBody = $response->getBody()->getContents();
+            Log::info('Trello API Response: ' . $responseBody);
+
+            return json_decode($responseBody, true);
         } catch (RequestException $e) {
             Log::error('Failed to create Trello checklist item: ' . $e->getMessage());
+            if ($e->hasResponse()) {
+                $responseContent = $e->getResponse()->getBody()->getContents();
+                Log::error('Response: ' . $responseContent);
+                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+            }
             return null;
         }
     }
-    
     
 
 }

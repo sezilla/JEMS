@@ -57,55 +57,55 @@ class PackageResource extends Resource
                             ->disk('public')
                             ->directory('packages'),
                     ]),
-                Section::make('Assign Tasks')
-                    ->visible(fn ($livewire) => $livewire instanceof Pages\CreatePackage)
-                    ->description('Assign tasks to this package per Department')
-                    ->columns(3)
-                    // ->columnSpan(1)
-                    ->schema([
-                        Select::make('coordination')
-                            ->label('Coordination')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 6)),
-                        Select::make('catering')
-                            ->label('Catering')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 1)),
-                        Select::make('hair_and_makeup')
-                            ->label('Hair and Makeup')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 2)),
-                        Select::make('photo_and_video')
-                            ->label('Photo and Video')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 3)),
-                        Select::make('designing')
-                            ->label('Designing')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 4)),
-                        Select::make('entertainment')
-                            ->label('Entertainment')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 5)),
-                        Select::make('entertainment')
-                            ->label('Entertainment')
-                            ->multiple()
-                            ->preload()
-                            ->columnSpan(1)
-                            ->relationship('tasks', 'name'),
-                    ])
+                // Section::make('Assign Tasks')
+                //     ->visible(fn ($livewire) => $livewire instanceof Pages\CreatePackage)
+                //     ->description('Assign tasks to this package per Department')
+                //     ->columns(3)
+                //     // ->columnSpan(1)
+                //     ->schema([
+                //         Select::make('coordination')
+                //             ->label('Coordination')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 6)),
+                //         Select::make('catering')
+                //             ->label('Catering')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 1)),
+                //         Select::make('hair_and_makeup')
+                //             ->label('Hair and Makeup')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 2)),
+                //         Select::make('photo_and_video')
+                //             ->label('Photo and Video')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 3)),
+                //         Select::make('designing')
+                //             ->label('Designing')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 4)),
+                //         Select::make('entertainment')
+                //             ->label('Entertainment')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name', fn($query) => $query->where('department_id', 5)),
+                //         Select::make('entertainment')
+                //             ->label('Entertainment')
+                //             ->multiple()
+                //             ->preload()
+                //             ->columnSpan(1)
+                //             ->relationship('tasks', 'name'),
+                //     ])
             ])->columns(3);
     }
 
@@ -117,7 +117,7 @@ class PackageResource extends Resource
                     ImageColumn::make('image')
                         ->width(200)
                         ->height(200)
-                        ->rounded('lg')
+                        ->rounded('md')
                         ->alignment(Alignment::Center),
                     Tables\Columns\TextColumn::make('name')
                         ->weight(FontWeight::Bold)
