@@ -47,7 +47,7 @@ class PackageTask extends Pivot
         static::created(function ($packageTask) { 
             $trelloPackage = new TrelloPackage();
 
-            // Fetch related models using relationships
+            // Fetch related models
             $package = $packageTask->package;
             $task = $packageTask->task;
             $department = $task ? $task->department : null;
@@ -59,89 +59,75 @@ class PackageTask extends Pivot
                 Log::error("Trello board ID not found for package: " . ($package->name ?? 'Unknown'));
                 return;
             }
+            
             $boardDetails = $trelloPackage->getBoardDetails($boardId);
             if ($boardDetails && !empty($boardDetails['closed']) && $boardDetails['closed'] === true) {
                 Log::error("Trello board is closed. Reopen it before proceeding.");
                 return;
             }
 
-            // Logging package name
-            if ($package) {
-                Log::info('Creating Trello task for package: ' . $package->name);
-            } else {
-                Log::warning('Package not found for ID: ' . $packageTask->package_id);
+            if (!$department) {
+                Log::warning("Department not found for Task ID: {$packageTask->task_id}");
+                return;
             }
 
-            // Logging department name
-            if ($department) {
-                Log::info("Department Name: {$department->name}");
+            Log::info("Processing department: {$department->name}");
 
-                // Check if department Trello card exists
-                $existingCard = $trelloPackage->getCardsInDepartmentsList($boardId, $department->name);
+            // Check if department Trello card exists
+            $departmentCard = $trelloPackage->getCardsInDepartmentsList($boardId, $department->name);
 
-                if (!$existingCard) {
-                    Log::info("Department card not found in Trello, creating new card: {$department->name}");
-                    $createdCard = $trelloPackage->createDepartmentCard($boardId, $department->name);
-
-                    if ($createdCard) {
-                        Log::info("Trello department card created successfully: {$department->name}");
-                        $departmentCardId = $createdCard['id'];
-                        Log::info("Department Card ID: {$departmentCardId}");
-                    } else {
-                        Log::error("Failed to create Trello department card: {$department->name}");
-                    }
-                } else {
-                    Log::info("Department Trello card already exists: {$department->name}");
+            if (!$departmentCard) {
+                Log::info("Department card not found. Creating new card: {$department->name}");
+                $departmentCard = $trelloPackage->createDepartmentCard($boardId, $department->name);
+                
+                if (!$departmentCard) {
+                    Log::error("Failed to create Trello department card: {$department->name}");
                     return;
                 }
-            } else {
-                Log::warning("Department not found for Task ID: {$packageTask->task_id}");
             }
 
-            // Logging task category name
-            if ($category && $existingCard) {
-                Log::info('Task Category Name: ' . $category->name);
-                $existingChecklist = $trelloPackage->getChecklistByName($existingCard['id'], $category->name);
-                
-                if (!$existingChecklist) {
-                    Log::info("Checklist not found in Trello card, creating new checklist: {$category->name}");
-                    $createdChecklist = $trelloPackage->createChecklist($existingCard['id'], $category->name);
+            $departmentCardId = $departmentCard['id'];
+            Log::info("Department Card ID: {$departmentCardId}");
 
-                    if ($createdChecklist) {
-                        Log::info("Trello checklist created successfully: {$category->name}");
-                    } else {
-                        Log::error("Failed to create Trello checklist: {$category->name}");
-                    }
-                } else {
-                    Log::info("Checklist already exists in Trello card: {$category->name}");
-                }
-            } else {
-                if ($category && !$existingCard) {
-                    Log::warning('Department Card was missing, but category exists. Creating a new department card first.');
-                    $createdCard = $trelloPackage->createDepartmentCard($boardId, $department->name);
-                    if ($createdCard) {
-                        Log::info("New department card created: {$department->name}");
-                        Log::info("Now creating checklist: {$category->name}");
-                        $trelloPackage->createChecklist($createdCard['id'], $category->name);
-                    } else {
-                        Log::error("Failed to create department card, so checklist cannot be added: {$category->name}");
-                    }
-                } else {
-                    Log::warning('Task Category not found or Department Card missing for Task ID: ' . $packageTask->task_id);
-                }
+            if (!$category) {
+                Log::warning("Category not found for Task ID: {$packageTask->task_id}");
+                return;
             }
 
+            Log::info("Processing category: {$category->name}");
             
-            // Logging task name
-            if ($task) {
-                Log::info('Task Name: ' . $task->name);
-            } else {
-                Log::warning('Task not found for ID: ' . $packageTask->task_id);
+            // Check if checklist exists inside the department card
+            $categoryChecklist = $trelloPackage->getChecklistByName($departmentCardId, $category->name);
+
+            if (!$categoryChecklist) {
+                Log::info("Checklist not found. Creating new checklist: {$category->name}");
+                $categoryChecklist = $trelloPackage->createChecklist($departmentCardId, $category->name);
+                
+                if (!$categoryChecklist) {
+                    Log::error("Failed to create Trello checklist: {$category->name}");
+                    return;
+                }
             }
 
-            // Create Trello checklist for the department card
+            $categoryChecklistId = $categoryChecklist['id'];
+            Log::info("Category Checklist ID: {$categoryChecklistId}");
 
+            if (!$task) {
+                Log::warning("Task not found for ID: {$packageTask->task_id}");
+                return;
+            }
+
+            Log::info("Adding task item: {$task->name} to checklist: {$category->name}");
+            
+            $checklistItem = $trelloPackage->createChecklistItem($categoryChecklistId, $task->name);
+            
+            if ($checklistItem) {
+                Log::info("Checklist item created successfully: {$task->name}");
+            } else {
+                Log::error("Failed to create checklist item: {$task->name}");
+            }
         });
     }
-    
+
+
 }
