@@ -22,10 +22,10 @@ class TrelloPackage
         $this->token = env('TRELLO_API_TOKEN');
         $this->workspace = env('TRELLO_WORKSPACE_ID');
         
-        Log::info('Trello API Key:', ['key' => $this->key]);
-        Log::info('Trello API Token:', ['token' => $this->token]);
-        Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
-        
+        // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
+        // Log::info('Trello API Token:', ['token' => $this->token]);
+        // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
+
         Log::info('Loaded Trello configuration.');
         
     }
