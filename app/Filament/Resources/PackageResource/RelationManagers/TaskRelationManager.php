@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
 use App\Models\TaskCategory;
 use Filament\Forms\Get;
+use App\Models\PackageTask;
 
 
 
@@ -104,20 +105,32 @@ class TaskRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Create Task'),
-
-                Tables\Actions\Action::make('addTask')
+            
+                    Tables\Actions\Action::make('addTask')
                     ->label('Add Task')
                     ->action(function (array $data) {
-                        // Link the selected task to the current package
-                        $taskId = $data['name'];
-                        $packageId = $this->ownerRecord->id; // Get the current package's ID
-
-                        // $this->ownerRecord->tasks()->attach($taskId, ['package_id' => $packageId]);
+                        $taskId = $data['task_id']; // Fetch task ID
+                        $packageId = $this->ownerRecord->id; // Get current package ID
+                
+                        // Check if task already exists in the package
+                        $exists = PackageTask::where('package_id', $packageId)
+                            ->where('task_id', $taskId)
+                            ->exists();
+                
+                        if ($exists) {
+                            Notification::make()
+                                ->title('Task already exists in this package!')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                
+                        // If it doesn't exist, add it
                         PackageTask::create([
                             'package_id' => $packageId,
                             'task_id' => $taskId,
                         ]);
-
+                
                         Notification::make()
                             ->title('Task added successfully!')
                             ->success()
@@ -129,23 +142,22 @@ class TaskRelationManager extends RelationManager
                             ->relationship('department', 'name') 
                             ->required()
                             ->preload()
-                            ->reactive() // Reacts to changes
+                            ->reactive()
                             ->afterStateUpdated(function (callable $set) {
-                                $set('name', null); // Reset name field when department changes
+                                $set('task_id', null); // Reset task field when department changes
                             }),
-
-                        Forms\Components\Select::make('name')
+                
+                        Forms\Components\Select::make('task_id')
                             ->label('Task')
                             ->options(function ($get) {
-                                // Fetch only tasks related to the selected department
                                 $departmentId = $get('department_id');
                                 return $departmentId 
-                                    ? Task::where('department_id', $departmentId)->pluck('name', 'id')
+                                    ? Task::where('department_id', $departmentId)->pluck('name', 'id') 
                                     : [];
                             })
                             ->required()
                             ->preload(),
-                    ]),
+                        ]),                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

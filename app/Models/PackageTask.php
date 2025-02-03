@@ -14,6 +14,12 @@ class PackageTask extends Pivot
 {
     protected $table = 'task_package';
 
+    public $timestamps = false;
+
+    protected $primaryKey = null;
+
+    public $incrementing = false;
+
     protected $fillable = [
         'package_id',
         'task_id',
@@ -59,7 +65,6 @@ class PackageTask extends Pivot
                 Log::error("Trello board ID not found for package: " . ($package->name ?? 'Unknown'));
                 return;
             }
-            
             $boardDetails = $trelloPackage->getBoardDetails($boardId);
             if ($boardDetails && !empty($boardDetails['closed']) && $boardDetails['closed'] === true) {
                 Log::error("Trello board is closed. Reopen it before proceeding.");
@@ -124,8 +129,24 @@ class PackageTask extends Pivot
             if ($checklistItem) {
                 Log::info("Checklist item created successfully: {$task->name}");
                 
+                Log::info("Updating task_package: ", [
+                    'package_id' => $packageTask->package_id,
+                    'task_id' => $packageTask->task_id,
+                    'trello_checklist_item_id' => $checklistItem['id']
+                ]);                
                 // Save checklist item ID to the database
-                $packageTask->update(['trello_checklist_item_id' => $checklistItem['id']]);
+                // $packageTask->update(['trello_checklist_item_id' => $checklistItem['id']]);
+
+                // $packageTask->trello_checklist_item_id = $checklistItem['id'];
+                // $packageTask->save();        
+                
+                PackageTask::where('package_id', $packageTask->package_id)
+                    ->where('task_id', $packageTask->task_id)
+                    ->update([
+                        'trello_checklist_item_id' => $checklistItem['id']
+                    ]);
+
+
                 Log::info("Checklist item ID saved to database: {$checklistItem['id']}");
             } else {
                 Log::error("Failed to create checklist item: {$task->name}");
