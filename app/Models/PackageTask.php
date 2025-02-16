@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasEvents;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Services\TrelloPackage;
 use Illuminate\Support\Facades\Log;
@@ -12,15 +12,18 @@ use App\Models\Department;
 
 class PackageTask extends Pivot
 {
+    use HasEvents;
+
     protected $table = 'task_package';
 
     public $timestamps = false;
 
-    protected $primaryKey = null;
+    // protected $primaryKey = null;
 
-    public $incrementing = false;
+    // public $incrementing = false;
 
     protected $fillable = [
+        'name',
         'package_id',
         'task_id',
         'trello_checklist_item_id',
@@ -38,8 +41,14 @@ class PackageTask extends Pivot
 
     public function department()
     {
-        return $this->hasOneThrough(Department::class, Task::class, 'id', 'id', 'task_id', 'department_id'); // FIXED
-    }
+        return $this->hasOneThrough(Department::class, Task::class, 
+            'id', // Task's primary key
+            'id', // Department's primary key
+            'task_id', // Foreign key in PackageTask
+            'department_id' // Foreign key in Task
+            //para mas ma gets.
+        );
+    }    
 
     public function category()
     {
@@ -49,6 +58,11 @@ class PackageTask extends Pivot
     protected static function boot()
     {
         parent::boot();
+
+        static::creating(function ($packageTask) {
+            $task = $packageTask->task;
+            $packageTask->name = $task->name;
+        });
     
         static::created(function ($packageTask) { 
             $trelloPackage = new TrelloPackage();
@@ -124,12 +138,13 @@ class PackageTask extends Pivot
     
             Log::info("Adding task item: {$task->name} to checklist: {$category->name}");
             
-            $checklistItem = $trelloPackage->createChecklistItem($categoryChecklistId, $task->name);
+            $checklistItem = $trelloPackage->createChecklistItem($categoryChecklistId, $packageTask->name);
             
             if ($checklistItem) {
-                Log::info("Checklist item created successfully: {$task->name}");
+                Log::info("Checklist item created successfully: {$packageTask->name}");
                 
                 Log::info("Updating task_package: ", [
+                    'task name' => $packageTask->name,
                     'package_id' => $packageTask->package_id,
                     'task_id' => $packageTask->task_id,
                     'trello_checklist_item_id' => $checklistItem['id']
@@ -152,8 +167,26 @@ class PackageTask extends Pivot
                 Log::error("Failed to create checklist item: {$task->name}");
             }
         });
-    }
-    
 
+        static::saving(function ($packageTask) {
+            // Ensure task_id is changing
+            if (!$packageTask->isDirty('task_id')) {
+                return;
+            }
+            $trelloPackage = new TrelloPackage();
+
+        
+            
+            // Update the Trello checklist item
+            // $updated = $trelloPackage->updateChecklistItem($checklistItemId, $newTask->name);
+        
+            // if ($updated) {
+            //     Log::info("Successfully updated Trello checklist item: {$checklistItemId} with new name: {$newTask->name}");
+            // } else {
+            //     Log::error("Failed to update Trello checklist item: {$checklistItemId}");
+            // }
+        });        
+        
+    }
 
 }

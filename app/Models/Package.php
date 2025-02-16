@@ -95,6 +95,12 @@ class Package extends Model
                 ->withPivot('trello_checklist_item_id');
     }
 
+    public function packageTasks()
+    {
+        return $this->hasMany(PackageTask::class);
+    }
+
+
     public function department()
     {
         return $this->belongsTo(Task::class);

@@ -23,7 +23,8 @@ use App\Models\PackageTask;
 
 class TaskRelationManager extends RelationManager
 {
-    protected static string $relationship = 'tasks';
+    protected static string $relationship = 'tasks'; //old
+    // protected static string $relationship = 'packageTasks';
 
     public function form(Form $form): Form
     {
@@ -69,7 +70,7 @@ class TaskRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('Name')
+            // ->recordTitleAttribute('Name')
             ->columns([
                 Tables\Columns\TextColumn::make('department.name')
                     ->badge()
@@ -160,7 +161,53 @@ class TaskRelationManager extends RelationManager
                         ]),                
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('editTask')
+                    ->label('Edit')
+                    ->icon('heroicon-s-pencil')
+                    ->form([
+                        Forms\Components\Select::make('department_id')
+                            ->label('Department')
+                            ->relationship('department', 'name') 
+                            ->required()
+                            ->preload()
+                            ->reactive()
+                            ->disabled(fn (Task $record) => $record->exists),
+
+                        Forms\Components\Select::make('task_category_id')
+                            ->label('Category')
+                            ->relationship('category', 'name') 
+                            ->required()
+                            ->preload()
+                            ->disabled(fn (Task $record) => $record->exists),
+
+                        Forms\Components\TextInput::make('name')
+                            ->label('Task')
+                            ->required(),
+
+                        Forms\Components\Select::make('skill_id')
+                            ->label('Skills Required')
+                            ->relationship('skills', 'name')
+                            ->multiple()
+                            ->required()
+                            ->preload(),
+
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->label('Description')
+                            ->required()
+                            ->columnSpanFull(),
+                    ])
+                    ->action(function (PackageTask $record, array $data) { // Ensure Task model is expected
+                        $record->update($data);
+
+                        \Log::info('Task updated', ['task_id' => $record->id]);
+
+                        Notification::make()
+                            ->title('Task updated successfully!')
+                            ->success()
+                            ->send();
+                    })
+                    ->modalButton('Save Changes')
+                    ->modalHeading('Edit Task'),
                 Tables\Actions\Action::make('removeTask')
                     ->label('Remove')
                     ->color('danger')

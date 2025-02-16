@@ -187,7 +187,8 @@ class ProjectResource extends Resource
                 Section::make()
                     ->columns(3)
                     ->description('Teams')
-                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
+                    // ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
+                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                     ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('team1')

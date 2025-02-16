@@ -227,8 +227,6 @@ class TrelloPackage
         }
     }
 
-
-
     public function getChecklistByName($cardId, $checklistName)
     {
         try {
@@ -293,6 +291,27 @@ class TrelloPackage
         }
     }
 
+    //static updated function
+    public function updateChecklistItem($checklistItemId, $newName)
+    {
+        $trelloKey = config('services.trello.key');
+        $trelloToken = config('services.trello.token');
+    
+        $url = "https://api.trello.com/1/checkItems/{$checklistItemId}";
+    
+        $response = Http::put($url, [
+            'name' => $newName,
+            'key' => $trelloKey,
+            'token' => $trelloToken,
+        ]);
+    
+        if ($response->successful()) {
+            return true;
+        }
+    
+        Log::error("Trello API error: " . $response->body());
+        return false;
+    }
     
 
 }
