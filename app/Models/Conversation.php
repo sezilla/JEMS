@@ -8,6 +8,7 @@ class Conversation extends Model
 {
     protected $fillable = [
         'name',
+        // 'last_time_messages'
     ];
 
     public function users()

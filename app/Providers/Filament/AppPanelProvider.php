@@ -108,11 +108,14 @@ class AppPanelProvider extends PanelProvider
                     ]),
             ])
      
-                ->navigationGroups([
-                    NavigationGroup::make('My Projects')
-                        ->collapsible()
-                        ->collapsed()
-                ])
+            ->navigationGroups([
+                NavigationGroup::make('My Projects')
+                    ->collapsible()
+                    ->collapsed()
+            ])
+
+            ->databaseNotifications()
+            // ->databaseNotificationsPolling('2s')
             ;
     }
 }

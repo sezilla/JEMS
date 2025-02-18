@@ -7,7 +7,11 @@ use App\Events\MessageSent;
 
 class Message extends Model
 {
-    protected $fillable = ['body', 'user_id', 'conversation_id'];
+    protected $fillable = [
+        'body',
+        'user_id', 
+        'conversation_id'
+        ];
 
     protected static function booted()
     {
