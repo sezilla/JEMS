@@ -22,12 +22,17 @@ class UserTyping implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'user' => $this->user,
+            'user' => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'avatar' => $this->user->getFilamentAvatarUrl() ?? asset('images/default-avatar.png'),
+            ],
         ];
     }
 
     public function broadcastOn()
     {
-        return new Channel('conversation.' . $this->conversation_id);
+        // return new Channel('conversation.' . $this->conversation_id);
+        return new PrivateChannel('conversation.' . $this->conversation_id);
     }
 }

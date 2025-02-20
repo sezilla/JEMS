@@ -25,20 +25,28 @@ class MessageSent implements ShouldBroadcast
     public function __construct(Message $message)
     {
         $this->message = $message;
-        Log::info('MessageSent Event Dispatched', ['message' => $message]);
+        Log::info('MessageSent Event Fired', ['message' => $message]);
     }
 
     public function broadcastWith()
     {
-        Log::info('MessageSent event triggered', ['message' => $this->message]);
         return [
-            'message' => $this->message->load('user')->toArray(),
+            'id' => $this->message->id,
+            'body' => $this->message->body,
+            'created_at' => $this->message->created_at->toISOString(),
+            'user_id' => $this->message->user->id,
+            'user' => [
+                'id' => $this->message->user->id,
+                'name' => $this->message->user->name,
+                'avatar' => $this->message->user->getFilamentAvatarUrl() ?? asset('images/default-avatar.png'),
+            ],
         ];
-    }
+    }    
 
     public function broadcastOn()
     {
         Log::info('Broadcasting to channel: conversation.' . $this->message->conversation_id);
-        return new Channel('conversation.' . $this->message->conversation_id);
+        // return new Channel('conversation.' . $this->message->conversation_id);
+        return new PrivateChannel('conversation.' . $this->message->conversation_id);
     }
 }
