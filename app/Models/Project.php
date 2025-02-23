@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\DB;
 
 use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
@@ -186,7 +187,7 @@ class Project extends Model
 
 
 
-    //mostly ffor trello....
+    //mostly ffor trello and fast api....
     protected static function boot()
     {
         parent::boot();
@@ -199,55 +200,51 @@ class Project extends Model
 
         static::created(function ($project) {
 
-            // Allocate teams using PythonService
             Log::info('Allocating teams for project: ' . $project->name);
-            $pythonService = app(PythonService::class);
 
-            // Start a database transaction to ensure atomicity
-            \DB::beginTransaction();
-    
+            $pythonService = app(PythonService::class);
+            DB::beginTransaction();
+            
             try {
-                $allocationResponse = $pythonService->allocateTeams(
+                // Step 1: Allocate Teams
+                $allocatedTeams = $pythonService->allocateTeams(
                     $project->name,
                     $project->package_id,
                     $project->start,
                     $project->end
                 );
-    
-                // Check if the response contains allocated teams
-                if (isset($allocationResponse['allocated_teams']) && is_array($allocationResponse['allocated_teams'])) {
-                    Log::info('Teams allocated successfully', ['project_name' => $project->name, 'allocated_teams' => json_encode($allocationResponse['allocated_teams'])]);
-                } else {
-                    Log::warning('Team allocation response missing or incorrect structure', ['response' => $allocationResponse]);
+            
+                Log::info('Teams allocated successfully', ['allocated_teams' => json_encode($allocatedTeams)]);
+            
+                if (isset($allocatedTeams['error'])) {
+                    throw new \Exception('Python API Error: ' . $allocatedTeams['error']);
                 }
-    
-                // Fetch the allocated teams for this project
-                $allocatedTeams = $pythonService->getAllocatedTeams($project->name);
-    
-                // Check if the allocated teams data is valid
-                if (is_array($allocatedTeams) && !empty($allocatedTeams)) {
-                    // Attach the allocated teams to the pivot table (project_teams)
-                    $project->teams()->sync($allocatedTeams);
-    
-                    Log::info('Project teams updated successfully', ['project_id' => $project->id, 'teams' => json_encode($allocatedTeams)]);
-                } else {
-                    Log::warning('Allocated teams response missing or empty.', ['response' => $allocatedTeams]);
+            
+                // Step 2: Fetch Allocated Teams
+                $teamsResponse = $pythonService->getAllocatedTeams($project->name);
+                Log::info('Received allocated teams from PythonService', ['response' => json_encode($teamsResponse)]); // 🔥 Debugging
+            
+                if (!isset($teamsResponse) || !is_array($teamsResponse)) {
+                    throw new \Exception('Invalid team allocation response: ' . json_encode($teamsResponse));
                 }
-    
-                // Commit the transaction if everything succeeded
-                \DB::commit();
+            
+                // 🔥 Fix: Ensure $teamIds is an array and log the extracted IDs
+                $teamIds = array_values($teamsResponse);
+                Log::info('Extracted Team IDs', ['team_ids' => json_encode($teamIds)]);
+            
+                if (empty($teamIds)) {
+                    Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
+                } else {
+                    // Attach Teams to Project
+                    $project->teams()->sync($teamIds);
+                    Log::info('Project teams updated successfully', ['teams' => json_encode($teamIds)]);
+                }
+            
+                DB::commit();
             } catch (\Exception $e) {
-                // Rollback the transaction in case of failure
-                \DB::rollBack();
-    
-                Log::error('Error during team allocation and updating project teams', [
-                    'project_name' => $project->name,
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
-            }
-                       
-        
+                DB::rollBack();
+                Log::error('Error during team allocation', ['message' => $e->getMessage()]);
+            }            
 
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();

@@ -11,9 +11,9 @@ class PythonService
 
     public function __construct()
     {
-        // Set the base URL for your Python FastAPI service
-        $this->baseUrl = env('PYTHON_SERVICE_URL');
+        $this->baseUrl = env('PYTHON_SERVICE_URL', 'http://127.0.0.1:3000');
     }
+    
 
     /**
      * Allocate teams for a project.
@@ -27,7 +27,7 @@ class PythonService
     public function allocateTeams(string $projectName, int $packageId, string $startDate, string $endDate): array
     {
         $url = "{$this->baseUrl}/allocate-teams";
-
+    
         try {
             $response = Http::post($url, [
                 'project_name' => $projectName,
@@ -35,32 +35,27 @@ class PythonService
                 'start' => $startDate,
                 'end' => $endDate,
             ]);
-
+    
             if ($response->successful()) {
                 $data = $response->json();
-                // Check if the response has valid allocated teams data
-                if (isset($data['allocated_teams']) && is_array($data['allocated_teams'])) {
-                    return $data;
+                
+                Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]); // 🔥 Debugging
+    
+                if (isset($data['success']) && $data['success']) {
+                    return $data['allocated_teams'] ?? [];  // ✅ Fix: Directly return allocated_teams
                 }
-                Log::error('PythonService::allocateTeams Invalid response format', ['response' => $data]);
                 return ['error' => 'Failed to allocate teams. Response format is incorrect.'];
             }
-
-            Log::error('PythonService::allocateTeams Error', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
+    
             return ['error' => 'Failed to allocate teams. Please try again.'];
         } catch (\Exception $e) {
             Log::error('PythonService::allocateTeams Exception', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-
             return ['error' => 'An error occurred while allocating teams. Please check the logs.'];
         }
-    }
+    }     
 
     /**
      * Retrieve project history from the Python service.
@@ -102,32 +97,25 @@ class PythonService
     public function getAllocatedTeams(string $projectName): array
     {
         $url = "{$this->baseUrl}/allocated-teams/{$projectName}";
-
+    
         try {
             $response = Http::get($url);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                if (isset($data['allocated_teams']) && is_array($data['allocated_teams'])) {
-                    return $data;
-                }
-
-                Log::error('PythonService::getAllocatedTeams Invalid response format', ['response' => $data]);
-                return ['error' => 'Failed to fetch allocated teams. Response format is incorrect.'];
+            $data = $response->json();
+    
+            Log::info('PythonService::getAllocatedTeams Raw Response', ['response' => $data]); // 🔥 Debugging
+    
+            if ($response->successful() && isset($data['success']) && $data['success']) {
+                return $data['allocated_teams'] ?? []; // ✅ Return an array even if empty
             }
-
-            Log::error('PythonService::getAllocatedTeams Error', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
-
-            return ['error' => 'Failed to fetch allocated teams. Please try again.'];
+    
+            Log::error('PythonService::getAllocatedTeams Invalid response format', ['response' => $data]);
+            return ['error' => 'Failed to fetch allocated teams.'];
         } catch (\Exception $e) {
             Log::error('PythonService::getAllocatedTeams Exception', [
                 'message' => $e->getMessage(),
             ]);
-
+    
             return ['error' => 'An error occurred while fetching allocated teams. Please check the logs.'];
         }
-    }
+    }    
 }
