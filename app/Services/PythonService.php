@@ -117,5 +117,39 @@ class PythonService
     
             return ['error' => 'An error occurred while fetching allocated teams. Please check the logs.'];
         }
-    }    
+    }  
+    
+    /**
+     * Classify tasks based on special request.
+     *
+     * @param string $specialRequest
+     * @return array
+     */
+    public function classifyTask(string $specialRequest): array
+    {
+        $url = "{$this->baseUrl}/classify-task";
+    
+        try {
+            $response = Http::post($url, [
+                'task' => $specialRequest, // 🔥 Fix: Change 'special_request' to 'task'
+            ]);
+    
+            if ($response->successful()) {
+                return $response->json();
+            }
+    
+            Log::error('PythonService::classifyTask Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+    
+            return ['error' => 'Failed to classify task. Please try again.'];
+        } catch (\Exception $e) {
+            Log::error('PythonService::classifyTask Exception', [
+                'message' => $e->getMessage(),
+            ]);
+    
+            return ['error' => 'An error occurred while classifying tasks. Please check the logs.'];
+        }
+    }
 }

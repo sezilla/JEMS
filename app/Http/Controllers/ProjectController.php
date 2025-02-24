@@ -78,4 +78,11 @@ class ProjectController extends Controller
 
         return response()->json($response);
     }
+
+
+    //hmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+    public function classifyTask(Request $request)
+    {
+
+    }
 }
