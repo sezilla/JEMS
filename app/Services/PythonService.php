@@ -152,4 +152,43 @@ class PythonService
             return ['error' => 'An error occurred while classifying tasks. Please check the logs.'];
         }
     }
+
+    /**
+     * Predict categories for a project.
+     *
+     * @param string $projectName
+     * @param string $startDate
+     * @param string $endDate
+     * @return array
+     */
+    public function predictCategories(string $projectName, string $startDate, string $endDate): array
+    {
+        $url = "{$this->baseUrl}/predict_categories";
+
+        try {
+            $response = Http::post($url, [
+                'project_name' => $projectName,
+                'start' => $startDate,
+                'end' => $endDate,
+            ]);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+
+            Log::error('PythonService::predictCategories Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return ['error' => 'Failed to predict categories. Please try again.'];
+        } catch (\Exception $e) {
+            Log::error('PythonService::predictCategories Exception', [
+                'message' => $e->getMessage(),
+            ]);
+
+            return ['error' => 'An error occurred while predicting categories. Please check the logs.'];
+        }
+    }
+
 }

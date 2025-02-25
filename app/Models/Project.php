@@ -138,6 +138,18 @@ class Project extends Model
                         throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
                     }
                 }
+
+                Log::info('Predicting categories for project: ' . $project->name);
+                $categoryPredictions = $pythonService->predictCategories(
+                    $project->name,
+                    $project->start,
+                    $project->end
+                );
+                Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
+
+                if (isset($categoryPredictions['error'])) {
+                    throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
+                }
             
                 DB::commit();
             } catch (\Exception $e) {
