@@ -8,6 +8,7 @@ use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,6 +49,7 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -56,19 +58,39 @@ class ProjectResource extends Resource
                             ->required()
                             ->preload()
                             ->searchable()
-                            ->options(Package::all()->pluck('name', 'id')),
+                            ->options(Package::all()->pluck('name', 'id'))
+                            ->disabled(fn ($record) => $record !== null),
                         Forms\Components\MarkdownEditor::make('description')
                             ->columnSpanFull(),
-                        Forms\Components\DatePicker::make('start')
+
+
+                            Forms\Components\DatePicker::make('start')
                             ->columnSpan(1)
                             ->label('Start Date')
                             ->required()
-                            ->default(now()->toDateString()), 
+                            ->default(now()->toDateString()),
                         Forms\Components\DatePicker::make('end')
                             ->columnSpan(1)
                             ->label('End Date')
                             ->required()
-                            ->default(now()->toDateString()),
+                            ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
+                            ->after('start') // Ensures 'end' is after 'start'
+                            ->rules([
+                                function () {
+                                    return function ($attribute, $value, $fail) {
+                                        $start = request()->input('start');
+                                        if ($start) {
+                                            $startDate = Carbon::parse($start);
+                                            $endDate = Carbon::parse($value);
+                                            
+                                            if ($endDate->lessThan($startDate->addMonths(4))) {
+                                                $fail('The end date must be at least 4 months after the start date.');
+                                            }
+                                        }
+                                    };
+                                }
+                            ]),
+
                         Forms\Components\TextInput::make('venue')
                             ->maxLength(255),
                     ])

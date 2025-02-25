@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
@@ -80,6 +81,11 @@ class Project extends Model
         static::creating(function ($project) {
             if (Auth::check()) {
                 $project->user_id = Auth::id();
+            }
+
+            if ($project->groom_name && $project->bride_name && $project->end) {
+                $formattedDate = Carbon::parse($project->end)->format('M d, Y'); // Converts to "Jan 20, 2026"
+                $project->name = "{$project->groom_name} & {$project->bride_name} @ {$formattedDate}";
             }
         });
 
