@@ -62,7 +62,7 @@ class AppPanelProvider extends PanelProvider
                     ->url(fn (): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
-
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
@@ -108,14 +108,11 @@ class AppPanelProvider extends PanelProvider
                     ]),
             ])
      
-            ->navigationGroups([
-                NavigationGroup::make('My Projects')
-                    ->collapsible()
-                    ->collapsed()
-            ])
-
-            ->databaseNotifications()
-            // ->databaseNotificationsPolling('2s')
+                ->navigationGroups([
+                    NavigationGroup::make('My Projects')
+                        ->collapsible()
+                        ->collapsed()
+                ])
             ;
     }
 }

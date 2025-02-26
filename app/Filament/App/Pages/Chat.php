@@ -53,6 +53,9 @@ class Chat extends Page implements Forms\Contracts\HasForms
                 ];
             })
             ->toArray();
+    
+        // // Emit a Livewire event to scroll the chat to the bottom
+        // $this->dispatchBrowserEvent('scroll-to-bottom');
     }
     
 
@@ -80,22 +83,33 @@ class Chat extends Page implements Forms\Contracts\HasForms
     public function refreshMessages()
     {
         $this->loadMessages($this->selectedConversationId);
-    }  
-    
-    protected $listeners = [
-        "echo-private:conversation.{selectedConversationId},MessageSent" => "addMessage",
-        "echo-private:conversation.{selectedConversationId},UserTyping" => "setTypingUser",
-    ];            
+    }
+
+
+    public function getListeners()
+    {
+        return [
+            'messageReceived' => 'addMessage',
+            'userTyping' => 'setTypingUser',
+        ];
+    }
 
     public function addMessage($message)
     {
-        \Log::info('Livewire received MessageSent event', ['message' => $message]);
+        $this->messages[] = [
+            'id' => $message['id'],
+            'body' => $message['body'],
+            'created_at' => $message['created_at'],
+            'user_id' => $message['user_id'],
+            'user' => [
+                'id' => $message['user']['id'],
+                'name' => $message['user']['name'],
+                'avatar' => $message['user']['getFilamentAvatarUrl'] ?? asset('images/default-avatar.png'),
+            ],
+        ];
     
-        if (!collect($this->messages)->contains('id', $message['id'])) {
-            $this->messages[] = $message;
-            $this->dispatchBrowserEvent('scroll-to-bottom'); // Scroll to bottom on new message
-        }
-    }    
+        $this->dispatchBrowserEvent('scroll-to-bottom');
+    }
 
     public function setTypingUser($data)
     {
@@ -125,6 +139,12 @@ class Chat extends Page implements Forms\Contracts\HasForms
     protected function getFormSchema(): array
     {
         return [
+            // Forms\Components\Select::make('selectedConversationId')
+            //     ->label('Select Conversation')
+            //     ->options($this->conversations->pluck('name', 'id'))
+            //     ->reactive()
+            //     ->afterStateUpdated(fn ($state) => $this->loadMessages($state)),
+
             Forms\Components\TextInput::make('messageBody')
                 ->label('')
                 ->placeholder('Type your message here...'),

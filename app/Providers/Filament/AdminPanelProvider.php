@@ -147,10 +147,6 @@ class AdminPanelProvider extends PanelProvider
                         'timeGrid',
                     ])
                     ->config([]),
-            ])
-            
-            ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
-            ;
+            ]);
     }
 }
