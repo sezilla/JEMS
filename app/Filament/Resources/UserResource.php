@@ -2,59 +2,40 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\Department;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Illuminate\Support\HtmlString;
-use Filament\Forms\Components\Select;
-
-use Filament\Support\Enums\Alignment;
-
-use Filament\Forms\Components\Section;
-use Filament\Support\Enums\FontFamily;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\Resources\UserResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use Filament\Tables\Columns\Layout\Stack;
+
+use Filament\Forms\Components\Select;
+use Filament\Tables\Columns\ImageColumn;
+use Illuminate\Support\Facades\Storage;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\FileUpload;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Support\Enums\FontFamily;
+use Filament\Tables\Filters\SelectFilter;
+use App\Models\Department;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
+
+
+
+
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
-    protected static ?string $recordTitleAttribute = 'name';
-    // public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
-    // {
-    //     return new HtmlString(
-    //         "<div style='display: flex; align-items: center; gap: 10px;'>
-
-    //             <span>{$record->roles}</span>
-    //             <span>{$record->name}</span>
-    //         </div>"
-    //     );
-    // }
-    public static function getGlobalSearchResultDetails(Model $record): array
-    {
-        return [
-            $record->roles->pluck('name')->join(', '),
-            $record->teams->first()?->departments->first()?->name,
-            $record->teams->pluck('name')->join(', '),
-        ];
-    }
 
     protected static ?string $navigationIcon = 'heroicon-o-user-plus';
 
@@ -281,11 +262,10 @@ class UserResource extends Resource
                             ->size(150)
                             ->circular()
                             ->alignment(Alignment::Left)
-                            // ->extraImgAttributes([
-                            //     'class' => 'bordered-avatar', // Apply custom CSS class here
-                            //     'style' => 'border: 2px solid #ccc; padding: 2px;', // Add inline styles for border
-                            // ])
-                            ,
+                            ->extraImgAttributes([
+                                'class' => 'bordered-avatar', // Apply custom CSS class here
+                                'style' => 'border: 2px solid #ccc; padding: 2px;', // Add inline styles for border
+                            ]),
 
                         Stack::make([
                             Tables\Columns\TextColumn::make('name')
