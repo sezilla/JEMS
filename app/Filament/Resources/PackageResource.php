@@ -29,6 +29,8 @@ class PackageResource extends Resource
 {
     protected static ?string $model = Package::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $navigationIcon = 'heroicon-o-puzzle-piece';
 
     public static function form(Form $form): Form
