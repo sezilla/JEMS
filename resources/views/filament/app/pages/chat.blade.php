@@ -1,6 +1,6 @@
-<x-filament-panels::page class="w-full h-[90%]">
+<x-filament-panels::page class="mx-auto">
     <x-filament::section>
-        <div class="w-full h-[90%]">
+        <div class="bottom-0 h-full">
             <livewire:chat.chat-main />
         </div>
     </x-filament::section>
