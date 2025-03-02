@@ -1,9 +1,9 @@
-# JEM - Multi-Project Management System
+# JEMS - Multi-Project Management System
 
 [![Laravel](https://img.shields.io/badge/Laravel-11.22.0-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.3.10-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 
-JEM is a comprehensive multi-project based management system built with Laravel 11. It provides an intuitive interface for managing multiple projects, tasks, and teams efficiently.
+JEMS is a comprehensive multi-project based management system built with Laravel 11. It provides an intuitive interface for managing multiple projects, tasks, and teams efficiently.
 
 ## 🚀 Features
 
