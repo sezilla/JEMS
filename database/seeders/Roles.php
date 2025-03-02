@@ -64,7 +64,7 @@ class Roles extends Seeder
             ['name' => 'Catering Team E', 'description' => 'Catering team E description', 'id' => 5],
             ['name' => 'Catering Team F', 'description' => 'Catering team F description', 'id' => 6],
 
-            ['name' => 'Catering Management', 'description' => 'Catering Management', 'id' => 37],
+            // ['name' => 'Catering Management', 'description' => 'Catering Management', 'id' => 37],
             
             // Hair and Makeup Teams
             ['name' => 'Hair and Makeup Team A', 'description' => 'Hair and Makeup team A description', 'id' => 7],
@@ -74,7 +74,7 @@ class Roles extends Seeder
             ['name' => 'Hair and Makeup Team E', 'description' => 'Hair and Makeup team E description', 'id' => 11],
             ['name' => 'Hair and Makeup Team F', 'description' => 'Hair and Makeup team F description', 'id' => 12],
 
-            ['name' => 'Hair and Makeup Management', 'description' => 'Hair and Makeup Management', 'id' => 38],
+            // ['name' => 'Hair and Makeup Management', 'description' => 'Hair and Makeup Management', 'id' => 38],
             
             // Photo and Video Teams
             ['name' => 'Photo and Video Team A', 'description' => 'Photo and Video team A description', 'id' => 13],
@@ -84,7 +84,7 @@ class Roles extends Seeder
             ['name' => 'Photo and Video Team E', 'description' => 'Photo and Video team E description', 'id' => 17],
             ['name' => 'Photo and Video Team F', 'description' => 'Photo and Video team F description', 'id' => 18],
 
-            ['name' => 'Photo and Video Management', 'description' => 'Photo and Video Management', 'id' => 39],
+            // ['name' => 'Photo and Video Management', 'description' => 'Photo and Video Management', 'id' => 39],
             
             // Designing Teams
             ['name' => 'Designing Team A', 'description' => 'Designing team A description', 'id' => 19],
@@ -94,7 +94,7 @@ class Roles extends Seeder
             ['name' => 'Designing Team E', 'description' => 'Designing team E description', 'id' => 23],
             ['name' => 'Designing Team F', 'description' => 'Designing team F description', 'id' => 24],
 
-            ['name' => 'Designing Management', 'description' => 'Designing Management', 'id' => 40],
+            // ['name' => 'Designing Management', 'description' => 'Designing Management', 'id' => 40],
             
             // Entertainment Teams
             ['name' => 'Entertainment Team A', 'description' => 'Entertainment team A description', 'id' => 25],
@@ -104,7 +104,7 @@ class Roles extends Seeder
             ['name' => 'Entertainment Team E', 'description' => 'Entertainment team E description', 'id' => 29],
             ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => 30],
 
-            ['name' => 'Entertainment Management', 'description' => 'Entertainment Management', 'id' => 41],
+            // ['name' => 'Entertainment Management', 'description' => 'Entertainment Management', 'id' => 41],
             
             // Coordination Teams
             ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
@@ -114,7 +114,7 @@ class Roles extends Seeder
             ['name' => 'Coordination Team E', 'description' => 'Coordination team E description', 'id' => 35],
             ['name' => 'Coordination Team F', 'description' => 'Coordination team F description', 'id' => 36],
 
-            ['name' => 'Coordination Management', 'description' => 'Coordination Management', 'id' => 42],
+            // ['name' => 'Coordination Management', 'description' => 'Coordination Management', 'id' => 42],
         ]);
 
         // Pivot Table Seed for Departments and Teams
@@ -127,7 +127,7 @@ class Roles extends Seeder
             ['department_id' => 1, 'team_id' => 5],
             ['department_id' => 1, 'team_id' => 6],
 
-            ['department_id' => 1, 'team_id' => 37],
+            // ['department_id' => 1, 'team_id' => 37],
             
             // Hair and Makeup Department
             ['department_id' => 2, 'team_id' => 7],
@@ -137,7 +137,7 @@ class Roles extends Seeder
             ['department_id' => 2, 'team_id' => 11],
             ['department_id' => 2, 'team_id' => 12],
 
-            ['department_id' => 2, 'team_id' => 38],
+            // ['department_id' => 2, 'team_id' => 38],
             
             // Photo and Video Department
             ['department_id' => 3, 'team_id' => 13],
@@ -147,7 +147,7 @@ class Roles extends Seeder
             ['department_id' => 3, 'team_id' => 17],
             ['department_id' => 3, 'team_id' => 18],
 
-            ['department_id' => 3, 'team_id' => 39],
+            // ['department_id' => 3, 'team_id' => 39],
             
             // Designing Department
             ['department_id' => 4, 'team_id' => 19],
@@ -157,7 +157,7 @@ class Roles extends Seeder
             ['department_id' => 4, 'team_id' => 23],
             ['department_id' => 4, 'team_id' => 24],
 
-            ['department_id' => 4, 'team_id' => 40],
+            // ['department_id' => 4, 'team_id' => 40],
             
             // Entertainment Department
             ['department_id' => 5, 'team_id' => 25],
@@ -167,7 +167,7 @@ class Roles extends Seeder
             ['department_id' => 5, 'team_id' => 29],
             ['department_id' => 5, 'team_id' => 30],
 
-            ['department_id' => 5, 'team_id' => 41],
+            // ['department_id' => 5, 'team_id' => 41],
             
             // Coordination Department
             ['department_id' => 6, 'team_id' => 31],
@@ -177,17 +177,16 @@ class Roles extends Seeder
             ['department_id' => 6, 'team_id' => 35],
             ['department_id' => 6, 'team_id' => 36],
 
-            ['department_id' => 6, 'team_id' => 42],
+            // ['department_id' => 6, 'team_id' => 42],
         ]);
 
         DB::table('task_category')->insert([
             ['name' => '1 Year to 6 Months before'],
             ['name' => '9 Months to 6 Months before'],
-            ['name' => '3 Months to 1 Month before'],
             ['name' => '6 Months to 3 Months before'],
-            ['name' => '3 Months before'],
+            ['name' => '4 Months to 3 Months before'],
             ['name' => '3 Months to 1 Month before'],
-            ['name' => '1 Month before'],
+            ['name' => '1 Month to 1 Week before'],
             ['name' => '1 Week before and Wedding Day'],
             ['name' => 'Wedding Day'],
             ['name' => '6 Months after Wedding Day'],

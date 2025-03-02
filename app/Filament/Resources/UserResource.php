@@ -84,13 +84,14 @@ class UserResource extends Resource
                             ->visible(fn ($livewire) => $livewire instanceof Pages\CreateUser),
                         Forms\Components\Select::make('roles')
                             ->relationship('roles', 'name', function ($query) {
-                                $query->where('name', '!=', 'super_admin');
+                                $query->where('name', '!=', 'super admin');
                             })
                             ->label('Role')
                             ->columnSpan(1)
                             ->preload()
                             ->required()
-                            ->searchable(),
+                            ->searchable()
+                            ->reactive(),
                     ]),
                 Section::make()
                     ->columns(2)
@@ -101,33 +102,48 @@ class UserResource extends Resource
                             ->image()
                             ->visible(fn ($livewire) => $livewire instanceof Pages\EditUser),
                         Select::make('departments')
-                            ->relationship('departments', 'name')
-                            ->multiple()
+                            ->relationship('departments', 'name', function ($query, $get) {
+                                // Retrieve the role name using Spatie's role model
+                                $selectedRole = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                        
+                                if ($selectedRole === 'Department Admin') {
+                                    $query->whereDoesntHave('users', function ($subQuery) {
+                                        $subQuery->whereHas('roles', function ($roleQuery) {
+                                            $roleQuery->where('name', 'Department Admin');
+                                        });
+                                    });
+                                }
+                            })
                             ->label('Department')
                             ->preload()
-                            // ->searchable()
-                            // Uncomment if you want departments to be reactive and reset teams when changed
                             ->reactive()
                             ->afterStateUpdated(fn ($state, callable $set) => 
-                                // Clear the selected teams when the department changes
                                 $set('teams', null)
                             ),
+                        
 
                         Select::make('teams')
-                            ->relationship('teams', 'name', fn ($query, $get) => 
-                                // Filter teams based on the selected departments (handles multiple)
-                                $query->whereHas('departments', fn ($query) => 
-                                    $query->whereIn('id', $get('departments') ?? [])
-                                )
-                            )
+                            ->relationship('teams', 'name', function ($query, $get) {
+                                $departments = $get('departments');
+                        
+                                // If no department is selected, return unfiltered results
+                                if (!$departments) {
+                                    return $query;
+                                }
+                        
+                                // If the departments select returns a single ID, convert it to an array.
+                                if (!is_array($departments)) {
+                                    $departments = [$departments];
+                                }
+                        
+                                return $query->whereHas('departments', function ($query) use ($departments) {
+                                    $query->whereIn('id', $departments);
+                                });
+                            })
                             ->label('Team')
                             ->preload()
-                            ->multiple(),
-                        Select::make('skill_id')
-                            ->relationship('skills', 'name')
-                            ->label('Skill')
-                            ->preload()
-                            ->multiple(),
+                            ->reactive(),
+                        
                     ]),
                 
                     
@@ -397,10 +413,10 @@ class UserResource extends Resource
         ];
     }
     
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
     public static function getPages(): array
     {

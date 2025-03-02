@@ -190,7 +190,7 @@ class PackageTaskSeeder extends Seeder
                     ['name' => 'Coordinate venue logistics', 'description' => 'Coordinate logistics with the venue for catering', 'duration' => 7],
                     ['name' => 'Table and chair setup plan', 'description' => 'Plan chair and table setup to match the wedding’s color theme', 'duration' => 7],
                 ],
-                '1 Month before' => [
+                '1 Month to 1 Week before' => [
                     ['name' => 'Finalize setup plan', 'description' => 'Finalize setup plan with the designing team for the reception', 'duration' => 3],
                     ['name' => 'Discuss food cart options', 'description' => 'Discuss additional food cart (Mobile Bar or Donut Wall)', 'duration' => 1],
                 ],
@@ -202,7 +202,7 @@ class PackageTaskSeeder extends Seeder
                 ],
             ],
             'HairAndMakeup' => [
-                '3 Months before' => [
+                '4 Months to 3 Months before' => [
                     ['name' => 'Initial makeup consultation', 'description' => 'Initial consultations for makeup styles', 'duration' => 2],
                     ['name' => 'Theme meeting with couple', 'description' => 'Meeting with the bride and groom to discuss the entourage theme', 'duration' => 2],
                     ['name' => 'Prenup hair and makeup', 'description' => 'Prenup Traditional hair and makeup', 'duration' => 3],
@@ -215,11 +215,11 @@ class PackageTaskSeeder extends Seeder
                 ],
             ],
             'PhotoAndVideo' => [
-                '3 Months before' => [
+                '4 Months to 3 Months before' => [
                     ['name' => 'Theme discussion for video/album', 'description' => 'Meeting with the couple and coordinator to discuss themes and concepts for video and album', 'duration' => 4],
                     ['name' => 'Prenuptial pictorial session', 'description' => 'Prenuptial Pictorial Session', 'duration' => 7],
                 ],
-                '1 Month before' => [
+                '1 Month to 1 Week before' => [
                     ['name' => 'Confirm shot list', 'description' => 'Confirm shot lists and key moments with the couple and coordinator', 'duration' => 1],
                     ['name' => 'Design photo frame', 'description' => 'Designing of Wedding Photo Frame', 'duration' => 1],
                 ],
@@ -257,7 +257,7 @@ class PackageTaskSeeder extends Seeder
                     ['name' => 'Reception tone meeting', 'description' => 'Meeting to discuss the tone of the reception (formal or playful)', 'duration' => 1],
                     ['name' => 'Plan reception activities', 'description' => 'Plan reception activities based on the couple’s preferences', 'duration' => 7],
                 ],
-                '1 Month before' => [
+                '1 Month to 1 Week before' => [
                     ['name' => 'Check sound and lights', 'description' => 'Check sound and lights equipment', 'duration' => 1],
                     ['name' => 'Music preference discussion', 'description' => 'Discuss music preference for both wedding ceremony and reception', 'duration' => 1],
                 ],
