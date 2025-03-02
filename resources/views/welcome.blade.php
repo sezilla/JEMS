@@ -36,6 +36,12 @@
                                     >
                                         Dashboard
                                     </a>
+                                    <a
+                                        href="{{ url('/admin') }}"
+                                        class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF1493] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                    >
+                                        Admin Dashboard
+                                    </a>
                                 @else
                                     <a
                                         href="{{ url('/app/edit-profile') }}" 
@@ -43,6 +49,13 @@
                                         class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF1493] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
                                     >
                                         Log in
+                                    </a>
+                                    <a
+                                        href="{{ url('/admin') }}" 
+                                        {{-- href="{{ url('/app/edit-profile') }}"  if user's first log in --}}
+                                        class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF1493] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                                    >
+                                        Log in as admin
                                     </a>
                                 @endauth
                             </nav>

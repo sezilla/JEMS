@@ -43,7 +43,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->passwordReset()
             ->emailVerification()
-            ->login(CustomLogin::class)
+            ->login()
             ->font('Poppins')
             ->colors([
                 'primary' => Color::Indigo,

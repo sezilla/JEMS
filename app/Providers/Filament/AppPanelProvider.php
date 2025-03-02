@@ -25,7 +25,7 @@ use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Filament\Navigation\NavigationGroup;
 use App\Http\Middleware\AddUserProjectsMiddleware;
-use App\Filament\pages\Auth\CustomLogin;
+// use App\Filament\pages\Auth\CustomLogin;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -36,7 +36,7 @@ class AppPanelProvider extends PanelProvider
             // ->brandLogo(asset('storage/images/logo.svg'))
             ->brandName('JEM')
             ->id('app')
-            ->login(CustomLogin::class)
+            ->login()
             ->passwordReset()
             ->emailVerification()
             // ->profile()
