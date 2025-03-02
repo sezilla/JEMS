@@ -25,6 +25,8 @@ Before you begin, ensure you have the following installed:
 - [XAMPP](https://www.apachefriends.org/) (with PHP 8.3.10) or [Laragon](https://laragon.org/)
 - Git
 
+- Setup python API [JEMS-python_ai](https://github.com/sezilla/JEMS-python_ai.git) (v3.10.6 or higher)
+
 ## 🔧 Installation
 
 ### Step 1: Clone the Repository
@@ -53,6 +55,7 @@ cp .env.example .env
 ```
 
 Open `.env` and configure your database settings:
+get trello environments on [Trello power-ups](https://trello.com/power-ups/admin)
 
 ```
 DB_CONNECTION=mysql
@@ -63,6 +66,10 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 APP_URL=http://127.0.0.1:8000
+
+TRELLO_API_KEY=
+TRELLO_API_TOKEN=
+TRELLO_WORKSPACE_ID=
 ```
 
 ### Step 4: Generate Application Key
