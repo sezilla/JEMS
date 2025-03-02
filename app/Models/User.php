@@ -62,16 +62,23 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         if(config('filament-shield.member_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
-            // static::created(function ($user) {
-            //     $user->assignRole(config('filament-shield.member_user.name', 'Member'));
-            // });
-            // static::deleting(function ($user) {
-            //     $user->removeRole(config('filament-shield.member_user.name', 'Member'));
-            // });
         }
-        FilamentShield::createRole(name: config('filament-shield.admin_user.name', 'Admin'));
-        FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
-        FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
+        if(config('filament-shield.admin_hr.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.admin_hr.name', 'HR Admin'));
+        }
+        if(config('filament-shield.admin_dep.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.admin_dep.name', 'Department Admin'));
+        }
+        if(config('filament-shield.coordinator_user.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
+        }
+        if(config('filament-shield.leader_user.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
+        }
     }
 
     // public function usersPanel(): string

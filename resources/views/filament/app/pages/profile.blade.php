@@ -1,7 +1,7 @@
 <x-filament-panels::page>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="md:col-span-2">
-            <x-filament::section class="mb-4 h-[calc(100vh-40rem)]">
+        <div class="md:col-span-2 gap-4">
+            <x-filament::section class="mb-4">
                 <div class="h-64 flex items-center gap-4 space-x-4">
                     <x-filament::avatar 
                         :src="$avatar_url" 
@@ -18,13 +18,25 @@
                     </div>
                 </div>
             </x-filament::section>
+            <x-filament::section class="mb-4">
+                i dont know yet siguro bio??
+            </x-filament::section>
+            <x-filament::section class="mb-4">
+                POSTS?????
+            </x-filament::section>
         </div>
         <div class="md:col-start-3">
             <x-filament::section class="mb-4">
-                Section 2
+                i guess team, department idk
             </x-filament::section>
             <x-filament::section class="mb-4">
-                Section 3
+                ongoing projects???
+            </x-filament::section>
+            <x-filament::section class="mb-4">
+                reset password
+            </x-filament::section>
+            <x-filament::section class="mb-4">
+                browser sessions
             </x-filament::section>
         </div>
     </div>
