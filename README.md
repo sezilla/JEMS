@@ -196,3 +196,7 @@ migrating fresh, run:
     php artisan db:seed --class=Roles
     php artisan db:seed --class=PackageTaskSeeder
     php artisan db:seed --class=SkillTask
+
+# step 7:
+clearing cache:
+    php artisan optimize:clear
