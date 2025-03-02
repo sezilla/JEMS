@@ -4,29 +4,30 @@ namespace App\Filament\App\Pages;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Notifications\Notification;
- 
+use Filament\Notifications\Notification;
+
 class Dashboard extends \Filament\Pages\Dashboard
 {
     protected function getHeaderActions(): array
     {
         return [
             Action::make('action')
-                ->label('try')
+                ->label('Try')
                 ->form([
                     TextInput::make('name')
                         ->required()
                         ->autofocus(),
                 ])
-                ->action(function (array $data){
+                ->action(function (array $data) {
                     $recipient = auth()->user();
- 
-                    $recipient->notify(
-                        Notification::make()
-                            ->title('Saved successfully')
-                            ->toDatabase(),
-                    );
+
+                    // Send a notification to the current user
+                    Notification::make()
+                        ->title('Saved successfully')
+                        ->success()
+                        ->body('Your data has been saved successfully.')
+                        ->sendToDatabase($recipient);
                 }),
-            ];
+        ];
     }
 }

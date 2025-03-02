@@ -2,33 +2,35 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\PanelProvider;
+use Filament\Enums\ThemeMode;
+use Filament\Navigation\MenuItem;
+use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use App\Http\Middleware\managepackage;
+use App\Filament\pages\Auth\CustomLogin;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
-use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
-use App\Http\Middleware\managepackage;
-
-use Filament\Navigation\MenuItem;
-use Filament\Navigation\NavigationGroup;
-use Filament\Enums\ThemeMode;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 // use Filament\Navigation\NavigationItem;
-use App\Filament\pages\Auth\CustomLogin;
-
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
+
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -101,6 +103,15 @@ class AdminPanelProvider extends PanelProvider
 
                 managepackage::class,
             ])
+            //wirechat
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render('@wirechatStyles'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('@wirechatAssets'),
+            )
             ->authMiddleware([
                 Authenticate::class,
             ])
@@ -116,6 +127,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label('User Management'),
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->databaseNotifications()
             ->databaseNotificationsPolling('2s')
             ->plugins([
