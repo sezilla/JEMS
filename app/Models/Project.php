@@ -13,12 +13,14 @@ use App\Services\TrelloService;
 use Illuminate\Support\Facades\Log;
 use App\Services\PythonService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Eloquent\SoftDeletes;
 // use app\Models\
 
 class Project extends Model
 {
     use HasFactory;
     use HasRoles;
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
