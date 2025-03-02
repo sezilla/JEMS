@@ -172,7 +172,6 @@ php artisan optimize:clear
 
 - **STRICTLY NO COMPOSER UPDATE**: This may break dependencies
 - Always communicate with the team before making significant code changes
-- For new policies, run: `php artisan permissions:sync -P --policies`
 
 ## 🧩 Trello Integration
 
