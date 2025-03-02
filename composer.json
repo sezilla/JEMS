@@ -13,6 +13,7 @@
         "laravel/framework": "^11.9",
         "laravel/reverb": "^1.4",
         "laravel/tinker": "^2.9",
+        "namu/wirechat": "^0.1.1",
         "saade/filament-fullcalendar": "^3.2"
     },
     "require-dev": {

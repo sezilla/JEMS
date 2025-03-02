@@ -2,29 +2,32 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\PanelProvider;
+use Filament\Navigation\MenuItem;
+use Filament\Support\Colors\Color;
+use Filament\Navigation\Navigation;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\AddUserProjectsMiddleware;
+
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-use Filament\Navigation\MenuItem;
-use Filament\Navigation\Navigation;
-use Filament\Navigation\NavigationItem;
-use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
-use Filament\Navigation\NavigationGroup;
-use App\Http\Middleware\AddUserProjectsMiddleware;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+
 // use App\Filament\pages\Auth\CustomLogin;
 
 class AppPanelProvider extends PanelProvider
@@ -71,6 +74,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
             ])
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -107,12 +111,21 @@ class AppPanelProvider extends PanelProvider
                         \App\Livewire\AddSkills::class,
                     ]),
             ])
+            //wirechat
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render('@wirechatStyles'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('@wirechatAssets'),
+            )
      
-                ->navigationGroups([
-                    NavigationGroup::make('My Projects')
-                        ->collapsible()
-                        ->collapsed()
-                ])
+            ->navigationGroups([
+                NavigationGroup::make('My Projects')
+                    ->collapsible()
+                    ->collapsed()
+            ])
             ;
     }
 }

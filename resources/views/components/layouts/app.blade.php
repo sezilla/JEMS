@@ -17,6 +17,7 @@
  
         @filamentStyles
         @vite('resources/css/app.css')
+        @wirechatStyles
     </head>
  
     <body class="antialiased">
@@ -24,5 +25,6 @@
  
         @filamentScripts
         @vite('resources/js/app.js')
+        @wirechatAssets
     </body>
 </html>

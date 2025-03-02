@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Conversation extends Model
 {
@@ -19,5 +20,20 @@ class Conversation extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    public function scopeWithoutDeleted(Builder $query)
+    {
+        $user = auth()->user();
+
+        if ($user) {
+            $conversationsTableName = $this->getTable();
+
+            $query->whereHas('participants', function ($query) use ($user, $conversationsTableName) {
+                $query->whereParticipantable($user)
+                    ->whereRaw(" (conversation_deleted_at IS NULL OR conversation_deleted_at < {$conversationsTableName}.updated_at) ");
+            });
+        }
+    }
+    
 }
 

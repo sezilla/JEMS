@@ -2,18 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-use Spatie\Permission\Traits\HasRoles;
-use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Support\Facades\Storage;
 use Filament\Panel;
+use App\Models\Conversation;
+use Namu\WireChat\Traits\Chatable;
+use Spatie\Permission\Traits\HasRoles;
+
+use Illuminate\Support\Facades\Storage;
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
@@ -21,6 +26,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     use HasRoles;
     use HasPanelShield;
+    use Chatable;
+    use SoftDeletes;
+
 
     /**
      * The attributes that are mass assignable.
@@ -93,10 +101,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     }
     
 
-    public function conversations()
-    {
-        return $this->belongsToMany(Conversation::class);
-    }
+    // public function conversations()
+    // {
+    //     return $this->belongsToMany(Conversation::class);
+    // }
 
     public function messages()
     {
@@ -147,5 +155,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasMany(Post::class);
     }
 
+
+    public function canCreateChats(): bool
+    {
+        return $this->hasVerifiedEmail();
+    }
+    public function canCreateGroups(): bool
+    {
+        return $this->hasVerifiedEmail() === true;
+    }
     
 }
