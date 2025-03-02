@@ -20,9 +20,8 @@ class PackageTaskSeeder extends Seeder
             '3 Months to 1 Month before' => 5,
             '1 Month to 1 Week before' => 6,
             '1 Week before and Wedding Day' => 7,
-            '1 Week before and Wedding Day' => 8,
-            'Wedding Day' => 9,
-            '6 Months after Wedding Day' => 10
+            'Wedding Day' => 8,
+            '6 Months after Wedding Day' => 9,
         ];
 
         $departments = [
