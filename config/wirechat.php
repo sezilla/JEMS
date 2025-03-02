@@ -52,7 +52,7 @@ return [
      * The returned view will serve as the parent layout, where the component content
      * will be rendered into the $slot.
      */
-    'layout' => 'wirechat::layouts.app',
+    'layout' => 'layouts.app',
 
     /**
      * Features:
