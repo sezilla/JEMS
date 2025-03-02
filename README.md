@@ -135,3 +135,48 @@ if trello not working::
     php artisan config:clear
     php artisan cache:clear
 
+
+
+
+# setting up the project
+
+# step 1:
+after cloning, run these commands:
+    composer install
+    npm install
+
+# step 2:
+set up the environment variables. run:
+    cp .env.example .env
+
+# step 3:
+run these commands to finish the setup
+
+    app key:
+        php artisan key:generate
+
+    storage:
+        php artisan storage:link
+
+    migrating the database and seeding required data:
+        php artisan migrate
+        php artisan db:seed
+    
+    setting up the shield (yes to all):
+        php artisan shield:install --fresh
+        php artisan shield:generate
+
+    seeding remaining data seeders:
+        php artisan db:seed --class=Roles
+        php artisan db:seed --class=PackageTaskSeeder
+        php artisan db:seed --class=SkillTask
+
+# step 4:
+build the app
+    npm run build
+
+# step 5:
+run the app locally (in different terminals)
+    php artisan serve
+    php artisan reverb:start
+    php artisan queue:work --queue=messages,default
