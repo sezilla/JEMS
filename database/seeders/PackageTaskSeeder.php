@@ -15,11 +15,11 @@ class PackageTaskSeeder extends Seeder
         $categories = [
             '1 Year to 6 Months before' => 1,
             '9 Months to 6 Months before' => 2,
-            '3 Months to 1 Month before' => 3,
-            '6 Months to 3 Months before' => 4,
-            '3 Months before' => 5,
-            '3 Months to 1 Month before' => 6,
-            '1 Month before' => 7,
+            '6 Months to 3 Months before' => 3,
+            '4 Months to 3 Months before' => 4,
+            '3 Months to 1 Month before' => 5,
+            '1 Month to 1 Week before' => 6,
+            '1 Week before and Wedding Day' => 7,
             '1 Week before and Wedding Day' => 8,
             'Wedding Day' => 9,
             '6 Months after Wedding Day' => 10
