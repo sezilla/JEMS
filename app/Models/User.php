@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Collection;
 
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
@@ -43,6 +44,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'custom_fields',
         'email_verified_at'
     ];
+
+    //wirechat
+    public function getCoverUrlAttribute(): ?string
+    {
+      return $this->avatar_url ? Storage::url($this->avatar_url) : null;
+    }
+    public function getDisplayNameAttribute(): ?string
+    {
+      return $this->name ?? 'user';
+    }
 
     //php
 
@@ -156,13 +167,20 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     }
 
 
+    //wirechat 
     public function canCreateChats(): bool
     {
-        return $this->hasVerifiedEmail();
+        return $this->hasVerifiedEmail() && $this->hasAnyRole([
+            'super admin', 'HR Admin', 'Department Admin', 'Coordinator', 'Team Leader'
+        ]);
     }
+    
     public function canCreateGroups(): bool
     {
-        return $this->hasVerifiedEmail() === true;
+        return $this->hasVerifiedEmail() && $this->hasAnyRole([
+            'super admin', 'HR Admin', 'Department Admin', 'Coordinator', 'Team Leader'
+        ]);
     }
+    
     
 }
