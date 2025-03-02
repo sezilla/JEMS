@@ -11,8 +11,8 @@
         "guzzlehttp/guzzle": "^7.9",
         "joaopaulolndev/filament-edit-profile": "^1.0",
         "laravel/framework": "^11.9",
+        "laravel/reverb": "^1.4",
         "laravel/tinker": "^2.9",
-        "munafio/chatify": "^1.6",
         "saade/filament-fullcalendar": "^3.2"
     },
     "require-dev": {
