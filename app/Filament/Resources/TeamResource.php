@@ -141,7 +141,7 @@ class TeamResource extends Resource
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                SelectFilter::make('department')
+                SelectFilter::make('Department')
                     ->options(function () {
                         return Department::pluck('name', 'id');
                     })

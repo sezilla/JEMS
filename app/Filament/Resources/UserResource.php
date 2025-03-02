@@ -306,8 +306,7 @@ class UserResource extends Resource
                         Stack::make([
                             Tables\Columns\TextColumn::make('name')
                                 ->weight(FontWeight::Bold)
-                                ->searchable()
-                                ->sortable(),
+                                ->searchable(),
                             Tables\Columns\TextColumn::make('email')
                                 ->limit(15)
                                 ->weight(FontWeight::Thin)
@@ -379,7 +378,7 @@ class UserResource extends Resource
                 ])->space(3),
                 
 
-            ])
+            ])->defaultSort('name', 'asc')
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,

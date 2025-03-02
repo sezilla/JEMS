@@ -47,6 +47,11 @@ class Project extends Model
         'end',
     ];
 
+    protected $casts = [
+        'start' => 'date',
+        'end' => 'date'
+    ];
+
     public function allocateTeams($projectName, $packageId, $start, $end)
     {
         $pythonServiceUrl = env('PYTHON_SERVICE_URL');

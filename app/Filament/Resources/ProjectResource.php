@@ -370,7 +370,8 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
-                            TextColumn::make('name')
+                            TextColumn::make('description')
+                                ->limit(40)
                                 ->searchable(),
                             Split::make([
                                 TextColumn::make('package.name')
@@ -399,7 +400,7 @@ class ProjectResource extends Resource
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
-                                    ->sortable()
+                                    // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
                                         return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                     })
@@ -407,7 +408,6 @@ class ProjectResource extends Resource
                                 TextColumn::make('end')
                                     ->label('Event Date')
                                     ->date()
-                                    ->sortable()
                                     ->fontFamily(FontFamily::Mono)
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
@@ -492,7 +492,7 @@ class ProjectResource extends Resource
                     //     ->sortable(),
                     
                ])->space(3),
-            ])
+            ])->defaultSort('end', 'asc')
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,
@@ -500,7 +500,7 @@ class ProjectResource extends Resource
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                //
+                
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
