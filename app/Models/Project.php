@@ -2,18 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
-use App\Services\TrelloService;
-use Illuminate\Support\Facades\Log;
 use App\Services\PythonService;
+use App\Services\TrelloService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+use Namu\WireChat\Models\Conversation;
+use Namu\WireChat\Models\Group;
+use Namu\WireChat\Enums\ConversationType;
+use Namu\WireChat\Enums\ParticipantRole;
+use Namu\WireChat\Models\Attachment;
+
+
 // use app\Models\
 
 class Project extends Model
@@ -239,9 +246,70 @@ class Project extends Model
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
+
+            $coordinatorIds = collect([
+                $project->groom_coordinator,
+                $project->bride_coordinator,
+                $project->head_coordinator,
+                $project->groom_coor_assistant,
+                $project->bride_coor_assistant,
+                $project->head_coor_assistant
+            ])->filter()->unique(); // Remove null and duplicate values
+
+            Log::info('Filtered coordinator IDs', ['ids' => $coordinatorIds->toArray()]);
+
+            if ($coordinatorIds->count() > 1) {
+                DB::beginTransaction();
+
+                try {
+                    Log::info('Attempting to create conversation', [
+                        'type' => ConversationType::GROUP,
+                        'current_time' => now()
+                    ]);
+                    $conversation = Conversation::create([
+                        'type' => ConversationType::GROUP,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]);
+                    $group = $conversation->group()->create([
+                        'name' => "{$project->groom_name} & {$project->bride_name} Project Coordinators",
+                        'description' => "Coordination group for {$project->groom_name} and {$project->bride_name}'s project"
+                    ]);
+                    if ($project->thumbnail_path) {
+                        $group->cover()->create([
+                            'file_path' => $project->thumbnail_path,
+                            'file_name' => basename($project->thumbnail_path),
+                            'mime_type' => mime_content_type($project->thumbnail_path),
+                            'url' => url($project->thumbnail_path)
+                        ]);
+                    }
+                    $headCoordinator = $coordinatorIds->first();
+                    $coordinatorIds->each(function ($userId) use ($conversation, $headCoordinator) {
+                        $user = User::find($userId);
+                        if ($user) {
+                            $role = ($userId == $headCoordinator)
+                                ? ParticipantRole::OWNER
+                                : ParticipantRole::PARTICIPANT;
+
+                            $conversation->addParticipant($user, $role);
+                            Log::info("Added user {$userId} as " . $role->value . " to conversation", ['conversation_id' => $conversation->id]);
+                        } else {
+                            Log::warning("User ID {$userId} not found.");
+                        }
+                    });
+                    DB::commit();
+
+                    Log::info('Project coordinator group conversation created', [
+                        'project_id' => $project->id,
+                        'conversation_id' => $conversation->id,
+                        'participants' => $coordinatorIds->toArray()
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('Failed to create project coordinator group', ['error' => $e->getMessage()]);
+                }
+            }
         });
-
-
 
         static::updating(function ($project) {
             Log::info('Updating Trello board for project: ' . $project->name);
