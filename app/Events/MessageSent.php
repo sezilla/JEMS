@@ -38,6 +38,7 @@ class MessageSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
+        Log::info('Broadcasting to channel: conversation.' . $this->message->conversation_id);
         return new Channel('conversation.' . $this->message->conversation_id);
     }
 }

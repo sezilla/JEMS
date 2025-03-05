@@ -2,33 +2,35 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\PanelProvider;
+use Filament\Enums\ThemeMode;
+use Filament\Navigation\MenuItem;
+use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use App\Http\Middleware\managepackage;
+use App\Filament\pages\Auth\CustomLogin;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
-use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
-use App\Http\Middleware\managepackage;
-
-use Filament\Navigation\MenuItem;
-use Filament\Navigation\NavigationGroup;
-use Filament\Enums\ThemeMode;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 // use Filament\Navigation\NavigationItem;
-use App\Filament\pages\Auth\CustomLogin;
-
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
+
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -43,20 +45,20 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->passwordReset()
             ->emailVerification()
-            ->login(CustomLogin::class)
+            ->login()
             ->font('Poppins')
             ->colors([
                 'primary' => Color::Indigo,
                 'secondary' => Color::Slate,
 
-                'info' => Color::Blue,
+                'info' => Color::Purple,
 
-                'success' => Color::Emerald,
+                'success' => Color::Green,
                 'warning' => Color::Orange,
                 'danger' => Color::Rose,
 
                 'Catering' => Color::Green,
-                'Hair' => Color::Red,
+                'Hair' => Color::Orange,
                 'Photo' => Color::Blue,
                 'Designing' => Color::Violet,
                 'Entertainment' => Color::Yellow,
@@ -65,8 +67,8 @@ class AdminPanelProvider extends PanelProvider
                 'ruby' => Color::Red,
                 'emerald' => Color::Emerald,
                 'garnet' => Color::Pink,
-                'sapphire' => Color::Indigo,
-                'infinity' => Color::Sky,
+                'sapphire' => Color::Sky,
+                'infinity' => Color::Cyan,
             ])
             ->sidebarCollapsibleOnDesktop()
             ->userMenuItems([
@@ -75,14 +77,14 @@ class AdminPanelProvider extends PanelProvider
                     ->url('/app')
                     ->icon('heroicon-o-cog-8-tooth'),
                 'profile' => MenuItem::make()
-                    ->label(fn () =>auth()->user()->name)
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->label(fn() => auth()->user()->name)
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
@@ -101,6 +103,15 @@ class AdminPanelProvider extends PanelProvider
 
                 managepackage::class,
             ])
+            //wirechat
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn(): string => Blade::render('@wirechatStyles'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn(): string => Blade::render('@wirechatAssets'),
+            )
             ->authMiddleware([
                 Authenticate::class,
             ])
@@ -110,13 +121,15 @@ class AdminPanelProvider extends PanelProvider
             // ])
             ->navigationGroups([
                 NavigationGroup::make()
-                     ->label('Project Management'),
+                    ->label('Project Management'),
                 NavigationGroup::make()
                     ->label('Packages'),
                 NavigationGroup::make()
                     ->label('User Management'),
             ])
-            
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('2s')
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
 
@@ -127,11 +140,11 @@ class AdminPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->shouldShowAvatarForm(
                         value: true,
-                        directory: 'avatars', 
+                        directory: 'avatars',
                         rules: 'mimes:jpeg,png|max:1024'
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page'))
+                    ->shouldRegisterNavigation(fn() => auth()->user()->can('view-edit-profile-page'))
                     ->customProfileComponents([
                         \App\Livewire\AddSkills::class,
                     ]),

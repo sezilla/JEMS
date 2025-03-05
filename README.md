@@ -1,32 +1,63 @@
-# jem-v0.09
- 
- multi project based managment system
+# JEMS - Multi-Project Management System
 
-Laravel 11 v11.22.0
-PHP v8.3.10   [eto or pataas ang php version] [if using xampp, need mag download ng specific version netong php then lagay sa php folder ng xampp. if using laragon, you must know what you're doing. hahahaha (mej komplikado pag self learn, pero madali lang)]
+[![Laravel](https://img.shields.io/badge/Laravel-11.22.0-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3.10-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Filament](https://img.shields.io/badge/Filament-3.x-47A5C5?style=for-the-badge&logo=laravel&logoColor=white)](https://filamentphp.com)
 
-hahahhaha
+JEMS is a comprehensive multi-project based management system built with Laravel 11. It provides an intuitive interface for managing multiple projects, tasks, and teams efficiently.
 
-before cloning (balakajan na clone mo na hahaha)
 
-install muna composer galing sa internet HA.
-https://getcomposer.org/Composer-Setup.exe
-[rember to add to path para di na tyo mag search kung paano yung error]
+## 🚀 Features
 
-install muna node js galing internet HA.
-https://nodejs.org/dist/v22.8.0/node-v22.8.0-x64.msi
-[rember to add to path para di na tyo mag search kung paano yung error](copy paste haha)
+- **Multi-Project Management**: Handle multiple projects simultaneously
+- **Task Management**: Create, assign, and track tasks
+- **Role-Based Access Control**: Manage permissions with Shield
+- **Trello Integration**: Connect with Trello for enhanced project visualization
+- **Real-time Updates**: Using Laravel Reverb for real-time notifications
+- **Queue Management**: Background processing for better performance
 
-after non, clone na from github HA. pero dahil nababasa mo na to, malamang na-clone na HAHA.
-{basta clone sa htdocs folder if using xampp, www folder if using laragon.}
+## 📋 Prerequisites
 
-commands after ma clone--------
+Before you begin, ensure you have the following installed:
 
+- [Composer](https://getcomposer.org/Composer-Setup.exe)
+- [Node.js](https://nodejs.org/) (v22.8.0 or higher)
+- [XAMPP](https://www.apachefriends.org/) (with PHP 8.3.10) or [Laragon](https://laragon.org/)
+- Git
+
+- Setup python API [JEMS-python_ai](https://github.com/sezilla/JEMS-python_ai.git) (v3.10.6 or higher)
+
+## 🔧 Installation
+
+### Step 1: Clone the Repository
+
+```bash
+# Clone to htdocs folder if using XAMPP, or www folder if using Laragon
+git clone https://github.com/sezilla/jem-v0.09.git
+cd jem
+```
+
+### Step 2: Install Dependencies
+
+```bash
+# Install PHP dependencies
 composer install
 
-cp .env.example .env
-//configure .env file 
+# Install Node.js dependencies
+npm install
+```
 
+### Step 3: Configure Environment
+
+```bash
+# Create environment file
+cp .env.example .env
+```
+
+Open `.env` and configure your database settings:
+get trello environments on [Trello power-ups](https://trello.com/power-ups/admin)
+
+```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -36,99 +67,132 @@ DB_PASSWORD=
 
 APP_URL=http://127.0.0.1:8000
 
+TRELLO_API_KEY=
+TRELLO_API_TOKEN=
+TRELLO_WORKSPACE_ID=
+```
+
+### Step 4: Generate Application Key
+
+```bash
 php artisan key:generate
+```
 
-php artisan migrate --seed
-** if error(would re migrate) == php artisan migrate:fresh --seed
+### Step 5: Set Up Storage Link
 
-
-
-
- php artisan shield:install
- php artisan shield:generate
-
-
-
- setup trello
- ////////////////////vvvvvv
- trello.com/power-ups/admin
-
-
-
-
-
-
-
-
-
-
-
-php artisan permission:sync
-
-php artisan serve
-** click mo po yung link na lalabas ctrl + left click
-
-**if style not working properly, run
-npm run build
-npm run dev
-
-paalam sa gc pag may gagawin or tanong (nakakatakot magbago ng code, nakakasira ng buong project) HAHAHAHAHAHAHAHAHAHAHAHAHAHA
-
-
-for new policies
-php artisan permissions:sync -P --policies
-
-
-ADMIN log in account
-admin@email.com
-password
-^^ is the password
-
-
-other commands [only for development]
-
+```bash
 php artisan storage:link
-php artisan vendor:publish --tag="filament-views"
+```
 
-https://trello.com/power-ups
+### Step 6: Database Migration and Seeding
 
-https://filamentphp.com/plugins/joaopaulolndev-edit-profile
-
-
-STRICTLY NO COMPOSER UPDATE
-
-
-newwww
+```bash
+# Run migrations and seed the database
 php artisan migrate
 php artisan db:seed
-php artisan shield:install --fresh
-php artisan shield:generate
-php artisan db:seed --class=Roles
-php artisan db:seed --class=TestDataSeeder
 
-reload
-php artisan migrate:fresh
-php artisan db:seed
-php artisan shield:install --fresh
-php artisan shield:generate
-php artisan db:seed --class=Roles
-php artisan db:seed --class=TestDataSeeder
-php artisan db:seed --class=PackageTaskSeeder
-php artisan db:seed --class=SkillTask
+# If you encounter errors, try fresh migration
+php artisan migrate:fresh --seed
+```
 
-new reload
-php artisan migrate:fresh
-php artisan db:seed
+### Step 7: Install and Configure Shield
+
+```bash
+# Install Shield (answer 'yes' to all prompts)
 php artisan shield:install --fresh
 php artisan shield:generate
+```
+
+### Step 8: Seed Additional Data
+
+```bash
 php artisan db:seed --class=Roles
 php artisan db:seed --class=PackageTaskSeeder
 php artisan db:seed --class=SkillTask
-php artisan db:seed --class=FakeUser
+```
 
+### Step 9: Build Assets
 
-run:
+```bash
+npm run build
+```
+
+### Step 10: Run the Application
+
+Open three separate terminal windows and run:
+
+```bash
+# Terminal 1: Start the web server
 php artisan serve
-php artisan queue:work
 
+# Terminal 2: Start Reverb for real-time features
+php artisan reverb:start
 
+# Terminal 3: Start queue worker for background processing
+php artisan queue:work --queue=messages,default
+```
+
+Visit `http://127.0.0.1:8000` in your browser to access the application.
+
+## 👨‍💻 Default Admin Access
+
+Use these credentials to access the admin dashboard:
+
+- **Email**: admin@email.com
+- **Password**: password
+
+## 🔄 Refreshing the Application
+
+If you need to reset and reload the application completely:
+
+```bash
+php artisan migrate:fresh
+php artisan db:seed
+php artisan shield:install --fresh
+php artisan shield:generate
+php artisan db:seed --class=Roles
+php artisan db:seed --class=PackageTaskSeeder
+php artisan db:seed --class=SkillTask
+```
+
+## 🧹 Troubleshooting
+
+### If styles are not working properly:
+
+```bash
+npm run build
+npm run dev
+```
+
+### If Trello integration is not working:
+
+```bash
+php artisan config:clear
+php artisan cache:clear
+```
+
+### Clear all cache:
+
+```bash
+php artisan optimize:clear
+```
+
+## ⚠️ Important Notes
+
+- **STRICTLY NO COMPOSER UPDATE**: This may break dependencies
+- Always communicate with the team before making significant code changes
+
+## 🧩 Trello Integration
+
+To set up Trello integration:
+1. Visit [Trello Power-Ups Admin](https://trello.com/power-ups/admin)
+2. Configure your Power-Up settings
+3. Connect your JEM instance with your Trello boards
+
+## 🤝 Contributing
+
+Please communicate with the team before making any changes to avoid breaking the project. Use the issue tracker for bugs and feature requests.
+
+## 📄 License
+
+This project is proprietary software. All rights reserved.

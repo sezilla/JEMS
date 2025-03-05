@@ -27,6 +27,10 @@ class TrelloService
 
         $this->templateBoardIds = Package::pluck('trello_board_template_id', 'name')->filter()->toArray();
 
+        // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
+        // Log::info('Trello API Token:', ['token' => $this->token]);
+        // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
+        
         Log::info('Loaded Trello configuration.');
     }
 

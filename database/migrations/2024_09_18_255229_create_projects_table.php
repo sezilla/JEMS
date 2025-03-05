@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // project is created by
             // $table->date('event_date');
             $table->string('venue')->nullable();
+            $table->softDeletes();
 
             $table->string('groom_name');
             $table->string('bride_name');

@@ -2,18 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-
-use Spatie\Permission\Traits\HasRoles;
-use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Support\Facades\Storage;
 use Filament\Panel;
+use App\Models\Conversation;
+use Namu\WireChat\Traits\Chatable;
+use Spatie\Permission\Traits\HasRoles;
+
+use Illuminate\Support\Facades\Storage;
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
@@ -21,6 +27,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     use HasRoles;
     use HasPanelShield;
+    use Chatable;
+    use SoftDeletes;
+
 
     /**
      * The attributes that are mass assignable.
@@ -36,23 +45,40 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'email_verified_at'
     ];
 
+    //wirechat
+    public function getCoverUrlAttribute(): ?string
+    {
+        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
+    }
+    public function getDisplayNameAttribute(): ?string
+    {
+        return $this->name ?? 'user';
+    }
+
     //php
 
     protected static function booted(): void
     {
-        if(config('filament-shield.member_user.enabled', true)) {
+        if (config('filament-shield.member_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
-            static::created(function ($user) {
-                $user->assignRole(config('filament-shield.member_user.name', 'Member'));
-            });
-            static::deleting(function ($user) {
-                $user->removeRole(config('filament-shield.member_user.name', 'Member'));
-            });
         }
-        FilamentShield::createRole(name: config('filament-shield.admin_user.name', 'Admin'));
-        FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
-        FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
+        if (config('filament-shield.admin_hr.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.admin_hr.name', 'HR Admin'));
+        }
+        if (config('filament-shield.admin_dep.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.admin_dep.name', 'Department Admin'));
+        }
+        if (config('filament-shield.coordinator_user.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
+        }
+        if (config('filament-shield.leader_user.enabled', true)) {
+
+            FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
+        }
     }
 
     // public function usersPanel(): string
@@ -62,17 +88,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     //         default => url('/app'),
     //     };
     // }
-    
+
 
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
-    }
-
-    
-    public function teams()
-    {
-        return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
     }
 
     public function departments()
@@ -80,16 +100,29 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
     }
 
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
+    }
+    // public function scopeFilterTeamsByDepartments(Builder $query, $departments)
+    // {
+    //     if (!empty($departments)) {
+    //         $query->whereHas('departments', function (Builder $query) use ($departments) {
+    //             $query->whereIn('departments.id', $departments);
+    //         });
+    //     }
+    // }
+
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
-    
 
-    public function conversations()
-    {
-        return $this->belongsToMany(Conversation::class);
-    }
+
+    // public function conversations()
+    // {
+    //     return $this->belongsToMany(Conversation::class);
+    // }
 
     public function messages()
     {
@@ -121,14 +154,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             'custom_fields' => 'array'
         ];
     }
-    
+
     public function canAccessPanel(Panel $panel): bool
     {
-        if($panel->getId() === 'admin') {
-            return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_user.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
-        } 
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_hr.name')) || $this->hasRole(config('filament-shield.admin_dep.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
+        }
 
-        if($panel->getId() === 'app') {
+        if ($panel->getId() === 'app') {
             return true;
         }
 
@@ -140,5 +173,27 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->hasMany(Post::class);
     }
 
-    
+
+    //wirechat 
+    public function canCreateChats(): bool
+    {
+        return $this->hasVerifiedEmail() && $this->hasAnyRole([
+            'super admin',
+            'HR Admin',
+            'Department Admin',
+            'Coordinator',
+            'Team Leader'
+        ]);
+    }
+
+    public function canCreateGroups(): bool
+    {
+        return $this->hasVerifiedEmail() && $this->hasAnyRole([
+            'super admin',
+            'HR Admin',
+            'Department Admin',
+            'Coordinator',
+            'Team Leader'
+        ]);
+    }
 }

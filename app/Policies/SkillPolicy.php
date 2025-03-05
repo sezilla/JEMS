@@ -63,7 +63,7 @@ class SkillPolicy
      */
     public function forceDelete(User $user, Skill $skill): bool
     {
-        return $user->can('force_delete_skill');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class SkillPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_skill');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class SkillPolicy
      */
     public function restore(User $user, Skill $skill): bool
     {
-        return $user->can('restore_skill');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class SkillPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_skill');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class SkillPolicy
      */
     public function replicate(User $user, Skill $skill): bool
     {
-        return $user->can('replicate_skill');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class SkillPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_skill');
+        return $user->can('{{ Reorder }}');
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,6 +37,8 @@ class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
     public static function form(Form $form): Form
@@ -48,6 +51,7 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
+                            ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -56,19 +60,39 @@ class ProjectResource extends Resource
                             ->required()
                             ->preload()
                             ->searchable()
-                            ->options(Package::all()->pluck('name', 'id')),
+                            ->options(Package::all()->pluck('name', 'id'))
+                            ->disabled(fn ($record) => $record !== null),
                         Forms\Components\MarkdownEditor::make('description')
                             ->columnSpanFull(),
-                        Forms\Components\DatePicker::make('start')
+
+
+                            Forms\Components\DatePicker::make('start')
                             ->columnSpan(1)
                             ->label('Start Date')
                             ->required()
-                            ->default(now()->toDateString()), 
+                            ->default(now()->toDateString()),
                         Forms\Components\DatePicker::make('end')
                             ->columnSpan(1)
                             ->label('End Date')
                             ->required()
-                            ->default(now()->toDateString()),
+                            ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
+                            ->after('start') // Ensures 'end' is after 'start'
+                            ->rules([
+                                function () {
+                                    return function ($attribute, $value, $fail) {
+                                        $start = request()->input('start');
+                                        if ($start) {
+                                            $startDate = Carbon::parse($start);
+                                            $endDate = Carbon::parse($value);
+                                            
+                                            if ($endDate->lessThan($startDate->addMonths(4))) {
+                                                $fail('The end date must be at least 4 months after the start date.');
+                                            }
+                                        }
+                                    };
+                                }
+                            ]),
+
                         Forms\Components\TextInput::make('venue')
                             ->maxLength(255),
                     ])
@@ -187,7 +211,8 @@ class ProjectResource extends Resource
                 Section::make()
                     ->columns(3)
                     ->description('Teams')
-                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
+                    // ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
+                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                     ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('team1')
@@ -345,7 +370,8 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
-                            TextColumn::make('name')
+                            TextColumn::make('description')
+                                ->limit(40)
                                 ->searchable(),
                             Split::make([
                                 TextColumn::make('package.name')
@@ -359,7 +385,7 @@ class ProjectResource extends Resource
                                             'Garnet' => 'garnet',
                                             'Emerald' => 'emerald',
                                             'Infinity' => 'infinity',
-                                            'sapphire' => 'sapphire',
+                                            'Sapphire' => 'sapphire',
                                             default => 'gray',
                                         }
                                     ),
@@ -374,7 +400,7 @@ class ProjectResource extends Resource
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
-                                    ->sortable()
+                                    // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
                                         return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                     })
@@ -382,7 +408,6 @@ class ProjectResource extends Resource
                                 TextColumn::make('end')
                                     ->label('Event Date')
                                     ->date()
-                                    ->sortable()
                                     ->fontFamily(FontFamily::Mono)
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
@@ -467,7 +492,7 @@ class ProjectResource extends Resource
                     //     ->sortable(),
                     
                ])->space(3),
-            ])
+            ])->defaultSort('end', 'asc')
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,
@@ -475,7 +500,7 @@ class ProjectResource extends Resource
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                //
+                
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),

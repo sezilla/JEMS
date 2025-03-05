@@ -13,6 +13,7 @@ use Joaopaulolndev\FilamentEditProfile\Concerns\HasSort;
 use App\Models\User;
 use App\Models\Skill;
 use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 
 class AddSkills extends Component implements HasForms
 {
@@ -20,6 +21,7 @@ class AddSkills extends Component implements HasForms
     use HasSort;
 
     public ?array $data = [];
+    public bool $isSaving = false; // Loading state
 
     protected static int $sort = 0;
 
@@ -35,23 +37,29 @@ class AddSkills extends Component implements HasForms
         return $form
             ->schema([
                 Section::make('My Skills')
-                ->aside()
-                ->description('Select the skills you have')
-                ->schema([
-                    Forms\Components\Select::make('skills')
-                        ->multiple()
-                        ->options(Skill::pluck('name', 'id')->toArray())
-                        ->label('Skills')
-                        ->preload()
-                        ->required(),
-                
-                ]),
+                    ->aside()
+                    ->description('Select the skills you have. "3" maximum.')
+                    ->schema([
+                        Forms\Components\Select::make('skills')
+                            ->multiple()
+                            ->options(Skill::pluck('name', 'id')->toArray())
+                            ->label('Skills')
+                            ->preload()
+                            ->reactive()
+                            ->afterStateUpdated(fn ($state, callable $set) => 
+                                count($state) > 3 ? $set('skills', array_slice($state, 0, 3)) : null
+                            )
+                            ->rule('max:3') // Enforce max 3 selections
+                            ->required(),
+                    ]),
             ])
             ->statePath('data');
     }
 
     public function save(): void
     {
+        $this->isSaving = true; // Show loading indicator
+
         // Fetch selected skills from the form state
         $data = $this->form->getState();
         
@@ -60,9 +68,16 @@ class AddSkills extends Component implements HasForms
 
         // Sync the selected skills with the user's skills
         $user->skills()->sync($data['skills'] ?? []);
-        
-        // Optionally, add a success message
-        session()->flash('message', 'Skills updated successfully.');
+
+        // Add success notification
+        Notification::make()
+            ->title('Success')
+            ->body('Your skills have been updated.')
+            ->success()
+            ->send();
+
+        // Hide loading indicator
+        $this->isSaving = false;
     }
 
     public function render(): View

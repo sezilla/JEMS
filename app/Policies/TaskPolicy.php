@@ -63,7 +63,7 @@ class TaskPolicy
      */
     public function forceDelete(User $user, Task $task): bool
     {
-        return $user->can('force_delete_task');
+        return $user->can('{{ ForceDelete }}');
     }
 
     /**
@@ -71,7 +71,7 @@ class TaskPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_task');
+        return $user->can('{{ ForceDeleteAny }}');
     }
 
     /**
@@ -79,7 +79,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        return $user->can('restore_task');
+        return $user->can('{{ Restore }}');
     }
 
     /**
@@ -87,7 +87,7 @@ class TaskPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_task');
+        return $user->can('{{ RestoreAny }}');
     }
 
     /**
@@ -95,7 +95,7 @@ class TaskPolicy
      */
     public function replicate(User $user, Task $task): bool
     {
-        return $user->can('replicate_task');
+        return $user->can('{{ Replicate }}');
     }
 
     /**
@@ -103,6 +103,6 @@ class TaskPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_task');
+        return $user->can('{{ Reorder }}');
     }
 }

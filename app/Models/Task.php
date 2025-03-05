@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Package;
 use App\Models\Department;
 use App\Models\TaskCategory;
+use App\Models\PackageTask;
 
 class Task extends Model
 {
@@ -22,11 +23,12 @@ class Task extends Model
         'task_category_id',
     ];
 
+
     public function packages()
     {
         return $this->belongsToMany(Package::class, 'task_package', 'task_id', 'package_id')
-                    // ->using(TaskPackage::class)
-                    ->withPivot('trello_checklist_item_id');
+                ->using(PackageTask::class)
+                ->withPivot('trello_checklist_item_id');
     }
 
     public function department()

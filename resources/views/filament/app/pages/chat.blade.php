@@ -28,7 +28,7 @@
                         <li>
                             <button 
                                 wire:click="$set('selectedConversationId', {{ $conversation->id }})" 
-                                class="w-full text-left px-4 py-2 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
+                                class="w-full text-left px-4 py-2 border border-slate-800 rounded-md {{ $selectedConversationId == $conversation->id ? 'bg-gray-300' : '' }}"
                             >
                                 {{ $conversation->name }}
                             </button>
@@ -97,38 +97,69 @@
     <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const chatContainer = document.getElementById('chat-container');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const messageBodyInput = document.getElementById('messageBody');
+            let typingTimeout;
+    
+            // Pusher Setup
             const pusher = new Pusher('{{ env('PUSHER_APP_KEY') }}', {
                 cluster: '{{ env('PUSHER_APP_CLUSTER') }}',
                 encrypted: true,
             });
-
-            const channel = pusher.subscribe(`conversation.{{ $selectedConversationId }}`);
+    
+            // Subscribe to the conversation channel
+            const channel = pusher.subscribe('conversation.' + {{ $selectedConversationId }});
+    
+            // Listen for "MessageSent" events
             channel.bind('MessageSent', function (data) {
-                // Emit the Livewire event to add the message
                 Livewire.emit('messageReceived', data.message);
+                scrollToBottom();
             });
-        });
-
-        document.addEventListener('livewire:load', function () {
-            const chatContainer = document.getElementById('chat-container');
-
-            // Function to scroll to the bottom
+    
+            // Listen for "UserTyping" events
+            channel.bind('UserTyping', function (data) {
+                if (data.user) {
+                    typingIndicator.textContent = `${data.user.name} is typing...`;
+                    setTimeout(() => {
+                        typingIndicator.textContent = '';
+                    }, 3000); // Clear the indicator after 3 seconds
+                }
+            });
+    
+            // Scroll to the bottom of the chat container
             function scrollToBottom() {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
-
-            // Scroll to the bottom when the page loads
+    
+            // Scroll to the bottom initially
             scrollToBottom();
-
-            // Listen for new messages and scroll to the bottom
+    
+            // Detect when the user is typing
+            messageBodyInput.addEventListener('input', function () {
+                clearTimeout(typingTimeout);
+    
+                // Emit a "UserTyping" event via Livewire
+                Livewire.emit('userTyping');
+    
+                // Stop the typing status after 3 seconds of inactivity
+                typingTimeout = setTimeout(() => {
+                    Livewire.emit('userTyping', null);
+                }, 3000);
+            });
+    
+            // Listen for Livewire events to handle UI updates
             Livewire.on('messageReceived', function () {
-                setTimeout(scrollToBottom, 100); // Allow time for DOM updates
+                setTimeout(scrollToBottom, 100); // Ensure message is rendered before scrolling
+            });
+    
+            Livewire.on('userTyping', function (user) {
+                if (user) {
+                    typingIndicator.textContent = `${user} is typing...`;
+                } else {
+                    typingIndicator.textContent = '';
+                }
             });
         });
-
-        window.addEventListener('scroll-to-bottom', function () {
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        });
-    </script>
+    </script>    
 </x-filament-panels::page>

@@ -16,4 +16,11 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    // public function getTabs(): array
+    // {
+    //     return [
+
+    //     ];
+    // }
 }

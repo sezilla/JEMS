@@ -19,7 +19,7 @@ return [
 
     'super_admin' => [
         'enabled' => true,
-        'name' => 'super_admin',
+        'name' => 'super admin',
         'define_via_gate' => false,
         'intercept_gate' => 'before', // after
     ],
@@ -30,9 +30,13 @@ return [
         'enabled' => false,
         'name' => 'panel_user',
     ],
-    'admin_user' => [
+    'admin_hr' => [
         'enabled' => true,
-        'name' => 'Admin',
+        'name' => 'HR Admin',
+    ],
+    'admin_dep' => [
+        'enabled' => true,
+        'name' => 'Department Admin',
     ],
     'coordinator_user' => [
         'enabled' => true,

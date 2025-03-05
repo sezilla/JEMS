@@ -35,6 +35,8 @@ class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
 
     public static function form(Form $form): Form
@@ -49,20 +51,27 @@ class TeamResource extends Resource
                             ->columnSpan('full')
                             ->required()
                             ->maxLength(255),
-                        Select::make('departments')
+                            Select::make('departments')
                             ->relationship('departments', 'name')
                             ->label('Department')
                             ->preload()
-                            ->searchable(),
+                            ->searchable()
+                            ->reactive() // Make the field reactive
+                            ->afterStateUpdated(fn (callable $set) => $set('leader_id', null)), // Reset leader_id when department changes
+                        
                         Select::make('leader_id')
-                            ->relationship('leaders', 'name', function ($query) {
+                            ->relationship('leaders', 'name', function ($query, $get) {
+                                $departmentId = $get('departments'); // Get the selected department ID
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Team Leader');
+                                })->whereHas('departments', function ($q) use ($departmentId) {
+                                    $q->where('departments.id', $departmentId); // Filter by selected department
                                 });
                             })
                             ->label('Team Leader')
                             ->preload()
                             ->searchable(),
+                        
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
                             ->columnSpan('full'),
@@ -132,7 +141,7 @@ class TeamResource extends Resource
             ])
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                SelectFilter::make('department')
+                SelectFilter::make('Department')
                     ->options(function () {
                         return Department::pluck('name', 'id');
                     })

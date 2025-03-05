@@ -15,12 +15,16 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use App\Models\Department;
 use App\Models\TaskCategory;
+use Filament\Forms\Get;
+use App\Models\PackageTask;
+
 
 
 
 class TaskRelationManager extends RelationManager
 {
-    protected static string $relationship = 'tasks';
+    protected static string $relationship = 'tasks'; //old
+    // protected static string $relationship = 'packageTasks';
 
     public function form(Form $form): Form
     {
@@ -32,6 +36,7 @@ class TaskRelationManager extends RelationManager
                 ->required()
                 ->preload()
                 ->reactive() // Reacts to changes
+                ->disabled(fn (Get $get) => $get('id') !== null)
                 ->afterStateUpdated(function (callable $set) {
                     $set('name', null); // Reset name field when department changes
                 }),
@@ -39,6 +44,7 @@ class TaskRelationManager extends RelationManager
             Forms\Components\Select::make('task_category_id')
                 ->label('Category')
                 ->relationship('category', 'name') 
+                ->disabled(fn (Get $get) => $get('id') !== null)
                 ->required()
                 ->preload(),
             
@@ -64,7 +70,7 @@ class TaskRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('Name')
+            // ->recordTitleAttribute('Name')
             ->columns([
                 Tables\Columns\TextColumn::make('department.name')
                     ->badge()
@@ -100,16 +106,32 @@ class TaskRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Create Task'),
-
-                Tables\Actions\Action::make('addTask')
+            
+                    Tables\Actions\Action::make('addTask')
                     ->label('Add Task')
                     ->action(function (array $data) {
-                        // Link the selected task to the current package
-                        $taskId = $data['name'];
-                        $packageId = $this->ownerRecord->id; // Get the current package's ID
-
-                        $this->ownerRecord->tasks()->attach($taskId, ['package_id' => $packageId]);
-
+                        $taskId = $data['task_id']; // Fetch task ID
+                        $packageId = $this->ownerRecord->id; // Get current package ID
+                
+                        // Check if task already exists in the package
+                        $exists = PackageTask::where('package_id', $packageId)
+                            ->where('task_id', $taskId)
+                            ->exists();
+                
+                        if ($exists) {
+                            Notification::make()
+                                ->title('Task already exists in this package!')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                
+                        // If it doesn't exist, add it
+                        PackageTask::create([
+                            'package_id' => $packageId,
+                            'task_id' => $taskId,
+                        ]);
+                
                         Notification::make()
                             ->title('Task added successfully!')
                             ->success()
@@ -121,26 +143,71 @@ class TaskRelationManager extends RelationManager
                             ->relationship('department', 'name') 
                             ->required()
                             ->preload()
-                            ->reactive() // Reacts to changes
+                            ->reactive()
                             ->afterStateUpdated(function (callable $set) {
-                                $set('name', null); // Reset name field when department changes
+                                $set('task_id', null); // Reset task field when department changes
                             }),
-
-                        Forms\Components\Select::make('name')
+                
+                        Forms\Components\Select::make('task_id')
                             ->label('Task')
                             ->options(function ($get) {
-                                // Fetch only tasks related to the selected department
                                 $departmentId = $get('department_id');
                                 return $departmentId 
-                                    ? Task::where('department_id', $departmentId)->pluck('name', 'id')
+                                    ? Task::where('department_id', $departmentId)->pluck('name', 'id') 
                                     : [];
                             })
                             ->required()
                             ->preload(),
-                    ]),
+                        ]),                
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('editTask')
+                    ->label('Edit')
+                    ->icon('heroicon-s-pencil')
+                    ->form([
+                        Forms\Components\Select::make('department_id')
+                            ->label('Department')
+                            ->relationship('department', 'name') 
+                            ->required()
+                            ->preload()
+                            ->reactive()
+                            ->disabled(fn (Task $record) => $record->exists),
+
+                        Forms\Components\Select::make('task_category_id')
+                            ->label('Category')
+                            ->relationship('category', 'name') 
+                            ->required()
+                            ->preload()
+                            ->disabled(fn (Task $record) => $record->exists),
+
+                        Forms\Components\TextInput::make('name')
+                            ->label('Task')
+                            ->required(),
+
+                        Forms\Components\Select::make('skill_id')
+                            ->label('Skills Required')
+                            ->relationship('skills', 'name')
+                            ->multiple()
+                            ->required()
+                            ->preload(),
+
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->label('Description')
+                            ->required()
+                            ->columnSpanFull(),
+                    ])
+                    ->action(function (PackageTask $record, array $data) { // Ensure Task model is expected
+                        $record->update($data);
+
+                        \Log::info('Task updated', ['task_id' => $record->id]);
+
+                        Notification::make()
+                            ->title('Task updated successfully!')
+                            ->success()
+                            ->send();
+                    })
+                    ->modalButton('Save Changes')
+                    ->modalHeading('Edit Task'),
                 Tables\Actions\Action::make('removeTask')
                     ->label('Remove')
                     ->color('danger')
@@ -149,7 +216,11 @@ class TaskRelationManager extends RelationManager
                         $packageId = $this->ownerRecord->id; // Get the current package ID
                         
                         // Detach the task from the package in the task_package table
-                        $this->ownerRecord->tasks()->detach($record->id);
+                        // $this->ownerRecord->tasks()->detach($record->id);
+
+                        PackageTask::where('package_id', $packageId)
+                            ->where('task_id', $record->id)
+                            ->delete();
 
                         Notification::make()
                             ->title('Task removed from package successfully!')

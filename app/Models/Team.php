@@ -26,6 +26,11 @@ class Team extends Model
             });
     }
     
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'departments_has_teams', 'team_id', 'department_id');
+    }
+    
     public function members()
     {
         return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
@@ -38,14 +43,9 @@ class Team extends Model
         return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
     }
 
-    public function departments()
-    {
-        return $this->belongsToMany(Department::class, 'departments_has_teams', 'team_id', 'department_id');
-    }
-
     public function projects()
     {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class, 'project_teams','team_id', 'project_id');
     }
 
 }

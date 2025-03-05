@@ -2,41 +2,46 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Http\Middleware\Authenticate;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\Widgets;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Filament\PanelProvider;
+use Filament\Navigation\MenuItem;
+use Filament\Support\Colors\Color;
+use Filament\Navigation\Navigation;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
+use Filament\Http\Middleware\Authenticate;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\AddUserProjectsMiddleware;
+
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
-use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-use Filament\Navigation\MenuItem;
-use Filament\Navigation\Navigation;
-use Filament\Navigation\NavigationItem;
-use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
-use Filament\Navigation\NavigationGroup;
-use App\Http\Middleware\AddUserProjectsMiddleware;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use App\Filament\pages\Auth\CustomLogin;
+
+
+// use App\Filament\pages\Auth\CustomLogin;
 
 class AppPanelProvider extends PanelProvider
 {
-    
+
     public function panel(Panel $panel): Panel
     {
         return $panel
             // ->brandLogo(asset('storage/images/logo.svg'))
             ->brandName('JEM')
             ->id('app')
-            ->login(CustomLogin::class)
+            ->login()
             ->passwordReset()
             ->emailVerification()
             // ->profile()
@@ -44,7 +49,7 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#6366f1',
             ])
-            
+
             // ->topNavigation([
             //     navigation::make('dashboard'),
             //     navigation::make('trello boards'),
@@ -56,21 +61,21 @@ class AppPanelProvider extends PanelProvider
                     ->label('Administration')
                     ->url('/admin')
                     ->icon('heroicon-o-cog-8-tooth')
-                    ->visible(fn () => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin', 'Coordinator'])),
+                    ->visible(fn() => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin', 'Coordinator'])),
                 'profile' => MenuItem::make()
-                    ->label(fn () =>auth()->user()->name)
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->label(fn() => auth()->user()->name)
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
-
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
-                Pages\Dashboard::class,
+                // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([
-            ])
+            ->widgets([])
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -82,13 +87,13 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
 
-                AddUserProjectsMiddleware::class, 
+                AddUserProjectsMiddleware::class,
                 // enable when working ito ay yung projects per usser somethin idk
             ])
             ->authMiddleware([
                 Authenticate::class,
             ])
-            
+            ->databaseNotifications()
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
 
@@ -99,20 +104,29 @@ class AppPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->shouldShowAvatarForm(
                         value: true,
-                        directory: 'avatars', 
+                        directory: 'avatars',
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page'))
+                    ->shouldRegisterNavigation(fn() => auth()->user()->can('view-edit-profile-page'))
                     ->customProfileComponents([
                         \App\Livewire\AddSkills::class,
                     ]),
             ])
-     
-                ->navigationGroups([
-                    NavigationGroup::make('My Projects')
-                        ->collapsible()
-                        ->collapsed()
-                ])
-            ;
+            //wirechat
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn(): string => Blade::render('@wirechatStyles'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn(): string => Blade::render('@wirechatAssets'),
+            )
+
+            ->navigationGroups([
+                NavigationGroup::make('My Projects')
+                    ->collapsible()
+                    ->collapsed()
+            ])
+        ;
     }
 }
