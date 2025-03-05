@@ -77,8 +77,8 @@ class AdminPanelProvider extends PanelProvider
                     ->url('/app')
                     ->icon('heroicon-o-cog-8-tooth'),
                 'profile' => MenuItem::make()
-                    ->label(fn () =>auth()->user()->name)
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->label(fn() => auth()->user()->name)
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
@@ -106,11 +106,11 @@ class AdminPanelProvider extends PanelProvider
             //wirechat
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
-                fn (): string => Blade::render('@wirechatStyles'),
+                fn(): string => Blade::render('@wirechatStyles'),
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render('@wirechatAssets'),
+                fn(): string => Blade::render('@wirechatAssets'),
             )
             ->authMiddleware([
                 Authenticate::class,
@@ -121,7 +121,7 @@ class AdminPanelProvider extends PanelProvider
             // ])
             ->navigationGroups([
                 NavigationGroup::make()
-                     ->label('Project Management'),
+                    ->label('Project Management'),
                 NavigationGroup::make()
                     ->label('Packages'),
                 NavigationGroup::make()
@@ -140,11 +140,11 @@ class AdminPanelProvider extends PanelProvider
                     ->setIcon('heroicon-o-user')
                     ->shouldShowAvatarForm(
                         value: true,
-                        directory: 'avatars', 
+                        directory: 'avatars',
                         rules: 'mimes:jpeg,png|max:1024'
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn () => auth()->user()->can('view-edit-profile-page'))
+                    ->shouldRegisterNavigation(fn() => auth()->user()->can('view-edit-profile-page'))
                     ->customProfileComponents([
                         \App\Livewire\AddSkills::class,
                     ]),

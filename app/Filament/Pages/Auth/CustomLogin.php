@@ -33,15 +33,6 @@ class CustomLogin extends BaseLogin
                     ->required(),
                 Checkbox::make('remember')
                     ->label('Remember Me'),
-                Radio::make('panel')
-                    ->required()
-                    ->label('Login as?')
-                    ->inline()
-                    ->inlineLabel(false)
-                    ->options([
-                        'Admin' => 'Admin',
-                        'Staff' => 'Staff',
-                    ]),
             ]);
     }
 
@@ -55,17 +46,9 @@ class CustomLogin extends BaseLogin
         ];
 
         if (Auth::attempt($credentials, $data['remember'] ?? false)) {
-            // Authentication successful
             $panel = $data['panel'];
-
-            if ($panel === 'Admin') {
-                return new CustomLoginResponse('/admin');
-            } elseif ($panel === 'Staff') {
-                return new CustomLoginResponse('/app');
-            }
         }
 
-        // Authentication failed
         $this->addError('email', __('auth.failed'));
         return null;
     }
