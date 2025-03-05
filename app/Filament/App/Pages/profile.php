@@ -24,7 +24,7 @@ class Profile extends Page
 
         $this->avatar_url = $user->avatar_url ? Storage::url($user->avatar_url) : null;
         $this->name = $user->name;
-        $this->role = $user->getRoleNames()->first() ?? 'No Role'; // Fetch first role
+        $this->role = $user->getRoleNames()->first() ?? 'No Role';
         $this->department = $user->departments->pluck('name')->join(', ') ?? 'No Department';
         $this->team = $user->teams->pluck('name')->join(', ') ?? 'No Team';
     }
