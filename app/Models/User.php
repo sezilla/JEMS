@@ -48,34 +48,34 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     //wirechat
     public function getCoverUrlAttribute(): ?string
     {
-      return $this->avatar_url ? Storage::url($this->avatar_url) : null;
+        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
     public function getDisplayNameAttribute(): ?string
     {
-      return $this->name ?? 'user';
+        return $this->name ?? 'user';
     }
 
     //php
 
     protected static function booted(): void
     {
-        if(config('filament-shield.member_user.enabled', true)) {
+        if (config('filament-shield.member_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
         }
-        if(config('filament-shield.admin_hr.enabled', true)) {
+        if (config('filament-shield.admin_hr.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.admin_hr.name', 'HR Admin'));
         }
-        if(config('filament-shield.admin_dep.enabled', true)) {
+        if (config('filament-shield.admin_dep.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.admin_dep.name', 'Department Admin'));
         }
-        if(config('filament-shield.coordinator_user.enabled', true)) {
+        if (config('filament-shield.coordinator_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
         }
-        if(config('filament-shield.leader_user.enabled', true)) {
+        if (config('filament-shield.leader_user.enabled', true)) {
 
             FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
         }
@@ -88,7 +88,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     //         default => url('/app'),
     //     };
     // }
-    
+
 
     public function getFilamentAvatarUrl(): ?string
     {
@@ -99,7 +99,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         return $this->belongsToMany(Department::class, 'users_has_departments', 'user_id', 'department_id');
     }
-    
+
     public function teams()
     {
         return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
@@ -117,7 +117,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
-    
+
 
     // public function conversations()
     // {
@@ -154,14 +154,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             'custom_fields' => 'array'
         ];
     }
-    
+
     public function canAccessPanel(Panel $panel): bool
     {
-        if($panel->getId() === 'admin') {
-            return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_user.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
-        } 
+        if ($panel->getId() === 'admin') {
+            return $this->hasRole(config('filament-shield.super_admin.name')) || $this->hasRole(config('filament-shield.admin_hr.name')) || $this->hasRole(config('filament-shield.admin_dep.name')) || $this->hasRole(config('filament-shield.coordinator_user.name'));
+        }
 
-        if($panel->getId() === 'app') {
+        if ($panel->getId() === 'app') {
             return true;
         }
 
@@ -178,16 +178,22 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     public function canCreateChats(): bool
     {
         return $this->hasVerifiedEmail() && $this->hasAnyRole([
-            'super admin', 'HR Admin', 'Department Admin', 'Coordinator', 'Team Leader'
+            'super admin',
+            'HR Admin',
+            'Department Admin',
+            'Coordinator',
+            'Team Leader'
         ]);
     }
-    
+
     public function canCreateGroups(): bool
     {
         return $this->hasVerifiedEmail() && $this->hasAnyRole([
-            'super admin', 'HR Admin', 'Department Admin', 'Coordinator', 'Team Leader'
+            'super admin',
+            'HR Admin',
+            'Department Admin',
+            'Coordinator',
+            'Team Leader'
         ]);
     }
-    
-    
 }
