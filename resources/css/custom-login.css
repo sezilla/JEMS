@@ -1,4 +1,7 @@
 body {
-    background: rgb(--primary-900);
-    background: url('/img/logbg.webp') center / cover, linear-gradient(0deg, rgba(var(--primary-900), 1) 0%, rgba(var(--primary-500)) 100%);
+    background: linear-gradient(0deg,  
+        rgb(161, 140, 20) 0%,   /* Gold */
+        rgba(255, 192, 203, 1) 40%,  /* Pink */
+        rgba(255, 255, 255, 1) 100%  /* White */
+    );
 }
