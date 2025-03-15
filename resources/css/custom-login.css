@@ -1,0 +1,7 @@
+body {
+    background: linear-gradient(0deg,  
+        rgb(161, 140, 20) 0%,   /* Gold */
+        rgba(255, 192, 203, 1) 40%,  /* Pink */
+        rgba(255, 255, 255, 1) 100%  /* White */
+    );
+}

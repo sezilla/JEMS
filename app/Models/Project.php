@@ -19,6 +19,7 @@ use Namu\WireChat\Models\Group;
 use Namu\WireChat\Enums\ConversationType;
 use Namu\WireChat\Enums\ParticipantRole;
 use Namu\WireChat\Models\Attachment;
+use Filament\Notifications\Notification;
 
 
 // use app\Models\
@@ -110,73 +111,69 @@ class Project extends Model
             $pythonService = app(PythonService::class);
             DB::beginTransaction();
 
+            //allocating teams
             try {
-                // Step 1: Allocate Teams
                 $allocatedTeams = $pythonService->allocateTeams(
-                    $project->name,
+                    $project->id,
                     $project->package_id,
                     $project->start,
                     $project->end
                 );
 
-                Log::info('Teams allocated successfully', ['allocated_teams' => json_encode($allocatedTeams)]);
+                Log::info('PythonService::allocateTeams - Raw Response', ['response' => $allocatedTeams]);
 
                 if (isset($allocatedTeams['error'])) {
-                    throw new \Exception('Python API Error: ' . $allocatedTeams['error']);
+                    Log::error('Team Allocation Failed', ['error' => $allocatedTeams['error']]);
+
+                    Notification::make()
+                        ->title('Team Allocation Failed')
+                        ->body($allocatedTeams['error'])
+                        ->danger()
+                        ->sendTo(Auth::user());
+                    throw new \Exception('Team Allocation Failed: ' . $allocatedTeams['error']);
                 }
 
-                // Step 2: Fetch Allocated Teams
-                $teamsResponse = $pythonService->getAllocatedTeams($project->name);
-                Log::info('Received allocated teams from PythonService', ['response' => json_encode($teamsResponse)]); // 🔥 Debugging
+                if (!isset($allocatedTeams['message']) || strtolower($allocatedTeams['message']) !== 'success') {
+                    Log::error('Team Allocation Stopped - Unexpected Message', ['message' => $allocatedTeams['message'] ?? 'No message received']);
 
-                if (!isset($teamsResponse) || !is_array($teamsResponse)) {
-                    throw new \Exception('Invalid team allocation response: ' . json_encode($teamsResponse));
+                    Notification::make()
+                        ->title('Team Allocation Stopped')
+                        ->body('Unexpected response message: ' . ($allocatedTeams['message'] ?? 'No message received'))
+                        ->danger()
+                        ->sendTo(Auth::user());
+
+                    throw new \Exception('Team Allocation Stopped: Unexpected response message.');
                 }
 
-                // 🔥 Fix: Ensure $teamIds is an array and log the extracted IDs
-                $teamIds = array_values($teamsResponse);
-                Log::info('Extracted Team IDs', ['team_ids' => json_encode($teamIds)]);
+                $teamIds = array_map(fn($team) => $team['id'], $allocatedTeams);
+
+                Log::info('Extracted Team IDs', ['team_ids' => $teamIds]);
 
                 if (empty($teamIds)) {
                     Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
+
+                    Notification::make()
+                        ->title('No Teams Allocated')
+                        ->body('No teams were allocated for project: ' . $project->name)
+                        ->warning()
+                        ->sendTo(Auth::user());
                 } else {
-                    // Attach Teams to Project
                     $project->teams()->sync($teamIds);
-                    Log::info('Project teams updated successfully', ['teams' => json_encode($teamIds)]);
+                    Log::info('Project teams updated successfully', ['teams' => $teamIds]);
+
+                    Notification::make()
+                        ->title('Teams Allocated Successfully')
+                        ->body('Teams have been assigned to project: ' . $project->name)
+                        ->success()
+                        ->sendTo(Auth::user());
                 }
-
-
-
-                //neww
-                if (!empty($project->special_request)) {
-                    Log::info('Classifying tasks due to special request', ['special_request' => $project->special_request]);
-
-                    $classificationResponse = $pythonService->classifyTask($project->special_request);
-                    Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
-
-                    if (isset($classificationResponse['error'])) {
-                        throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
-                    }
-                }
-
-                Log::info('Predicting categories for project: ' . $project->name);
-                $categoryPredictions = $pythonService->predictCategories(
-                    $project->name,
-                    $project->start,
-                    $project->end
-                );
-                Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
-
-                if (isset($categoryPredictions['error'])) {
-                    throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
-                }
-
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Error during team allocation', ['message' => $e->getMessage()]);
             }
 
+            //trello board creation
             Log::info('Creating Trello board for project: ' . $project->name);
             $trelloService = new TrelloService();
 
@@ -243,10 +240,36 @@ class Project extends Model
                 } else {
                     Log::error('Project details list not found.');
                 }
+
+                //special request
+                if (!empty($project->special_request)) {
+                    Log::info('Classifying tasks due to special request', ['special_request' => $project->special_request]);
+
+                    $classificationResponse = $pythonService->classifyTask($project->special_request);
+                    Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
+
+                    if (isset($classificationResponse['error'])) {
+                        throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
+                    }
+                }
+
+                //schedule category prediction
+                Log::info('Predicting categories for project: ' . $project->name);
+                $categoryPredictions = $pythonService->predictCategories(
+                    $project->id,
+                    $project->start,
+                    $project->end
+                );
+                Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
+
+                if (isset($categoryPredictions['error'])) {
+                    throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
+                }
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
 
+            // Create a group conversation for project coordinators
             $coordinatorIds = collect([
                 $project->groom_coordinator,
                 $project->bride_coordinator,
@@ -254,7 +277,7 @@ class Project extends Model
                 $project->groom_coor_assistant,
                 $project->bride_coor_assistant,
                 $project->head_coor_assistant
-            ])->filter()->unique(); // Remove null and duplicate values
+            ])->filter()->unique();
 
             Log::info('Filtered coordinator IDs', ['ids' => $coordinatorIds->toArray()]);
 
