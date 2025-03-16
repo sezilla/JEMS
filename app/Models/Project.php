@@ -124,24 +124,11 @@ class Project extends Model
 
                 if (isset($allocatedTeams['error'])) {
                     Log::error('Team Allocation Failed', ['error' => $allocatedTeams['error']]);
-
-                    Notification::make()
-                        ->title('Team Allocation Failed')
-                        ->body($allocatedTeams['error'])
-                        ->danger()
-                        ->sendTo(Auth::user());
                     throw new \Exception('Team Allocation Failed: ' . $allocatedTeams['error']);
                 }
 
                 if (!isset($allocatedTeams['message']) || strtolower($allocatedTeams['message']) !== 'success') {
                     Log::error('Team Allocation Stopped - Unexpected Message', ['message' => $allocatedTeams['message'] ?? 'No message received']);
-
-                    Notification::make()
-                        ->title('Team Allocation Stopped')
-                        ->body('Unexpected response message: ' . ($allocatedTeams['message'] ?? 'No message received'))
-                        ->danger()
-                        ->sendTo(Auth::user());
-
                     throw new \Exception('Team Allocation Stopped: Unexpected response message.');
                 }
 
@@ -150,22 +137,10 @@ class Project extends Model
                 Log::info('Extracted Team IDs', ['team_ids' => $teamIds]);
 
                 if (empty($teamIds)) {
-                    Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
-
-                    Notification::make()
-                        ->title('No Teams Allocated')
-                        ->body('No teams were allocated for project: ' . $project->name)
-                        ->warning()
-                        ->sendTo(Auth::user());
+                    Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);;
                 } else {
                     $project->teams()->sync($teamIds);
                     Log::info('Project teams updated successfully', ['teams' => $teamIds]);
-
-                    Notification::make()
-                        ->title('Teams Allocated Successfully')
-                        ->body('Teams have been assigned to project: ' . $project->name)
-                        ->success()
-                        ->sendTo(Auth::user());
                 }
                 DB::commit();
             } catch (\Exception $e) {
