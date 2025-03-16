@@ -181,7 +181,7 @@ class Project extends Model
             $boardResponse = $trelloService->createBoardFromTemplate($project->name, $packageName);
 
             if ($boardResponse && isset($boardResponse['id'])) {
-                $project->trello_board_id = $boardResponse['id']; // Save Trello board ID
+                $project->trello_board_id = $boardResponse['id'];
                 $project->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
 
@@ -240,34 +240,51 @@ class Project extends Model
                 } else {
                     Log::error('Project details list not found.');
                 }
-
-                //special request
-                if (!empty($project->special_request)) {
-                    Log::info('Classifying tasks due to special request', ['special_request' => $project->special_request]);
-
-                    $classificationResponse = $pythonService->classifyTask($project->special_request);
-                    Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
-
-                    if (isset($classificationResponse['error'])) {
-                        throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
-                    }
-                }
-
-                //schedule category prediction
-                Log::info('Predicting categories for project: ' . $project->name);
-                $categoryPredictions = $pythonService->predictCategories(
-                    $project->id,
-                    $project->start,
-                    $project->end
-                );
-                Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
-
-                if (isset($categoryPredictions['error'])) {
-                    throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
-                }
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
+
+
+
+
+            // Special request handling
+            if (!empty($project->special_request)) {
+                Log::info('Classifying tasks due to special request', [
+                    'project_id' => $project->id,
+                    'special_request' => $project->special_request
+                ]);
+
+                $classificationResponse = $pythonService->special_request(
+                    $project->id,
+                    $project->special_request
+                );
+                Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
+
+                if (isset($classificationResponse['error'])) {
+                    throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
+                }
+            }
+
+
+
+
+
+            // Schedule category prediction
+            Log::info('Predicting categories for project: ' . $project->name);
+            $categoryPredictions = $pythonService->predictCategories(
+                $project->id,
+                $project->start->format('Y-m-d'),
+                $project->end->format('Y-m-d')
+            );
+
+            Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
+
+            if (isset($categoryPredictions['error'])) {
+                throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
+            }
+
+
+
 
             // Create a group conversation for project coordinators
             $coordinatorIds = collect([
