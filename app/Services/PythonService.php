@@ -43,10 +43,10 @@ class PythonService
             if ($response->successful()) {
                 $data = $response->json();
 
-                Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]); // 🔥 Debugging
+                Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]);
 
                 if (isset($data['success']) && $data['success']) {
-                    return $data['allocated_teams'] ?? [];  // ✅ Fix: Directly return allocated_teams
+                    return $data['allocated_teams'] ?? [];
                 }
                 return ['error' => 'Failed to allocate teams. Response format is incorrect.'];
             }

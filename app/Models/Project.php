@@ -99,7 +99,7 @@ class Project extends Model
             }
 
             if ($project->groom_name && $project->bride_name && $project->end) {
-                $formattedDate = Carbon::parse($project->end)->format('M d, Y'); // Converts to "Jan 20, 2026"
+                $formattedDate = Carbon::parse($project->end)->format('M d, Y');
                 $project->name = "{$project->groom_name} & {$project->bride_name} @ {$formattedDate}";
             }
         });
