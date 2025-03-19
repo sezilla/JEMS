@@ -24,7 +24,7 @@ class PythonService
      * @param string $endDate
      * @return array
      */
-    public function allocateTeams(string $projectId, int $packageId, string $startDate, string $endDate): array
+    public function allocateTeams(int $projectId, int $packageId, string $startDate, string $endDate): array
     {
         $url = "{$this->baseUrl}/allocate-teams";
 
@@ -32,7 +32,7 @@ class PythonService
             $startDate = date('Y-m-d', strtotime($startDate));
             $endDate = date('Y-m-d', strtotime($endDate));
 
-            $response = Http::post($url, [
+            $request = Http::post($url, [
                 'project_id' => $projectId,
                 'package_id' => $packageId,
                 'start' => $startDate,
@@ -40,13 +40,13 @@ class PythonService
             ]);
 
 
-            if ($response->successful()) {
-                $data = $response->json();
+            if ($request->successful()) {
+                $data = $request->json();
 
-                Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]); // 🔥 Debugging
+                Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]);
 
                 if (isset($data['success']) && $data['success']) {
-                    return $data['allocated_teams'] ?? [];  // ✅ Fix: Directly return allocated_teams
+                    return $data['allocated_teams'] ?? [];
                 }
                 return ['error' => 'Failed to allocate teams. Response format is incorrect.'];
             }
@@ -67,27 +67,28 @@ class PythonService
      * @param string $specialRequest
      * @return array
      */
-    public function classifyTask(string $specialRequest): array
+    public function special_request(int $projectId, string $specialRequest): array
     {
-        $url = "{$this->baseUrl}/classify-task";
+        $url = "{$this->baseUrl}/special-request";
 
         try {
             $response = Http::post($url, [
-                'task' => $specialRequest, // 🔥 Fix: Change 'special_request' to 'task'
+                'project_id' => $projectId,
+                'special_request' => $specialRequest, // Ensure correct key
             ]);
 
             if ($response->successful()) {
                 return $response->json();
             }
 
-            Log::error('PythonService::classifyTask Error', [
+            Log::error('PythonService::special_request Error', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
 
             return ['error' => 'Failed to classify task. Please try again.'];
         } catch (\Exception $e) {
-            Log::error('PythonService::classifyTask Exception', [
+            Log::error('PythonService::special_request Exception', [
                 'message' => $e->getMessage(),
             ]);
 
@@ -103,13 +104,13 @@ class PythonService
      * @param string $endDate
      * @return array
      */
-    public function predictCategories(string $projectName, string $startDate, string $endDate): array
+    public function predictCategories(int $projectId, string $startDate, string $endDate): array
     {
-        $url = "{$this->baseUrl}/predict_categories";
+        $url = "{$this->baseUrl}/generate-schedule";
 
         try {
             $response = Http::post($url, [
-                'project_name' => $projectName,
+                'project_id' => $projectId,
                 'start' => $startDate,
                 'end' => $endDate,
             ]);

@@ -4,7 +4,7 @@ namespace App\Filament\Widgets;
 
 use Filament\Widgets\Widget;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
-use Saade\FilamentFullCalendar\Data\EventData;   
+use Saade\FilamentFullCalendar\Data\EventData;
 use App\Filament\Resources\ProjectResource;
 use App\Models\Project;
 
@@ -15,16 +15,16 @@ class ProjectCalendar extends FullCalendarWidget
         return Project::query()
             ->where(function ($query) use ($fetchInfo) {
                 $query->where('start', '<=', $fetchInfo['end'])
-                      ->where('end', '>=', $fetchInfo['start']);
+                    ->where('end', '>=', $fetchInfo['start']);
             })
             ->get()
             ->map(
-                fn (Project $event) => EventData::make()
+                fn(Project $event) => EventData::make()
                     ->id($event->id)
                     ->title($event->name)
                     ->start($event->start)
-                    ->backgroundColor($event->theme_color)
-                    ->borderColor($event->theme_color)
+                    // ->backgroundColor($event->theme_color)
+                    // ->borderColor($event->theme_color)
                     ->end($event->end)
                     ->url(
                         url: ProjectResource::getUrl(name: 'view', parameters: ['record' => $event]),

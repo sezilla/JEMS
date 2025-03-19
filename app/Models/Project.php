@@ -99,7 +99,7 @@ class Project extends Model
             }
 
             if ($project->groom_name && $project->bride_name && $project->end) {
-                $formattedDate = Carbon::parse($project->end)->format('M d, Y'); // Converts to "Jan 20, 2026"
+                $formattedDate = Carbon::parse($project->end)->format('M d, Y');
                 $project->name = "{$project->groom_name} & {$project->bride_name} @ {$formattedDate}";
             }
         });
@@ -122,51 +122,34 @@ class Project extends Model
 
                 Log::info('PythonService::allocateTeams - Raw Response', ['response' => $allocatedTeams]);
 
+                // Check if an error was returned
                 if (isset($allocatedTeams['error'])) {
                     Log::error('Team Allocation Failed', ['error' => $allocatedTeams['error']]);
-
-                    Notification::make()
-                        ->title('Team Allocation Failed')
-                        ->body($allocatedTeams['error'])
-                        ->danger()
-                        ->sendTo(Auth::user());
                     throw new \Exception('Team Allocation Failed: ' . $allocatedTeams['error']);
                 }
 
-                if (!isset($allocatedTeams['message']) || strtolower($allocatedTeams['message']) !== 'success') {
-                    Log::error('Team Allocation Stopped - Unexpected Message', ['message' => $allocatedTeams['message'] ?? 'No message received']);
-
-                    Notification::make()
-                        ->title('Team Allocation Stopped')
-                        ->body('Unexpected response message: ' . ($allocatedTeams['message'] ?? 'No message received'))
-                        ->danger()
-                        ->sendTo(Auth::user());
-
-                    throw new \Exception('Team Allocation Stopped: Unexpected response message.');
-                }
-
-                $teamIds = array_map(fn($team) => $team['id'], $allocatedTeams);
-
-                Log::info('Extracted Team IDs', ['team_ids' => $teamIds]);
-
-                if (empty($teamIds)) {
+                // Ensure response is an array of team IDs
+                if (!is_array($allocatedTeams) || empty($allocatedTeams)) {
                     Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
-
-                    Notification::make()
-                        ->title('No Teams Allocated')
-                        ->body('No teams were allocated for project: ' . $project->name)
-                        ->warning()
-                        ->sendTo(Auth::user());
-                } else {
-                    $project->teams()->sync($teamIds);
-                    Log::info('Project teams updated successfully', ['teams' => $teamIds]);
-
-                    Notification::make()
-                        ->title('Teams Allocated Successfully')
-                        ->body('Teams have been assigned to project: ' . $project->name)
-                        ->success()
-                        ->sendTo(Auth::user());
+                    DB::rollBack();
+                    throw new \Exception('No valid team allocations received.');
                 }
+
+                // Save the team allocation in the database
+                $teamAllocation = TeamAllocation::create([
+                    'project_id' => $project->id,
+                    'package_id' => $project->package_id,
+                    'start_date' => $project->start,
+                    'end_date' => $project->end,
+                    'allocated_teams' => $allocatedTeams, // JSON array
+                ]);
+
+                Log::info('Team allocation record saved successfully', ['team_allocation' => $teamAllocation]);
+
+                // Sync the allocated teams with the project
+                $project->teams()->sync($allocatedTeams);
+                Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -181,7 +164,7 @@ class Project extends Model
             $boardResponse = $trelloService->createBoardFromTemplate($project->name, $packageName);
 
             if ($boardResponse && isset($boardResponse['id'])) {
-                $project->trello_board_id = $boardResponse['id']; // Save Trello board ID
+                $project->trello_board_id = $boardResponse['id'];
                 $project->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
 
@@ -240,34 +223,51 @@ class Project extends Model
                 } else {
                     Log::error('Project details list not found.');
                 }
-
-                //special request
-                if (!empty($project->special_request)) {
-                    Log::info('Classifying tasks due to special request', ['special_request' => $project->special_request]);
-
-                    $classificationResponse = $pythonService->classifyTask($project->special_request);
-                    Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
-
-                    if (isset($classificationResponse['error'])) {
-                        throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
-                    }
-                }
-
-                //schedule category prediction
-                Log::info('Predicting categories for project: ' . $project->name);
-                $categoryPredictions = $pythonService->predictCategories(
-                    $project->id,
-                    $project->start,
-                    $project->end
-                );
-                Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
-
-                if (isset($categoryPredictions['error'])) {
-                    throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
-                }
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
+
+
+
+
+            // Special request handling
+            if (!empty($project->special_request)) {
+                Log::info('Classifying tasks due to special request', [
+                    'project_id' => $project->id,
+                    'special_request' => $project->special_request
+                ]);
+
+                $classificationResponse = $pythonService->special_request(
+                    $project->id,
+                    $project->special_request
+                );
+                Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
+
+                if (isset($classificationResponse['error'])) {
+                    throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
+                }
+            }
+
+
+
+
+
+            // Schedule category prediction
+            Log::info('Predicting categories for project: ' . $project->name);
+            $categoryPredictions = $pythonService->predictCategories(
+                $project->id,
+                $project->start->format('Y-m-d'),
+                $project->end->format('Y-m-d')
+            );
+
+            Log::info('Category prediction response', ['response' => json_encode($categoryPredictions)]);
+
+            if (isset($categoryPredictions['error'])) {
+                throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
+            }
+
+
+
 
             // Create a group conversation for project coordinators
             $coordinatorIds = collect([

@@ -33,7 +33,7 @@ class Roles extends Seeder
         // ]);
         // $coor->assignRole($coorRole);
 
-        
+
 
         // Seed Packages
         DB::table('packages')->insert([
@@ -46,13 +46,38 @@ class Roles extends Seeder
 
         // Seed Departments
         DB::table('departments')->insert([
-            ['name' => 'Catering', 'description' => 'Description for Catering Department', 'id' => 1],
-            ['name' => 'Hair and Makeup', 'description' => 'Description for Hair and Makeup Department', 'id' => 2],
-            ['name' => 'Photo and Video', 'description' => 'Description for Photo and Video Department', 'id' => 3],
-            ['name' => 'Designing', 'description' => 'Description for Designing Department', 'id' => 4],
-            ['name' => 'Entertainment', 'description' => 'Description for Entertainment Department', 'id' => 5],
-            ['name' => 'Coordination', 'description' => 'Description for Coordination Department', 'id' => 6],
+            [
+                'name' => 'Catering',
+                'description' => 'The Catering Department is responsible for curating exquisite dining experiences tailored to the couple’s preferences. This includes menu planning, food tasting sessions, sourcing high-quality ingredients, managing chefs and kitchen staff, ensuring compliance with dietary restrictions, and overseeing food presentation and service on the wedding day.',
+                'id' => 1
+            ],
+            [
+                'name' => 'Hair and Makeup',
+                'description' => 'The Hair and Makeup Department specializes in creating stunning bridal and guest looks that align with the wedding theme. This includes pre-event consultations, trial sessions, on-site services for the bride, groom, bridal party, and close family members, and ensuring long-lasting makeup and hairstyles that hold up throughout the event.',
+                'id' => 2
+            ],
+            [
+                'name' => 'Photo and Video',
+                'description' => 'The Photo and Video Department captures the magic of the wedding through professional photography and videography. Responsibilities include pre-wedding shoots, event coverage, drone and cinematic filming, editing and post-production, and delivering high-quality albums and videos that preserve the couple’s special moments forever.',
+                'id' => 3
+            ],
+            [
+                'name' => 'Designing',
+                'description' => 'The Designing Department is in charge of visual aesthetics, from venue decoration to floral arrangements and overall ambiance. They work on color schemes, stage design, table settings, lighting effects, and personalized décor elements to create a breathtaking wedding environment tailored to the couple’s vision.',
+                'id' => 4
+            ],
+            [
+                'name' => 'Entertainment',
+                'description' => 'The Entertainment Department ensures that guests have an unforgettable experience by organizing live music, DJs, dance performances, interactive activities, and other engaging elements. They handle sound and lighting coordination, artist bookings, and timeline scheduling for entertainment throughout the event.',
+                'id' => 5
+            ],
+            [
+                'name' => 'Coordination',
+                'description' => 'The Coordination Department oversees the seamless execution of the wedding by managing logistics, vendor communications, and on-site troubleshooting. They create detailed event timelines, coordinate rehearsals, ensure all departments work in sync, and provide hands-on support to the couple and their families for a stress-free celebration.',
+                'id' => 6
+            ],
         ]);
+
 
         // Seed Teams
         DB::table('teams')->insert([
@@ -65,7 +90,7 @@ class Roles extends Seeder
             ['name' => 'Catering Team F', 'description' => 'Catering team F description', 'id' => 6],
 
             // ['name' => 'Catering Management', 'description' => 'Catering Management', 'id' => 37],
-            
+
             // Hair and Makeup Teams
             ['name' => 'Hair and Makeup Team A', 'description' => 'Hair and Makeup team A description', 'id' => 7],
             ['name' => 'Hair and Makeup Team B', 'description' => 'Hair and Makeup team B description', 'id' => 8],
@@ -75,7 +100,7 @@ class Roles extends Seeder
             ['name' => 'Hair and Makeup Team F', 'description' => 'Hair and Makeup team F description', 'id' => 12],
 
             // ['name' => 'Hair and Makeup Management', 'description' => 'Hair and Makeup Management', 'id' => 38],
-            
+
             // Photo and Video Teams
             ['name' => 'Photo and Video Team A', 'description' => 'Photo and Video team A description', 'id' => 13],
             ['name' => 'Photo and Video Team B', 'description' => 'Photo and Video team B description', 'id' => 14],
@@ -85,7 +110,7 @@ class Roles extends Seeder
             ['name' => 'Photo and Video Team F', 'description' => 'Photo and Video team F description', 'id' => 18],
 
             // ['name' => 'Photo and Video Management', 'description' => 'Photo and Video Management', 'id' => 39],
-            
+
             // Designing Teams
             ['name' => 'Designing Team A', 'description' => 'Designing team A description', 'id' => 19],
             ['name' => 'Designing Team B', 'description' => 'Designing team B description', 'id' => 20],
@@ -95,7 +120,7 @@ class Roles extends Seeder
             ['name' => 'Designing Team F', 'description' => 'Designing team F description', 'id' => 24],
 
             // ['name' => 'Designing Management', 'description' => 'Designing Management', 'id' => 40],
-            
+
             // Entertainment Teams
             ['name' => 'Entertainment Team A', 'description' => 'Entertainment team A description', 'id' => 25],
             ['name' => 'Entertainment Team B', 'description' => 'Entertainment team B description', 'id' => 26],
@@ -105,7 +130,7 @@ class Roles extends Seeder
             ['name' => 'Entertainment Team F', 'description' => 'Entertainment team F description', 'id' => 30],
 
             // ['name' => 'Entertainment Management', 'description' => 'Entertainment Management', 'id' => 41],
-            
+
             // Coordination Teams
             ['name' => 'Coordination Team A', 'description' => 'Coordination team A description', 'id' => 31],
             ['name' => 'Coordination Team B', 'description' => 'Coordination team B description', 'id' => 32],
@@ -128,7 +153,7 @@ class Roles extends Seeder
             ['department_id' => 1, 'team_id' => 6],
 
             // ['department_id' => 1, 'team_id' => 37],
-            
+
             // Hair and Makeup Department
             ['department_id' => 2, 'team_id' => 7],
             ['department_id' => 2, 'team_id' => 8],
@@ -138,7 +163,7 @@ class Roles extends Seeder
             ['department_id' => 2, 'team_id' => 12],
 
             // ['department_id' => 2, 'team_id' => 38],
-            
+
             // Photo and Video Department
             ['department_id' => 3, 'team_id' => 13],
             ['department_id' => 3, 'team_id' => 14],
@@ -148,7 +173,7 @@ class Roles extends Seeder
             ['department_id' => 3, 'team_id' => 18],
 
             // ['department_id' => 3, 'team_id' => 39],
-            
+
             // Designing Department
             ['department_id' => 4, 'team_id' => 19],
             ['department_id' => 4, 'team_id' => 20],
@@ -158,7 +183,7 @@ class Roles extends Seeder
             ['department_id' => 4, 'team_id' => 24],
 
             // ['department_id' => 4, 'team_id' => 40],
-            
+
             // Entertainment Department
             ['department_id' => 5, 'team_id' => 25],
             ['department_id' => 5, 'team_id' => 26],
@@ -168,7 +193,7 @@ class Roles extends Seeder
             ['department_id' => 5, 'team_id' => 30],
 
             // ['department_id' => 5, 'team_id' => 41],
-            
+
             // Coordination Department
             ['department_id' => 6, 'team_id' => 31],
             ['department_id' => 6, 'team_id' => 32],
@@ -192,8 +217,5 @@ class Roles extends Seeder
             ['name' => '6 Months after Wedding Day'],
 
         ]);
-
-
-        
     }
 }
