@@ -32,7 +32,7 @@ class PythonService
             $startDate = date('Y-m-d', strtotime($startDate));
             $endDate = date('Y-m-d', strtotime($endDate));
 
-            $response = Http::post($url, [
+            $request = Http::post($url, [
                 'project_id' => $projectId,
                 'package_id' => $packageId,
                 'start' => $startDate,
@@ -40,8 +40,8 @@ class PythonService
             ]);
 
 
-            if ($response->successful()) {
-                $data = $response->json();
+            if ($request->successful()) {
+                $data = $request->json();
 
                 Log::info('PythonService::allocateTeams Raw Response', ['response' => $data]);
 

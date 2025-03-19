@@ -122,26 +122,34 @@ class Project extends Model
 
                 Log::info('PythonService::allocateTeams - Raw Response', ['response' => $allocatedTeams]);
 
+                // Check if an error was returned
                 if (isset($allocatedTeams['error'])) {
                     Log::error('Team Allocation Failed', ['error' => $allocatedTeams['error']]);
                     throw new \Exception('Team Allocation Failed: ' . $allocatedTeams['error']);
                 }
 
-                if (!isset($allocatedTeams['message']) || strtolower($allocatedTeams['message']) !== 'success') {
-                    Log::error('Team Allocation Stopped - Unexpected Message', ['message' => $allocatedTeams['message'] ?? 'No message received']);
-                    throw new \Exception('Team Allocation Stopped: Unexpected response message.');
+                // Ensure response is an array of team IDs
+                if (!is_array($allocatedTeams) || empty($allocatedTeams)) {
+                    Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
+                    DB::rollBack();
+                    throw new \Exception('No valid team allocations received.');
                 }
 
-                $teamIds = array_map(fn($team) => $team['id'], $allocatedTeams);
+                // Save the team allocation in the database
+                $teamAllocation = TeamAllocation::create([
+                    'project_id' => $project->id,
+                    'package_id' => $project->package_id,
+                    'start_date' => $project->start,
+                    'end_date' => $project->end,
+                    'allocated_teams' => $allocatedTeams, // JSON array
+                ]);
 
-                Log::info('Extracted Team IDs', ['team_ids' => $teamIds]);
+                Log::info('Team allocation record saved successfully', ['team_allocation' => $teamAllocation]);
 
-                if (empty($teamIds)) {
-                    Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);;
-                } else {
-                    $project->teams()->sync($teamIds);
-                    Log::info('Project teams updated successfully', ['teams' => $teamIds]);
-                }
+                // Sync the allocated teams with the project
+                $project->teams()->sync($allocatedTeams);
+                Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
