@@ -3,9 +3,11 @@
 namespace App\Filament\App\Resources\ProjectResource\Pages;
 
 use App\Models\Project;
+use App\Models\Department;
 use App\Services\TrelloTask;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Filament\App\Resources\ProjectResource;
 
 class Task extends Page
@@ -64,9 +66,23 @@ class Task extends Page
             return $tableData;
         }
 
+        $user = Auth::user();
+
+        $userDepartment = Department::forUser($user)->first();
+
+        // If the user doesn't have a department, return an empty array.
+        if (!$userDepartment) {
+            return $tableData;
+        }
+
         foreach ($this->trelloCards as $card) {
             $departmentName = $card['name'];
             $departmentDueDate = $card['due'] ?? null;
+
+            // Only proceed if the card's department name matches the user's department name.
+            if ($departmentName !== $userDepartment->name) {
+                continue;
+            }
 
             if (!empty($card['checklists'])) {
                 foreach ($card['checklists'] as $checklist) {

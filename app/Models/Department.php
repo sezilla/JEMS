@@ -29,4 +29,16 @@ class Department extends Model
     {
         return $this->belongsToMany(User::class, 'users_has_departments');
     }
+
+    public function scopeForUser($query, $user)
+    {
+        // For example, if the user has a department_id field:
+        return $query->where('id', $user->department_id);
+    }
+
+    // Existing scope for department name:
+    public function scopeForUserByName($query, $user)
+    {
+        return $query->where('name', $user->department->name);
+    }
 }
