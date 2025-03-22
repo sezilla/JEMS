@@ -31,25 +31,21 @@ class Task extends Page
     {
         $trelloService = app(TrelloTask::class);
 
-        // Get the Departments list ID for the board
         $listId = $trelloService->getBoardDepartmentsListId($boardId);
         if (!$listId) {
             Log::error("Departments list not found for board: " . $boardId);
             return [];
         }
 
-        // Retrieve all cards from the Departments list
         $cards = $trelloService->getListCards($listId);
         if (!is_array($cards)) {
             Log::error("No cards found for list ID: " . $listId);
             return [];
         }
 
-        // For each card, attach its checklists and checklist items
         foreach ($cards as &$card) {
             $card['checklists'] = $trelloService->getCardChecklists($card['id']);
 
-            // Fetch checklist items for each checklist
             if (is_array($card['checklists'])) {
                 foreach ($card['checklists'] as &$checklist) {
                     $checklist['items'] = $trelloService->getChecklistItems($checklist['id']);
@@ -57,7 +53,6 @@ class Task extends Page
             }
         }
 
-        // Store the data for use in the view
         $this->trelloCards = $cards;
     }
 
@@ -70,11 +65,9 @@ class Task extends Page
         }
 
         foreach ($this->trelloCards as $card) {
-            // Card represents the department
             $departmentName = $card['name'];
             $departmentDueDate = $card['due'] ?? null;
 
-            // Loop through each checklist in the department card
             if (!empty($card['checklists'])) {
                 foreach ($card['checklists'] as $checklist) {
                     $checklistName = $checklist['name'];
