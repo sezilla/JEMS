@@ -23,10 +23,6 @@ class TrelloPackage
         $this->token = env('TRELLO_API_TOKEN');
         $this->workspace = env('TRELLO_WORKSPACE_ID');
 
-        // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
-        // Log::info('Trello API Token:', ['token' => $this->token]);
-        // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
-
         Log::info('Loaded Trello configuration.');
     }
 
@@ -291,7 +287,6 @@ class TrelloPackage
         }
     }
 
-    //static updated function
     public function updateChecklistItem($checklistItemId, $newName)
     {
         $trelloKey = config('services.trello.key');
@@ -311,5 +306,21 @@ class TrelloPackage
 
         Log::error("Trello API error: " . $response->body());
         return false;
+    }
+
+    public function deleteChecklistItem($checklistId, $checkItemId)
+    {
+        try {
+            Log::info("Deleting checklist item: {$checkItemId} from checklist ID: {$checklistId}");
+
+            $response = $this->client->delete("checklists/{$checklistId}/checkItems/{$checkItemId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to delete checklist item: " . $e->getMessage());
+            return null;
+        }
     }
 }
