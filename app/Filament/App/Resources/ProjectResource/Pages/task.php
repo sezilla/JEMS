@@ -72,7 +72,6 @@ class Task extends Page
                 foreach ($card['checklists'] as $checklist) {
                     $checklistName = $checklist['name'];
 
-                    // Loop through each checklist item (task)
                     if (!empty($checklist['items'])) {
                         foreach ($checklist['items'] as $item) {
                             $taskName = $item['name'];
