@@ -2,14 +2,11 @@
 
 namespace App\Filament\App\Resources\ProjectResource\Pages;
 
-use App\Filament\App\Resources\ProjectResource;
-use Filament\Resources\Pages\Page;
-use App\Services\TrelloService;
 use App\Models\Project;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Actions\Action;
+use App\Services\TrelloTask;
+use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Log;
+use App\Filament\App\Resources\ProjectResource;
 
 class Task extends Page
 {
@@ -17,45 +14,92 @@ class Task extends Page
     protected static string $view = 'filament.app.resources.project-resource.pages.task';
 
     public ?array $trelloCards = null;
+    public ?array $tableData = [];
 
     public function mount($record)
     {
         $project = Project::find($record);
-        $trelloBoardId = $project->trello_board_id;
+        $boardId = $project->trello_board_id;
 
-        if ($trelloBoardId) {
-            $this->fetchTrelloCards($trelloBoardId);
+        if ($boardId) {
+            $this->fetchTrelloCards($boardId);
+            $this->tableData = $this->setTableData();
         }
     }
 
     public function fetchTrelloCards($boardId)
     {
-        $trelloService = app(TrelloService::class);
-        $this->trelloCards = $trelloService->fetchTrelloCards($boardId);
-    }
+        $trelloService = app(TrelloTask::class);
 
-    public function markAsDone($cardId, $checkItemId)
-    {
-        // Implement the logic to mark the checklist item as done
-        // You can call your TrelloService to update the card status
-    }
+        // Get the Departments list ID for the board
+        $listId = $trelloService->getBoardDepartmentsListId($boardId);
+        if (!$listId) {
+            Log::error("Departments list not found for board: " . $boardId);
+            return [];
+        }
 
-    public function getChecklistItems($card)
-    {
-        // Prepare the checklist items for the Filament table
-        $items = [];
-        if (!empty($card['checklist'])) {
-            foreach ($card['checklist'] as $checklist) {
-                foreach ($checklist['checkItems'] as $checkItem) {
-                    $items[] = [
-                        'id' => $checkItem['id'], // assuming you have an ID to identify each item
-                        'name' => $checkItem['name'],
-                        'state' => $checkItem['state'],
-                        'due' => $checkItem['due'] ? date('Y-m-d', strtotime($checkItem['due'])) : 'No deadline',
-                    ];
+        // Retrieve all cards from the Departments list
+        $cards = $trelloService->getListCards($listId);
+        if (!is_array($cards)) {
+            Log::error("No cards found for list ID: " . $listId);
+            return [];
+        }
+
+        // For each card, attach its checklists and checklist items
+        foreach ($cards as &$card) {
+            $card['checklists'] = $trelloService->getCardChecklists($card['id']);
+
+            // Fetch checklist items for each checklist
+            if (is_array($card['checklists'])) {
+                foreach ($card['checklists'] as &$checklist) {
+                    $checklist['items'] = $trelloService->getChecklistItems($checklist['id']);
                 }
             }
         }
-        return $items;
+
+        // Store the data for use in the view
+        $this->trelloCards = $cards;
+    }
+
+    public function setTableData()
+    {
+        $tableData = [];
+
+        if (!$this->trelloCards) {
+            return $tableData;
+        }
+
+        foreach ($this->trelloCards as $card) {
+            // Card represents the department
+            $departmentName = $card['name'];
+            $departmentDueDate = $card['due'] ?? null;
+
+            // Loop through each checklist in the department card
+            if (!empty($card['checklists'])) {
+                foreach ($card['checklists'] as $checklist) {
+                    $checklistName = $checklist['name'];
+
+                    // Loop through each checklist item (task)
+                    if (!empty($checklist['items'])) {
+                        foreach ($checklist['items'] as $item) {
+                            $taskName = $item['name'];
+                            $taskStatus = isset($item['state']) && strcasecmp($item['state'], 'complete') === 0
+                                ? 'complete'
+                                : 'incomplete';
+
+                            $tableData[] = [
+                                'department'          => $departmentName,
+                                'department_due_date' => $departmentDueDate,
+                                'checklist'           => $checklistName,
+                                'task'                => $taskName,
+                                'task_status'         => $taskStatus,
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+
+        return $tableData;
     }
 }
