@@ -2,28 +2,29 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PackageResource\Pages;
-use App\Filament\Resources\PackageResource\RelationManagers;
-use App\Models\Package;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Pages\ViewPackage;
+use App\Models\Package;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\MarkdownEditor;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
-use Illuminate\Database\Eloquent\Model;
-
-use Filament\Forms\Components\Section;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Section;
+
 use Filament\Support\Enums\FontWeight;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\Layout\Stack;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\MarkdownEditor;
+use App\Filament\Resources\PackageResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PackageResource\RelationManagers;
 
 class PackageResource extends Resource
 {
@@ -43,7 +44,7 @@ class PackageResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->required()
-                            ->disabled(fn ($record) => $record !== null)
+                            ->disabled(fn($record) => $record !== null)
                             ->columnSpan('full'),
                         MarkdownEditor::make('description')
                             ->required()
@@ -148,7 +149,7 @@ class PackageResource extends Resource
     public static function getRelations(): array
     {
         return [
-            PackageResource\RelationManagers\TaskRelationManager::class,  
+            PackageResource\RelationManagers\TaskRelationManager::class,
         ];
     }
 
@@ -157,13 +158,14 @@ class PackageResource extends Resource
         return [
             'index' => Pages\ListPackages::route('/'),
             'create' => Pages\CreatePackage::route('/create'),
+            'view' => Pages\ViewPackage::route('/{record}/view'),
             'edit' => Pages\EditPackage::route('/{record}/edit'),
             // 'task' => Pages\PackageTask::route('/{record}/task'),
             // 'createTask' => Pages\CreateTask::route('/{record}/task/create'),
             // 'editTask' => Pages\EditTask::route('/{record}/task/{task}/edit'),
         ];
     }
-    
+
     // public static function canCreate(): bool
     // {
     //     return false;
