@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Exception\RequestException;
 
 class TrelloPackage
 {
@@ -21,13 +22,8 @@ class TrelloPackage
         $this->key = env('TRELLO_API_KEY');
         $this->token = env('TRELLO_API_TOKEN');
         $this->workspace = env('TRELLO_WORKSPACE_ID');
-        
-        // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
-        // Log::info('Trello API Token:', ['token' => $this->token]);
-        // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
 
         Log::info('Loaded Trello configuration.');
-        
     }
 
     private function getAuthParams()
@@ -231,31 +227,31 @@ class TrelloPackage
     {
         try {
             Log::info("Fetching checklists for Trello card: {$cardId}");
-    
+
             $response = $this->client->get("cards/{$cardId}/checklists", [
                 'query' => $this->getAuthParams(),
             ]);
-    
+
             $checklists = json_decode($response->getBody()->getContents(), true);
-    
+
             foreach ($checklists as $checklist) {
                 if ($checklist['name'] === $checklistName) {
                     return $checklist;
                 }
             }
-    
+
             return null;
         } catch (RequestException $e) {
             Log::error("Failed to fetch Trello checklists: " . $e->getMessage());
             return null;
         }
-    }    
+    }
 
     public function createChecklist($cardId, $name)
     {
         try {
             Log::info("Creating Trello checklist: {$name} in card ID: {$cardId}");
-    
+
             $response = $this->client->post("checklists", [
                 'query' => $this->getAuthParams(),
                 'json' => [
@@ -263,14 +259,14 @@ class TrelloPackage
                     'name' => $name,
                 ],
             ]);
-    
+
             return json_decode($response->getBody()->getContents(), true);
         } catch (RequestException $e) {
             Log::error("Failed to create Trello checklist: " . $e->getMessage());
             return null;
         }
     }
-    
+
     public function createChecklistItem($checklistId, $name)
     {
         try {
@@ -291,27 +287,40 @@ class TrelloPackage
         }
     }
 
-    //static updated function
     public function updateChecklistItem($checklistItemId, $newName)
     {
         $trelloKey = config('services.trello.key');
         $trelloToken = config('services.trello.token');
-    
+
         $url = "https://api.trello.com/1/checkItems/{$checklistItemId}";
-    
+
         $response = Http::put($url, [
             'name' => $newName,
             'key' => $trelloKey,
             'token' => $trelloToken,
         ]);
-    
+
         if ($response->successful()) {
             return true;
         }
-    
+
         Log::error("Trello API error: " . $response->body());
         return false;
     }
-    
 
+    public function deleteChecklistItem($checklistId, $checkItemId)
+    {
+        try {
+            Log::info("Deleting checklist item: {$checkItemId} from checklist ID: {$checklistId}");
+
+            $response = $this->client->delete("checklists/{$checklistId}/checkItems/{$checkItemId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to delete checklist item: " . $e->getMessage());
+            return null;
+        }
+    }
 }

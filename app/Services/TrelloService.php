@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use Illuminate\Support\Facades\Log;
 use App\Models\Package;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Exception\RequestException;
 
 class TrelloService
 {
@@ -30,7 +31,7 @@ class TrelloService
         // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
         // Log::info('Trello API Token:', ['token' => $this->token]);
         // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
-        
+
         Log::info('Loaded Trello configuration.');
     }
 
@@ -79,7 +80,7 @@ class TrelloService
         }
     }
 
-    
+
 
     public function createList($boardId, $name)
     {
@@ -103,6 +104,46 @@ class TrelloService
                 Log::error('Response: ' . $responseContent);
                 Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
             }
+            return null;
+        }
+    }
+
+    public function createChecklist($cardId, $name)
+    {
+        try {
+            Log::info("Creating Trello checklist: {$name} in card ID: {$cardId}");
+
+            $response = $this->client->post("checklists", [
+                'query' => $this->getAuthParams(),
+                'json' => [
+                    'idCard' => $cardId,
+                    'name' => $name,
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to create Trello checklist: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function createChecklistItem($checklistId, $name)
+    {
+        try {
+            Log::info("Adding checklist item: {$name} to checklist ID: {$checklistId}");
+
+            $response = $this->client->post("checklists/{$checklistId}/checkItems", [
+                'query' => $this->getAuthParams(),
+                'json' => [
+                    'name' => $name,
+                    'checked' => false,
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to add checklist item: " . $e->getMessage());
             return null;
         }
     }
@@ -182,6 +223,38 @@ class TrelloService
             }
         }
         return null;
+    }
+
+    public function getCardsByListId($listId)
+    {
+        try {
+            Log::info("Fetching Trello cards for list ID: {$listId}");
+
+            $response = $this->client->get("lists/{$listId}/cards", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to fetch Trello cards: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getChecklistsByCardId($cardId)
+    {
+        try {
+            Log::info("Fetching checklists for card ID: {$cardId}");
+
+            $response = $this->client->get("cards/{$cardId}/checklists", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to fetch checklists: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function getCardData($cardId)
@@ -291,34 +364,21 @@ class TrelloService
         }
     }
 
-    public function markChecklistItemAsDone($checkItemId)
-    {
-        $url = "https://api.trello.com/1/checklists/{$checkItemId}/state";
-        $response = Http::put($url, [
-            'state' => 'complete',
-            'key' => $this->apiKey,
-            'token' => $this->apiToken,
-        ]);
-
-        if ($response->failed()) {
-            throw new \Exception('Failed to mark checklist item as done on Trello');
-        }
-    }
     public function addAttachmentToCard($cardId, $filePath)
     {
         $url = "https://api.trello.com/1/cards/{$cardId}/attachments";
         $fileFullPath = storage_path("app/public/{$filePath}");
-    
+
         // Ensure the file exists before proceeding
         if (!file_exists($fileFullPath)) {
             throw new \Exception("File not found at path: {$fileFullPath}");
         }
-    
+
         $params = [
             'key' => env('TRELLO_API_KEY'),
             'token' => env('TRELLO_API_TOKEN'),
         ];
-    
+
         $response = $this->client->request('POST', $url, [
             'multipart' => [
                 [
@@ -336,10 +396,7 @@ class TrelloService
                 ],
             ]
         ]);
-    
+
         return json_decode($response->getBody(), true);
     }
-    
-
-    
 }

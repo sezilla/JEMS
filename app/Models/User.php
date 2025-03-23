@@ -81,15 +81,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         }
     }
 
-    // public function usersPanel(): string
-    // {
-    //     return match ($this->getRoleNames()->first()) {
-    //         'Admin' => url('/admin'), // Use `url()` instead of `getUrl()`
-    //         default => url('/app'),
-    //     };
-    // }
-
-
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
@@ -104,25 +95,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
     }
-    // public function scopeFilterTeamsByDepartments(Builder $query, $departments)
-    // {
-    //     if (!empty($departments)) {
-    //         $query->whereHas('departments', function (Builder $query) use ($departments) {
-    //             $query->whereIn('departments.id', $departments);
-    //         });
-    //     }
-    // }
 
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
-
-
-    // public function conversations()
-    // {
-    //     return $this->belongsToMany(Conversation::class);
-    // }
 
     public function messages()
     {

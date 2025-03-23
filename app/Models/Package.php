@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Task;
 use App\Models\Department;
 use App\Models\PackageTask;
-use Illuminate\Support\Facades\Log;
 use App\Services\TrelloPackage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Package extends Model
 {
@@ -34,11 +35,11 @@ class Package extends Model
             $boardResponse = $trelloPackage->createPackageBoard($package->name);
 
             if ($boardResponse && isset($boardResponse['id'])) {
-                $package->trello_board_template_id = $boardResponse['id']; 
+                $package->trello_board_template_id = $boardResponse['id'];
                 $package->save();
                 Log::info('Trello board created with ID: ' . $boardResponse['id']);
 
-                $departmentsList = $trelloPackage->createList($boardResponse['id'], 'Departments');
+                $trelloPackage->createList($boardResponse['id'], 'Departments');
                 $trelloPackage->createList($boardResponse['id'], 'Coordinators');
                 $projectDetailsList = $trelloPackage->createList($boardResponse['id'], 'Project details');
 
@@ -91,8 +92,8 @@ class Package extends Model
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'task_package', 'package_id', 'task_id')
-                ->using(PackageTask::class)
-                ->withPivot('trello_checklist_item_id');
+            ->using(PackageTask::class)
+            ->withPivot('trello_checklist_item_id');
     }
 
     public function packageTasks()
@@ -133,5 +134,4 @@ class Package extends Model
     {
         return $this->belongsToMany(Task::class, 'task_package', 'package_id', 'task_id');
     }
-
 }
