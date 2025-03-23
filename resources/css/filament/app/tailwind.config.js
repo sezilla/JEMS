@@ -1,4 +1,4 @@
-import preset from '../../../../vendor/filament/filament/tailwind.config.preset'
+import preset from '../../../../vendor/filament/filament/tailwind.config.preset';
 
 export default {
     presets: [preset],
@@ -8,6 +8,6 @@ export default {
         './vendor/filament/**/*.blade.php',
 
         './vendor/namu/wirechat/resources/views/**/*.blade.php',
-        './vendor/namu/wirechat/src/Livewire/**/*.php'
+        './vendor/namu/wirechat/src/Livewire/**/*.php',
     ],
-}
+};

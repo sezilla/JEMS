@@ -51,14 +51,14 @@ class TeamResource extends Resource
                             ->columnSpan('full')
                             ->required()
                             ->maxLength(255),
-                            Select::make('departments')
+                        Select::make('departments')
                             ->relationship('departments', 'name')
                             ->label('Department')
                             ->preload()
                             ->searchable()
                             ->reactive() // Make the field reactive
-                            ->afterStateUpdated(fn (callable $set) => $set('leader_id', null)), // Reset leader_id when department changes
-                        
+                            ->afterStateUpdated(fn(callable $set) => $set('leader_id', null)), // Reset leader_id when department changes
+
                         Select::make('leader_id')
                             ->relationship('leaders', 'name', function ($query, $get) {
                                 $departmentId = $get('departments'); // Get the selected department ID
@@ -71,11 +71,11 @@ class TeamResource extends Resource
                             ->label('Team Leader')
                             ->preload()
                             ->searchable(),
-                        
+
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
                             ->columnSpan('full'),
-                        ]),
+                    ]),
                 Section::make()
                     ->columnSpan(1)
                     ->columns(1)
@@ -97,7 +97,7 @@ class TeamResource extends Resource
                             ->label('Members')
                             ->preload()
                             ->searchable()
-                            ->visible(fn ($livewire) => $livewire instanceof Pages\CreateTeam),
+                            ->visible(fn($livewire) => $livewire instanceof Pages\CreateTeam),
                     ])
 
             ])
@@ -126,7 +126,7 @@ class TeamResource extends Resource
                             TextColumn::make('leaders.name')
                                 ->label('Team Leaders'),
                         ]),
-                        
+
                     ]),
                     ImageColumn::make('users.avatar_url')
                         ->circular()
@@ -148,9 +148,9 @@ class TeamResource extends Resource
                     ->label('Department')
                     ->relationship('departments', 'name')
             ])
-            
-            
-            
+
+
+
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])
@@ -174,6 +174,7 @@ class TeamResource extends Resource
         return [
             'index' => Pages\ListTeams::route('/'),
             'create' => Pages\CreateTeam::route('/create'),
+            'view' => Pages\ViewTeam::route('/{record}/view'),
             'edit' => Pages\EditTeam::route('/{record}/edit'),
         ];
     }

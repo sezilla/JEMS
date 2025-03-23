@@ -3,18 +3,19 @@
 namespace App\Filament\Resources\TeamResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Actions\Action;
-use App\Models\User;
 use App\Models\Team;
-use Filament\Tables\Columns\ImageColumn;
+use App\Models\User;
+use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Actions\CreateAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class UserRelationManager extends RelationManager
 {
@@ -59,12 +60,12 @@ class UserRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Action::make('addMember')
+                CreateAction::make('addMember')
                     ->label('Add Member')
                     ->action(function (array $data) {
                         // Attach the user as a member of the team
                         $this->ownerRecord->members()->attach($data['user_id']);
-                        
+
                         // Notify the user
                         Notification::make()
                             ->title('Member added successfully!')
@@ -99,7 +100,7 @@ class UserRelationManager extends RelationManager
                     })
                     ->requiresConfirmation()
                     ->modalHeading('Remove Member')
-                    ->modalSubheading(fn (User $record): string => 'Are you sure you want to remove ' . $record->name . ' from ' . $this->ownerRecord->name . '?')
+                    ->modalSubheading(fn(User $record): string => 'Are you sure you want to remove ' . $record->name . ' from ' . $this->ownerRecord->name . '?')
                     ->modalButton('Yes, remove')
             ])
             ->bulkActions([

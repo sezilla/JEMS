@@ -2,24 +2,25 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\DepartmentResource\Pages;
-use App\Filament\Resources\DepartmentResource\RelationManagers;
-use App\Models\Department;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\Department;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
+use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Section;
+use Filament\Support\Enums\FontWeight;
+
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
-use Filament\Forms\Components\Section;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Columns\Layout\Split;
+use App\Filament\Resources\DepartmentResource\Pages;
+use App\Filament\Resources\DepartmentResource\RelationManagers;
 
 
 
@@ -45,7 +46,7 @@ class DepartmentResource extends Resource
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
                             ->columnSpan('1'),
-                        
+
                     ]),
                 Section::make()
                     ->columnSpan(1)
@@ -63,7 +64,7 @@ class DepartmentResource extends Resource
                             ->label('Teams')
                             ->preload()
                             ->searchable()
-                            ->visible(fn ($livewire) => $livewire instanceof Pages\CreateDepartment),
+                            ->visible(fn($livewire) => $livewire instanceof Pages\CreateDepartment),
                     ])
             ])
             ->columns(3);
@@ -75,21 +76,22 @@ class DepartmentResource extends Resource
             ->columns([
                 Split::make([
                     ImageColumn::make('image')
-                    ->width(150)
-                    ->height(150)
-                    ->rounded('lg')
-                    ->alignment(Alignment::Left),
+                        ->width(150)
+                        ->height(150)
+                        ->rounded('lg')
+                        ->alignment(Alignment::Left),
                     Stack::make([
                         Tables\Columns\TextColumn::make('name')
                             ->weight(FontWeight::Bold)
-                            ->description(fn($record): ?string => $record->description),
+                            ->description(fn($record): ?string => Str::limit($record->description, 35)),
+
                         ImageColumn::make('teams.image')
                             ->circular()
                             ->stacked()
                             ->limit(5)
                             ->limitedRemainingText(),
                     ])->space(3),
-                    
+
                 ]),
             ])
             ->contentGrid([
@@ -124,6 +126,7 @@ class DepartmentResource extends Resource
             'index' => Pages\ListDepartments::route('/'),
             'create' => Pages\CreateDepartment::route('/create'),
             'edit' => Pages\EditDepartment::route('/{record}/edit'),
+            'view' => Pages\ViewDepartment::route('/{record}/view'),
         ];
     }
 

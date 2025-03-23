@@ -222,7 +222,6 @@ class Project extends Model
                     Log::error('Project details list not found.');
                 }
 
-
                 // Special request handling
                 if (!empty($project->special_request)) {
                     Log::info('Classifying tasks due to special request', [
