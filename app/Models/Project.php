@@ -221,6 +221,8 @@ class Project extends Model
                 } else {
                     Log::error('Project details list not found.');
                 }
+
+
                 // Special request handling
                 if (!empty($project->special_request)) {
                     Log::info('Classifying tasks due to special request', [
@@ -237,8 +239,56 @@ class Project extends Model
                     if (isset($classificationResponse['error'])) {
                         throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
                     }
+
+                    $departmentsList = $trelloService->getBoardListByName($project->trello_board_id, 'Departments');
+
+                    if ($departmentsList) {
+                        Log::info('Project details list found.');
+
+                        // Fetch all cards in the 'Departments' list
+                        $departmentCards = $trelloService->getCardsByListId($departmentsList['id']);
+                        $departmentCardMap = [];
+
+                        // Map department names to their Trello card IDs
+                        foreach ($departmentCards as $card) {
+                            $departmentCardMap[$card['name']] = $card['id'];
+                        }
+
+                        foreach ($classificationResponse['special_request'] as $task) {
+                            list($department, $taskDescription) = $task;
+
+                            if (isset($departmentCardMap[$department])) {
+                                $cardId = $departmentCardMap[$department];
+
+                                // Create 'Special Requests' checklist if it doesn't exist
+                                $checklists = $trelloService->getChecklistsByCardId($cardId);
+                                $checklistId = null;
+
+                                foreach ($checklists as $checklist) {
+                                    if ($checklist['name'] === 'Special Requests') {
+                                        $checklistId = $checklist['id'];
+                                        break;
+                                    }
+                                }
+
+                                if (!$checklistId) {
+                                    $checklist = $trelloService->createChecklist($cardId, 'Special Requests');
+                                    $checklistId = $checklist['id'] ?? null;
+                                }
+
+                                if ($checklistId) {
+                                    // Add task as a checklist item
+                                    $trelloService->createChecklistItem($checklistId, $taskDescription);
+                                }
+                            } else {
+                                Log::warning("No Trello card found for department: {$department}");
+                            }
+                        }
+                    } else {
+                        Log::error('Departments list not found on Trello.');
+                    }
                 } else {
-                    Log::error('Project special request didnt worked.');
+                    Log::error('Project special request did not work.');
                 }
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
