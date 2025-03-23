@@ -122,31 +122,25 @@ class Project extends Model
 
                 Log::info('PythonService::allocateTeams - Raw Response', ['response' => $allocatedTeams]);
 
-                // Check if an error was returned
                 if (isset($allocatedTeams['error'])) {
                     Log::error('Team Allocation Failed', ['error' => $allocatedTeams['error']]);
                     throw new \Exception('Team Allocation Failed: ' . $allocatedTeams['error']);
                 }
 
-                // Ensure response is an array of team IDs
                 if (!is_array($allocatedTeams) || empty($allocatedTeams)) {
                     Log::warning('No teams were allocated for this project', ['project_name' => $project->name]);
                     DB::rollBack();
                     throw new \Exception('No valid team allocations received.');
                 }
 
-                // Save the team allocation in the database
                 $teamAllocation = TeamAllocation::create([
                     'project_id' => $project->id,
                     'package_id' => $project->package_id,
                     'start_date' => $project->start,
                     'end_date' => $project->end,
-                    'allocated_teams' => $allocatedTeams, // JSON array
+                    'allocated_teams' => $allocatedTeams,
                 ]);
 
-                Log::info('Team allocation record saved successfully', ['team_allocation' => $teamAllocation]);
-
-                // Sync the allocated teams with the project
                 $project->teams()->sync($allocatedTeams);
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
@@ -155,6 +149,10 @@ class Project extends Model
                 DB::rollBack();
                 Log::error('Error during team allocation', ['message' => $e->getMessage()]);
             }
+
+
+
+
 
             //trello board creation
             Log::info('Creating Trello board for project: ' . $project->name);
@@ -223,34 +221,28 @@ class Project extends Model
                 } else {
                     Log::error('Project details list not found.');
                 }
+                // Special request handling
+                if (!empty($project->special_request)) {
+                    Log::info('Classifying tasks due to special request', [
+                        'project_id' => $project->id,
+                        'special_request' => $project->special_request
+                    ]);
+
+                    $classificationResponse = $pythonService->special_request(
+                        $project->id,
+                        $project->special_request
+                    );
+                    Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
+
+                    if (isset($classificationResponse['error'])) {
+                        throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
+                    }
+                } else {
+                    Log::error('Project special request didnt worked.');
+                }
             } else {
                 Log::error('Failed to create Trello board for project: ' . $project->name);
             }
-
-
-
-
-            // Special request handling
-            if (!empty($project->special_request)) {
-                Log::info('Classifying tasks due to special request', [
-                    'project_id' => $project->id,
-                    'special_request' => $project->special_request
-                ]);
-
-                $classificationResponse = $pythonService->special_request(
-                    $project->id,
-                    $project->special_request
-                );
-                Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
-
-                if (isset($classificationResponse['error'])) {
-                    throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
-                }
-            }
-
-
-
-
 
             // Schedule category prediction
             Log::info('Predicting categories for project: ' . $project->name);
@@ -265,9 +257,6 @@ class Project extends Model
             if (isset($categoryPredictions['error'])) {
                 throw new \Exception('Category Prediction Error: ' . $categoryPredictions['error']);
             }
-
-
-
 
             // Create a group conversation for project coordinators
             $coordinatorIds = collect([

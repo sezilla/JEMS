@@ -22,10 +22,24 @@
             <x-filament::section class="mb-4">
                 <p class="text-gray-500">{{ $department }}</p>
                 <p class="text-gray-500">{{ $team }}</p>
+                <p> skills </p>
             </x-filament::section>
             <x-filament::section class="mb-4">
-                ongoing projects???
+                <h2 class="text-lg font-semibold">Assigned Projects</h2>
+
+                @if ($projects->isNotEmpty())
+                    <ul class="list-disc pl-5">
+                        @foreach ($projects as $project)
+                            <li class="text-gray-700">
+                                {{ $project->name }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-gray-500">No projects assigned.</p>
+                @endif
             </x-filament::section>
+
             <x-filament::section class="mb-4">
                 reset password
             </x-filament::section>

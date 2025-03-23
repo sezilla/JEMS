@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Models\Project;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,10 +18,13 @@ class Profile extends Page
     public $role;
     public $department;
     public $team;
+    public $projects;
 
     public function mount()
     {
-        $user = Auth::user(); // Get the currently authenticated user
+        $user = Auth::user(); // Get the authenticated user
+
+        $this->projects = Project::where('user_id', $user->id)->get();
 
         $this->avatar_url = $user->avatar_url ? Storage::url($user->avatar_url) : null;
         $this->name = $user->name;
