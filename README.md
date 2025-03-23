@@ -6,7 +6,6 @@
 
 JEMS is a comprehensive multi-project based management system built with Laravel 11. It provides an intuitive interface for managing multiple projects, tasks, and teams efficiently.
 
-
 ## 🚀 Features
 
 - **Multi-Project Management**: Handle multiple projects simultaneously
@@ -185,6 +184,7 @@ php artisan optimize:clear
 ## 🧩 Trello Integration
 
 To set up Trello integration:
+
 1. Visit [Trello Power-Ups Admin](https://trello.com/power-ups/admin)
 2. Configure your Power-Up settings
 3. Connect your JEM instance with your Trello boards

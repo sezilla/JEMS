@@ -1,11 +1,11 @@
 body {
-    background: linear-gradient(0deg,  
+    background: linear-gradient(
+        0deg,
         /* rgb(255, 145, 204) 0%,   /* Gold */
-        /* rgb(255, 162, 177) 50%,  Pink 
+            /* rgb(255, 162, 177) 50%,  Pink 
         rgba(255, 255, 255, 1) 100%  White */
-        rgb(255, 183, 221) 0%,   /* Gold */
-        rgba(255, 255, 255, 1) 50%, /* White */
-        rgb(255, 183, 221) 100%/*   Pink  */
-        
+            rgb(255, 183, 221) 0%,
+        /* Gold */ rgba(255, 255, 255, 1) 50%,
+        /* White */ rgb(255, 183, 221) 100% /*   Pink  */
     );
 }
