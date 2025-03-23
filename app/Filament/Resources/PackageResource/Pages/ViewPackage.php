@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\PostResource\Pages;
+namespace App\Filament\Resources\PackageResource\Pages;
 
-use App\Filament\Resources\PostResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\PackageResource;
 
-class ViewPost extends ViewRecord
+class ViewPackage extends ViewRecord
 {
-    protected static string $resource = PostResource::class;
+    protected static string $resource = PackageResource::class;
 
     protected function getHeaderActions(): array
     {

@@ -31,7 +31,7 @@ class ManagePackage
             $itemList[] = NavigationItem::make($package->name)
                 ->icon('heroicon-o-plus-circle')
                 ->group('Packages')
-                ->url(PackageResource::getUrl('edit', ['record' => $package->id]));
+                ->url(PackageResource::getUrl('view', ['record' => $package->id]));
         }
 
         Filament::getCurrentPanel()

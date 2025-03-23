@@ -108,8 +108,9 @@ class TaskRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->label('Create Task'),
 
-                Tables\Actions\Action::make('addTask')
+                Tables\Actions\CreateAction::make('addTask')
                     ->label('Add Task')
+                    // ->visible(fn() => auth()->user()->can('addTask', PackageTask::class))
                     ->action(function (array $data) {
                         $taskId = $data['task_id']; // Fetch task ID
                         $packageId = $this->ownerRecord->id; // Get current package ID
@@ -162,7 +163,7 @@ class TaskRelationManager extends RelationManager
                     ]),
             ])
             ->actions([
-                Tables\Actions\Action::make('editTask')
+                Tables\Actions\EditAction::make('editTask')
                     ->label('Edit')
                     ->icon('heroicon-s-pencil')
                     ->form([
@@ -197,7 +198,7 @@ class TaskRelationManager extends RelationManager
                             ->required()
                             ->columnSpanFull(),
                     ])
-                    ->action(function (PackageTask $record, array $data) { // Ensure Task model is expected
+                    ->action(function (PackageTask $record, array $data) {
                         $record->update($data);
 
                         Log::info('Task updated', ['task_id' => $record->id]);
@@ -209,7 +210,7 @@ class TaskRelationManager extends RelationManager
                     })
                     ->modalButton('Save Changes')
                     ->modalHeading('Edit Task'),
-                Tables\Actions\Action::make('removeTask')
+                Tables\Actions\DeleteAction::make('removeTask')
                     ->label('Remove')
                     ->color('danger')
                     ->icon('heroicon-s-trash')
