@@ -14,16 +14,6 @@ class PythonService
         $this->baseUrl = env('PYTHON_SERVICE_URL', 'http://127.0.0.1:3000');
     }
 
-
-    /**
-     * Allocate teams for a project.
-     *
-     * @param string $projectId
-     * @param int $packageId
-     * @param string $startDate
-     * @param string $endDate
-     * @return array
-     */
     public function allocateTeams(int $projectId, int $packageId, string $startDate, string $endDate): array
     {
         $url = "{$this->baseUrl}/allocate-teams";
@@ -61,12 +51,6 @@ class PythonService
         }
     }
 
-    /**
-     * Classify tasks based on special request.
-     *
-     * @param string $specialRequest
-     * @return array
-     */
     public function special_request(int $projectId, string $specialRequest): array
     {
         $url = "{$this->baseUrl}/special-request";
@@ -74,7 +58,7 @@ class PythonService
         try {
             $response = Http::post($url, [
                 'project_id' => $projectId,
-                'special_request' => $specialRequest, // Ensure correct key
+                'special_request' => $specialRequest,
             ]);
 
             if ($response->successful()) {
@@ -96,14 +80,6 @@ class PythonService
         }
     }
 
-    /**
-     * Predict categories for a project.
-     *
-     * @param string $projectName
-     * @param string $startDate
-     * @param string $endDate
-     * @return array
-     */
     public function predictCategories(int $projectId, string $startDate, string $endDate): array
     {
         $url = "{$this->baseUrl}/generate-schedule";
