@@ -22,6 +22,13 @@ class ProjectChart extends ChartWidget
         ];
     }
 
+/*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Return the type of chart to render.
+     *
+     * @return string
+     */
+/******  140655c1-717b-4822-98f7-beb980c85dfb  *******/
     protected function getType(): string
     {
         return 'bar'; // Change to 'line' or 'pie' if needed
