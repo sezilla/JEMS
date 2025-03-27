@@ -8,6 +8,7 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+
 class Profile extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-user';

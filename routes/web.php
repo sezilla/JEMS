@@ -3,14 +3,19 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Filament\App\Pages\Profile;
+use App\Http\Controllers\ProfileController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('oldwelcome');
 });
 
 Route::post('/projects/allocate-teams', [ProjectController::class, 'allocateTeams']);
 Route::get('/projects/history', [ProjectController::class, 'getProjectHistory']);
+
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', function () {
@@ -26,4 +31,5 @@ Route::middleware('auth')->group(function () {
         request()->user()->sendEmailVerificationNotification();
         return back()->with('message', 'Verification link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');
+
 });

@@ -9,7 +9,7 @@
                         <h2 class="text-3xl font-bold text-gray-900">{{ $name }}</h2>
                         <p class="text-lg text-gray-600">{{ $role }}</p>
                         <div class="mt-2 flex gap-2"+  >
-                            <x-filament::badge class="px-3 py-1 text-sm">{{ $department }}</x-filament::badge>
+                            <x-filament::badge class="px-3 py-1 text-sm" icon="heroicon-m-sparkles" >{{ $department }}</x-filament::badge>
                             <x-filament::badge class="px-3 py-1 text-sm">{{ $team }}</x-filament::badge>
                         </div>
                     </div>
@@ -22,6 +22,13 @@
             </x-filament::section>
 
             <x-filament::section class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">Contact Information</h2>
+                <p class="text-gray-700"><strong>Email:</strong> {{ $email ?? 'Not provided' }}</p>
+                <p class="text-gray-700"><strong>Phone:</strong> {{ $phone ?? 'Not provided' }}</p>
+            </x-filament::section>
+
+
+            <x-filament::section class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-xl font-semibold text-gray-800">Posts</h2>
                 <p class="text-gray-600 mt-2">No posts available.</p>
             </x-filament::section>
@@ -31,7 +38,7 @@
         <div class="space-y-6">
 
             <x-filament::section class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-lg font-semibold text-gray-800 mb-3">Skills</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-3">My Skills</h2>
                 
                 @if ($skills->isNotEmpty())
                     <div class="flex flex-wrap gap-2">
