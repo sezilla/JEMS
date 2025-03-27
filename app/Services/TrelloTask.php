@@ -181,4 +181,20 @@ class TrelloTask
             return [];
         }
     }
+
+    public function checklistItemMarkAsDone($checklistId, $itemId)
+    {
+        try {
+            $response = $this->client->put("checklists/{$checklistId}/checkItems/{$itemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'state' => 'complete',
+                ]),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to mark checklist item {$itemId} as done in checklist {$checklistId}: " . $e->getMessage());
+            return null;
+        }
+    }
 }
