@@ -110,4 +110,32 @@ class Task extends Page
 
         return $tableData;
     }
+
+    public function markAsDone($cardId, $checkItemId)
+    {
+        $trelloTask = app(TrelloTask::class);
+
+        foreach ($this->trelloCards as &$card) {
+            if ($card['id'] === $cardId) {
+                foreach ($card['checklists'] as &$checklist) {
+                    foreach ($checklist['items'] as &$item) {
+                        if ($item['id'] === $checkItemId) {
+                            $currentState = $item['state'];
+                            $newState = ($currentState === 'complete') ? 'incomplete' : 'complete';
+
+                            $success = $trelloTask->updateChecklistItemState($cardId, $checkItemId, $newState);
+
+                            if ($success) {
+                                $item['state'] = $newState;
+                                $this->tableData = $this->setTableData();
+                            } else {
+                                Log::error("Failed to update checklist item state for ID: {$checkItemId}");
+                            }
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
