@@ -17,6 +17,8 @@ class Task extends Page
 
     public ?array $trelloCards = null;
     public ?array $tableData = [];
+    public ?array $selectedTask = null;
+    public bool $showModal = false;
 
     public function mount($record)
     {
@@ -32,8 +34,8 @@ class Task extends Page
     public function fetchTrelloCards($boardId)
     {
         $trelloService = app(TrelloTask::class);
-
         $listId = $trelloService->getBoardDepartmentsListId($boardId);
+
         if (!$listId) {
             Log::error("Departments list not found for board: " . $boardId);
             return [];
@@ -47,7 +49,6 @@ class Task extends Page
 
         foreach ($cards as &$card) {
             $card['checklists'] = $trelloService->getCardChecklists($card['id']);
-
             if (is_array($card['checklists'])) {
                 foreach ($card['checklists'] as &$checklist) {
                     $checklist['items'] = $trelloService->getChecklistItems($checklist['id']);
@@ -61,49 +62,27 @@ class Task extends Page
     public function setTableData()
     {
         $tableData = [];
-
-        if (!$this->trelloCards) {
-            return $tableData;
-        }
+        if (!$this->trelloCards) return $tableData;
 
         $user = Auth::user();
-
         $userDepartment = Department::forUser($user)->first();
-
-        // If the user doesn't have a department, return an empty array.
-        if (!$userDepartment) {
-            return $tableData;
-        }
+        if (!$userDepartment) return $tableData;
 
         foreach ($this->trelloCards as $card) {
-            $departmentName = $card['name'];
-            $departmentDueDate = $card['due'] ?? null;
+            if ($card['name'] !== $userDepartment->name) continue;
 
-            // Only proceed if the card's department name matches the user's department name.
-            if ($departmentName !== $userDepartment->name) {
-                continue;
-            }
-
-            if (!empty($card['checklists'])) {
-                foreach ($card['checklists'] as $checklist) {
-                    $checklistName = $checklist['name'];
-
-                    if (!empty($checklist['items'])) {
-                        foreach ($checklist['items'] as $item) {
-                            $taskName = $item['name'];
-                            $taskStatus = isset($item['state']) && strcasecmp($item['state'], 'complete') === 0
-                                ? 'complete'
-                                : 'incomplete';
-
-                            $tableData[] = [
-                                'department'          => $departmentName,
-                                'department_due_date' => $departmentDueDate,
-                                'checklist'           => $checklistName,
-                                'task'                => $taskName,
-                                'task_status'         => $taskStatus,
-                            ];
-                        }
-                    }
+            foreach ($card['checklists'] as $checklist) {
+                foreach ($checklist['items'] as $item) {
+                    $tableData[] = [
+                        'card_id'            => $card['id'],
+                        'checklist_id'       => $checklist['id'],
+                        'item_id'            => $item['id'],
+                        'department'         => $card['name'],
+                        'due_date'           => $card['due'] ?? null,
+                        'checklist'          => $checklist['name'],
+                        'task'               => $item['name'],
+                        'task_status'        => $item['state'] === 'complete' ? 'complete' : 'incomplete',
+                    ];
                 }
             }
         }
@@ -114,15 +93,13 @@ class Task extends Page
     public function markAsDone($cardId, $checkItemId)
     {
         $trelloTask = app(TrelloTask::class);
-
+        
         foreach ($this->trelloCards as &$card) {
             if ($card['id'] === $cardId) {
                 foreach ($card['checklists'] as &$checklist) {
                     foreach ($checklist['items'] as &$item) {
                         if ($item['id'] === $checkItemId) {
-                            $currentState = $item['state'];
-                            $newState = ($currentState === 'complete') ? 'incomplete' : 'complete';
-
+                            $newState = $item['state'] === 'complete' ? 'incomplete' : 'complete';
                             $success = $trelloTask->updateChecklistItemState($cardId, $checkItemId, $newState);
 
                             if ($success) {
@@ -137,5 +114,17 @@ class Task extends Page
                 }
             }
         }
+    }
+
+    public function openModal($task)
+    {
+        $this->selectedTask = $task;
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->selectedTask = null;
     }
 }
