@@ -21,8 +21,15 @@
     </head>
  
     <body class="antialiased">
-        {{ $slot }}
- 
+    {{ $slot }}
+
+    <!-- <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script> -->
+    <script>
+    document.addEventListener('alpine:init', () => {
+        console.log('Alpine.js is loaded and ready!');
+    });
+    </script>
+
         @filamentScripts
         @vite('resources/js/app.js')
         @wirechatAssets
