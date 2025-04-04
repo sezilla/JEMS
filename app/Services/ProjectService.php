@@ -1,7 +1,8 @@
-<?php 
+<?php
 
 namespace App\Services;
 
+use App\Events\AssignTaskSchedules;
 use App\Events\TrelloBoardCreatedEvent;
 use Exception;
 use App\Models\Project;
@@ -13,15 +14,14 @@ use Illuminate\Support\Facades\Log;
 class ProjectService
 {
     private TrelloService $trello_service;
-    private PythonService $python_service;  
-    protected $project;  
+    private PythonService $python_service;
+    protected $project;
 
     public function __construct(
         TrelloService $trello_service,
         PythonService $python_service,
         Project $project
-        )
-    {
+    ) {
         $this->trello_service = $trello_service;
         $this->python_service = $python_service;
         $this->project = $project;
@@ -92,7 +92,7 @@ class ProjectService
                 $createOrUpdateCard($projectDetailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
                 $createOrUpdateCard($projectDetailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
                 $createOrUpdateCard($projectDetailsList['id'], 'special request', ['desc' => $project->special_request]);
-            
+
                 if ($project->thumbnail_path && $coupleCardId) {
                     Log::info('Adding thumbnail as cover to the couple name card.');
                     $this->trello_service->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
@@ -168,6 +168,30 @@ class ProjectService
         } else {
             Log::error('there is no special request');
         }
+
+        AssignTaskSchedules::dispatch($project);
     }
 
+    public function createTaskSchedules(Project $project)
+    {
+        Log::info('Creating task schedules for project: ' . $project->name);
+
+        if (!$project->package) {
+            Log::error('Package is null for the project: ' . $project->name);
+            return;
+        }
+
+        $taskSchedulesResponse = $this->python_service->predictCategories($project->id, $project->start, $project->end);
+
+        if ($taskSchedulesResponse && isset($taskSchedulesResponse['schedules'])) {
+            foreach ($taskSchedulesResponse['schedules'] as $schedule) {
+                // Process each schedule as needed
+                Log::info('Task schedule created', ['schedule' => $schedule]);
+            }
+        } else {
+            Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
+        }
+    }
+
+    public function syncTrelloToDatabase($boardId) {}
 }
