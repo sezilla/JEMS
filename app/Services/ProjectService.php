@@ -187,7 +187,6 @@ class ProjectService
 
         if ($taskSchedulesResponse && isset($taskSchedulesResponse['schedules'])) {
             foreach ($taskSchedulesResponse['schedules'] as $schedule) {
-                // Process each schedule as needed
                 Log::info('Task schedule created', ['schedule' => $schedule]);
             }
         } else {
@@ -204,7 +203,7 @@ class ProjectService
 
         $boardId = $project->trello_board_id;
         $departmentList = $this->trello_service->getBoardListByName($boardId, 'Departments');
-        $cards = $this->trello_service->getListCards($departmentList['id']);
+        $cards = $this->trello_service->getCardsNameAndId($departmentList['id']);
 
         $structuredData = [];
 
@@ -227,13 +226,13 @@ class ProjectService
                 foreach ($items as $item) {
                     $taskName = $item['name'];
 
-                    $structuredData[$departmentId]['department_name'] = $departmentName;
-
-                    if (!isset($structuredData[$departmentId]['categories'][$categoryName])) {
-                        $structuredData[$departmentId]['categories'][$categoryName] = [];
+                    if (!isset($structuredData[$departmentName])) {
+                        $structuredData[$departmentName] = [];
                     }
-
-                    $structuredData[$departmentId]['categories'][$categoryName][] = $taskName;
+                    if (!isset($structuredData[$departmentName][$categoryName])) {
+                        $structuredData[$departmentName][$categoryName] = [];
+                    }
+                    $structuredData[$departmentName][$categoryName][] = $taskName;
                 }
             }
         }

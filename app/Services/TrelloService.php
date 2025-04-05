@@ -205,6 +205,26 @@ class TrelloService
         }
         return null;
     }
+
+    public function getCardsNameAndId($listId)
+    {
+        try {
+            $cards = $this->getListCards($listId);
+            if ($cards) {
+                return array_map(function ($card) {
+                    return [
+                        'name' => $card['name'],
+                        'id' => $card['id'],
+                    ];
+                }, $cards);
+            }
+            return [];
+        } catch (RequestException $e) {
+            Log::error('Failed to get card names and IDs for list ID: ' . $listId . '. Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
     public function getCardIdByName($listId, $cardName)
     {
         $cards = $this->getListCards($listId);
