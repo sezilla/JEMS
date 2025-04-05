@@ -273,7 +273,19 @@ class TrelloService
         }
     }
 
+    public function getChecklistItems($checklistId)
+    {
+        try {
+            $response = $this->client->get("checklists/{$checklistId}/checkItems", [
+                'query' => $this->getAuthParams(),
+            ]);
 
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to get checklist items for checklist {$checklistId}: " . $e->getMessage());
+            return [];
+        }
+    }
 
     public function updateCard($cardId, $data)
     {

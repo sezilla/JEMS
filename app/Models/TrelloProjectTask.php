@@ -22,14 +22,4 @@ class TrelloProjectTask extends Model
     {
         return $this->belongsTo(Project::class);
     }
-
-    public function getTrelloBoardDataAttribute($value)
-    {
-        return json_decode($value, true);
-    }
-
-    public function setTrelloBoardDataAttribute($value)
-    {
-        $this->attributes['trello_board_data'] = json_encode($value);
-    }
 }

@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
-use App\Events\AssignTaskSchedules;
-use App\Events\TrelloBoardCreatedEvent;
 use Exception;
 use App\Models\Project;
 use App\Services\PythonService;
 use App\Services\TrelloService;
+use App\Models\TrelloProjectTask;
+use App\Events\AssignTaskSchedules;
+use App\Events\SyncTrelloBoardToDB;
 use Illuminate\Support\Facades\Log;
+use App\Events\TrelloBoardCreatedEvent;
 
 
 class ProjectService
@@ -169,7 +171,7 @@ class ProjectService
             Log::error('there is no special request');
         }
 
-        AssignTaskSchedules::dispatch($project);
+        SyncTrelloBoardToDB::dispatch($project);
     }
 
     public function createTaskSchedules(Project $project)
@@ -193,5 +195,62 @@ class ProjectService
         }
     }
 
-    public function syncTrelloToDatabase($boardId) {}
+    public function syncTrelloToDatabase(Project $project)
+    {
+        if (!$project->trello_board_id) {
+            Log::error('trello_board_id is null for the project: ' . $project->name);
+            return;
+        }
+
+        $boardId = $project->trello_board_id;
+        $departmentList = $this->trello_service->getBoardListByName($boardId, 'Departments');
+        $cards = $this->trello_service->getListCards($departmentList['id']);
+
+        $structuredData = [];
+
+        foreach ($cards as $card) {
+            $departmentId = $card['id'];
+            $departmentName = $card['name'];
+
+            $checklists = $this->trello_service->getChecklistsByCardId($departmentId);
+
+            foreach ($checklists as $checklist) {
+                $categoryName = $checklist['name'];
+                $items = $this->trello_service->getChecklistItems($checklist['id']);
+
+                Log::info('Processing checklist', [
+                    'checklist_id' => $checklist['id'],
+                    'category_name' => $categoryName,
+                    'item_count' => count($items),
+                ]);
+
+                foreach ($items as $item) {
+                    $taskName = $item['name'];
+
+                    $structuredData[$departmentId]['department_name'] = $departmentName;
+
+                    if (!isset($structuredData[$departmentId]['categories'][$categoryName])) {
+                        $structuredData[$departmentId]['categories'][$categoryName] = [];
+                    }
+
+                    $structuredData[$departmentId]['categories'][$categoryName][] = $taskName;
+                }
+            }
+        }
+
+        Log::info('Final structured Trello data', ['structured_data' => $structuredData]);
+
+        $result = TrelloProjectTask::updateOrCreate(
+            [
+                'project_id' => $project->id,
+                'trello_board_id' => $boardId,
+            ],
+            [
+                'trello_board_data' => json_encode($structuredData),
+                'event_date' => $project->end,
+            ]
+        );
+
+        Log::info('Trello data saved to database', ['record_id' => $result->id]);
+    }
 }
