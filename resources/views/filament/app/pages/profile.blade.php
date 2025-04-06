@@ -8,8 +8,8 @@
                     <div>
                         <h2 class="text-3xl font-bold text-gray-900">{{ $name }}</h2>
                         <p class="text-lg text-gray-600">{{ $role }}</p>
-                        <div class="mt-2 flex gap-2"+  >
-                            <x-filament::badge class="px-3 py-1 text-sm" icon="heroicon-m-sparkles" >{{ $department }}</x-filament::badge>
+                        <div class="mt-2 flex gap-2">
+                            <x-filament::badge class="px-3 py-1 text-sm" icon="heroicon-o-sparkles" >{{ $department }}</x-filament::badge>
                             <x-filament::badge class="px-3 py-1 text-sm">{{ $team }}</x-filament::badge>
                         </div>
                     </div>
