@@ -253,32 +253,33 @@ class ProjectService
         $cards = $this->trello_service->getCardsNameAndId($departmentList['id']);
 
         if ($taskSchedulesResponse && isset($taskSchedulesResponse['trello_tasks'])) {
+            $trelloTasks = $this->arrayChangeKeyCaseRecursive($taskSchedulesResponse['trello_tasks']);
 
             foreach ($cards as $card) {
-                $departmentId   = $card['id'];     // This is the card ID.
-                $departmentName = trim($card['name']);
+                $departmentId   = $card['id'];  // This is the card ID.
+                $departmentName = strtolower(trim($card['name']));
 
                 $checklists = $this->trello_service->getChecklistsByCardId($departmentId);
 
                 foreach ($checklists as $checklist) {
-                    $categoryName = trim($checklist['name']);
+                    $categoryName = strtolower(trim($checklist['name']));
                     $items = $this->trello_service->getChecklistItems($checklist['id']);
 
                     Log::info('Processing checklist', [
-                        'checklist_id' => $checklist['id'],
+                        'checklist_id'  => $checklist['id'],
                         'category_name' => $categoryName,
-                        'item_count' => count($items),
+                        'item_count'    => count($items),
                     ]);
 
                     foreach ($items as $item) {
-                        $taskName = trim($item['name']);
+                        $taskName = strtolower(trim($item['name']));
 
                         if (
-                            isset($taskSchedulesResponse['trello_tasks'][$departmentName])
-                            && isset($taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName])
-                            && isset($taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName][$taskName])
+                            isset($trelloTasks[$departmentName])
+                            && isset($trelloTasks[$departmentName][$categoryName])
+                            && isset($trelloTasks[$departmentName][$categoryName][$taskName])
                         ) {
-                            $dueDate = $taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName][$taskName];
+                            $dueDate = $trelloTasks[$departmentName][$categoryName][$taskName];
 
                             Log::info("Updating checklist item due date", [
                                 'department' => $departmentName,
@@ -287,7 +288,6 @@ class ProjectService
                                 'due_date'   => $dueDate,
                             ]);
 
-                            // Note: pass the card (department) id along with the checklist item id.
                             $this->trello_service->setChecklistItemDueDate($departmentId, $item['id'], $dueDate);
                         } else {
                             Log::warning("No due date found for checklist item", [
@@ -302,5 +302,19 @@ class ProjectService
         } else {
             Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
         }
+    }
+
+    private function arrayChangeKeyCaseRecursive(array $arr)
+    {
+        $result = [];
+        foreach ($arr as $key => $value) {
+            $lowerKey = strtolower($key);
+            if (is_array($value)) {
+                $result[$lowerKey] = $this->arrayChangeKeyCaseRecursive($value);
+            } else {
+                $result[$lowerKey] = $value;
+            }
+        }
+        return $result;
     }
 }
