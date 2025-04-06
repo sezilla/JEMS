@@ -10,12 +10,14 @@ class TrelloProjectTask extends Model
         'project_id',
         'trello_board_id',
         'trello_board_data',
+        'start_date',
         'event_date',
     ];
 
     protected $casts = [
         'trello_board_data' => 'array',
-        'event_date' => 'datetime',
+        'event_date' => 'date',
+        'start_date' => 'date',
     ];
 
     public function project()

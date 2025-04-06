@@ -80,16 +80,15 @@ class PythonService
         }
     }
 
-    public function predictCategories(int $projectId, string $startDate, string $endDate): array
+    public function predictCategories(int $projectId): array
     {
         $url = "{$this->baseUrl}/generate-schedule";
 
         try {
-            $response = Http::post($url, [
-                'project_id' => $projectId,
-                'start' => $startDate,
-                'end' => $endDate,
-            ]);
+            $response = Http::timeout(360)
+                ->post($url, [
+                    'project_id' => $projectId,
+                ]);
 
             if ($response->successful()) {
                 return $response->json();

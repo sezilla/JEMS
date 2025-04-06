@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
             $table->string('trello_board_id')->nullable();
             $table->json('trello_board_data')->nullable();
-            $table->dateTime('event_date')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('event_date')->nullable();
             $table->timestamps();
         });
     }

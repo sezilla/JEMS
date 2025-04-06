@@ -225,6 +225,23 @@ class TrelloService
         }
     }
 
+    public function setChecklistItemDueDate($checklistItemId)
+    {
+        try {
+            $response = $this->client->put("checklistItems/{$checklistItemId}", [
+                'query' => $this->getAuthParams(),
+                'json' => [
+                    'due' => now()->toIso8601String(),
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to set checklist item due date: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function getCardIdByName($listId, $cardName)
     {
         $cards = $this->getListCards($listId);

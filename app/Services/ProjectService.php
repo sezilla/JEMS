@@ -11,6 +11,7 @@ use App\Events\AssignTaskSchedules;
 use App\Events\SyncTrelloBoardToDB;
 use Illuminate\Support\Facades\Log;
 use App\Events\TrelloBoardCreatedEvent;
+use App\Events\TrelloBoardIsFinalEvent;
 
 
 class ProjectService
@@ -174,26 +175,6 @@ class ProjectService
         SyncTrelloBoardToDB::dispatch($project);
     }
 
-    public function createTaskSchedules(Project $project)
-    {
-        Log::info('Creating task schedules for project: ' . $project->name);
-
-        if (!$project->package) {
-            Log::error('Package is null for the project: ' . $project->name);
-            return;
-        }
-
-        $taskSchedulesResponse = $this->python_service->predictCategories($project->id, $project->start, $project->end);
-
-        if ($taskSchedulesResponse && isset($taskSchedulesResponse['schedules'])) {
-            foreach ($taskSchedulesResponse['schedules'] as $schedule) {
-                Log::info('Task schedule created', ['schedule' => $schedule]);
-            }
-        } else {
-            Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
-        }
-    }
-
     public function syncTrelloToDatabase(Project $project)
     {
         if (!$project->trello_board_id) {
@@ -246,10 +227,66 @@ class ProjectService
             ],
             [
                 'trello_board_data' => json_encode($structuredData),
+                'start_date' => $project->start,
                 'event_date' => $project->end,
             ]
         );
 
+        TrelloBoardIsFinalEvent::dispatch($project);
+
         Log::info('Trello data saved to database', ['record_id' => $result->id]);
+    }
+
+    public function assignTaskSchedules(Project $project)
+    {
+        Log::info('Assigning task schedules for project: ' . $project->name);
+
+        if (!$project->package) {
+            Log::error('Package is null for the project: ' . $project->name);
+            return;
+        }
+
+        $taskSchedulesResponse = $this->python_service->predictCategories($project->id);
+
+        $boardId = $project->trello_board_id;
+        $departmentList = $this->trello_service->getBoardListByName($boardId, 'Departments');
+        $cards = $this->trello_service->getCardsNameAndId($departmentList['id']);
+
+        $structuredData = [];
+
+        foreach ($cards as $card) {
+            $departmentId = $card['id'];
+            $departmentName = $card['name'];
+
+            $checklists = $this->trello_service->getChecklistsByCardId($departmentId);
+
+            foreach ($checklists as $checklist) {
+                $categoryName = $checklist['name'];
+                $items = $this->trello_service->getChecklistItems($checklist['id']);
+
+                Log::info('Processing checklist', [
+                    'checklist_id' => $checklist['id'],
+                    'category_name' => $categoryName,
+                    'item_count' => count($items),
+                ]);
+
+                foreach ($items as $item) {
+                    $taskName = $item['name'];
+
+                    if (!isset($structuredData[$departmentName])) {
+                        $structuredData[$departmentName] = [];
+                    }
+                    if (!isset($structuredData[$departmentName][$categoryName])) {
+                        $structuredData[$departmentName][$categoryName] = [];
+                    }
+                    $structuredData[$departmentName][$categoryName][] = $taskName;
+                }
+            }
+        }
+
+        if ($taskSchedulesResponse && isset($taskSchedulesResponse['schedules'])) {
+        } else {
+            Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
+        }
     }
 }
