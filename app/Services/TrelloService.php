@@ -225,19 +225,25 @@ class TrelloService
         }
     }
 
-    public function setChecklistItemDueDate($checklistItemId)
+    public function setChecklistItemDueDate($cardId, $checklistItemId, $dueDate)
     {
         try {
-            $response = $this->client->put("checklistItems/{$checklistItemId}", [
+            $isoDueDate = \Carbon\Carbon::parse($dueDate)->toIso8601String();
+
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checklistItemId}", [
                 'query' => $this->getAuthParams(),
-                'json' => [
-                    'due' => now()->toIso8601String(),
+                'json'  => [
+                    'due' => $isoDueDate,
                 ],
             ]);
 
             return json_decode($response->getBody()->getContents(), true);
         } catch (RequestException $e) {
-            Log::error('Failed to set checklist item due date: ' . $e->getMessage());
+            Log::error('Failed to set checklist item due date: ' . $e->getMessage(), [
+                'card_id'         => $cardId,
+                'checklist_item_id' => $checklistItemId,
+                'due_date'        => $dueDate,
+            ]);
             return null;
         }
     }

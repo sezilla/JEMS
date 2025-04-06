@@ -252,39 +252,53 @@ class ProjectService
         $departmentList = $this->trello_service->getBoardListByName($boardId, 'Departments');
         $cards = $this->trello_service->getCardsNameAndId($departmentList['id']);
 
-        $structuredData = [];
+        if ($taskSchedulesResponse && isset($taskSchedulesResponse['trello_tasks'])) {
 
-        foreach ($cards as $card) {
-            $departmentId = $card['id'];
-            $departmentName = $card['name'];
+            foreach ($cards as $card) {
+                $departmentId   = $card['id'];     // This is the card ID.
+                $departmentName = trim($card['name']);
 
-            $checklists = $this->trello_service->getChecklistsByCardId($departmentId);
+                $checklists = $this->trello_service->getChecklistsByCardId($departmentId);
 
-            foreach ($checklists as $checklist) {
-                $categoryName = $checklist['name'];
-                $items = $this->trello_service->getChecklistItems($checklist['id']);
+                foreach ($checklists as $checklist) {
+                    $categoryName = trim($checklist['name']);
+                    $items = $this->trello_service->getChecklistItems($checklist['id']);
 
-                Log::info('Processing checklist', [
-                    'checklist_id' => $checklist['id'],
-                    'category_name' => $categoryName,
-                    'item_count' => count($items),
-                ]);
+                    Log::info('Processing checklist', [
+                        'checklist_id' => $checklist['id'],
+                        'category_name' => $categoryName,
+                        'item_count' => count($items),
+                    ]);
 
-                foreach ($items as $item) {
-                    $taskName = $item['name'];
+                    foreach ($items as $item) {
+                        $taskName = trim($item['name']);
 
-                    if (!isset($structuredData[$departmentName])) {
-                        $structuredData[$departmentName] = [];
+                        if (
+                            isset($taskSchedulesResponse['trello_tasks'][$departmentName])
+                            && isset($taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName])
+                            && isset($taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName][$taskName])
+                        ) {
+                            $dueDate = $taskSchedulesResponse['trello_tasks'][$departmentName][$categoryName][$taskName];
+
+                            Log::info("Updating checklist item due date", [
+                                'department' => $departmentName,
+                                'category'   => $categoryName,
+                                'task'       => $taskName,
+                                'due_date'   => $dueDate,
+                            ]);
+
+                            // Note: pass the card (department) id along with the checklist item id.
+                            $this->trello_service->setChecklistItemDueDate($departmentId, $item['id'], $dueDate);
+                        } else {
+                            Log::warning("No due date found for checklist item", [
+                                'department' => $departmentName,
+                                'category'   => $categoryName,
+                                'task'       => $taskName,
+                            ]);
+                        }
                     }
-                    if (!isset($structuredData[$departmentName][$categoryName])) {
-                        $structuredData[$departmentName][$categoryName] = [];
-                    }
-                    $structuredData[$departmentName][$categoryName][] = $taskName;
                 }
             }
-        }
-
-        if ($taskSchedulesResponse && isset($taskSchedulesResponse['schedules'])) {
         } else {
             Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
         }
