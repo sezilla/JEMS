@@ -5,7 +5,6 @@ namespace App\Services;
 use GuzzleHttp\Client;
 use App\Models\Package;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Exception\RequestException;
 
 class TrelloTask
@@ -179,6 +178,27 @@ class TrelloTask
         } catch (RequestException $e) {
             Log::error("Failed to get checklist items for checklist {$checklistId}: " . $e->getMessage());
             return [];
+        }
+    }
+
+    public function updateChecklistItemState($cardId, $checkItemId, $state)
+    {
+        if (!in_array($state, ['complete', 'incomplete'])) {
+            Log::error("Invalid checklist item state: {$state}");
+            return null;
+        }
+
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'state' => $state,
+                ]),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to update checklist item {$checkItemId} in card {$cardId} to state {$state}: " . $e->getMessage());
+            return null;
         }
     }
 }

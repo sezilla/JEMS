@@ -42,6 +42,8 @@ class StatsOverview extends BaseWidget
         // If there are fewer than 7 days of data, fill in with zeroes
         $projectsChart = array_pad($projectsCreatedLast7Days, 7, 0);
 
+        
+
         return [
             Stat::make('Users', $userCount)
                 ->description('Total number of Users')

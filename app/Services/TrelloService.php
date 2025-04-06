@@ -28,10 +28,6 @@ class TrelloService
 
         $this->templateBoardIds = Package::pluck('trello_board_template_id', 'name')->filter()->toArray();
 
-        // Log::info('Trello API Key:', ['key' => $this->key]);                //uncomment for testing
-        // Log::info('Trello API Token:', ['token' => $this->token]);
-        // Log::info('Trello Workspace ID:', ['workspace' => $this->workspace]);
-
         Log::info('Loaded Trello configuration.');
     }
 
@@ -48,7 +44,6 @@ class TrelloService
         try {
             Log::info('Creating Trello board with name: ' . $name);
 
-            // Determine the template board ID based on package name
             $templateBoardId = $this->templateBoardIds[$packageName] ?? null;
 
             if (!$templateBoardId) {
@@ -148,7 +143,6 @@ class TrelloService
         }
     }
 
-    //for testing boards kinemerlu
     public function getBoards()
     {
         $response = $this->client->request('GET', 'members/me/boards', [
@@ -159,7 +153,6 @@ class TrelloService
     }
 
 
-    //for date and etc... kinemerlu
     public function getBoardLists($boardId)
     {
         try {
@@ -212,6 +205,49 @@ class TrelloService
         }
         return null;
     }
+
+    public function getCardsNameAndId($listId)
+    {
+        try {
+            $cards = $this->getListCards($listId);
+            if ($cards) {
+                return array_map(function ($card) {
+                    return [
+                        'name' => $card['name'],
+                        'id' => $card['id'],
+                    ];
+                }, $cards);
+            }
+            return [];
+        } catch (RequestException $e) {
+            Log::error('Failed to get card names and IDs for list ID: ' . $listId . '. Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function setChecklistItemDueDate($cardId, $checklistItemId, $dueDate)
+    {
+        try {
+            $isoDueDate = \Carbon\Carbon::parse($dueDate)->toIso8601String();
+
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checklistItemId}", [
+                'query' => $this->getAuthParams(),
+                'json'  => [
+                    'due' => $isoDueDate,
+                ],
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to set checklist item due date: ' . $e->getMessage(), [
+                'card_id'         => $cardId,
+                'checklist_item_id' => $checklistItemId,
+                'due_date'        => $dueDate,
+            ]);
+            return null;
+        }
+    }
+
     public function getCardIdByName($listId, $cardName)
     {
         $cards = $this->getListCards($listId);
@@ -280,14 +316,26 @@ class TrelloService
         }
     }
 
+    public function getChecklistItems($checklistId)
+    {
+        try {
+            $response = $this->client->get("checklists/{$checklistId}/checkItems", [
+                'query' => $this->getAuthParams(),
+            ]);
 
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error("Failed to get checklist items for checklist {$checklistId}: " . $e->getMessage());
+            return [];
+        }
+    }
 
     public function updateCard($cardId, $data)
     {
         try {
             $response = $this->client->put("cards/{$cardId}", [
                 'query' => $this->getAuthParams(),
-                'json' => $data, // Using 'json' to pass data as JSON, including the due field
+                'json' => $data,
             ]);
 
             return json_decode($response->getBody()->getContents(), true);
@@ -320,7 +368,6 @@ class TrelloService
         $list = $this->getBoardListByName($boardId, $listName);
 
         if ($list) {
-            // Retrieve each card in the list along with its checklists
             $cards = $this->getListCardsWithChecklists($list['id']);
             return $cards;
         }
@@ -332,13 +379,11 @@ class TrelloService
     public function getListCardsWithChecklists($listId)
     {
         try {
-            // Get all cards in the specified list
             $response = $this->client->get("lists/{$listId}/cards", [
                 'query' => $this->getAuthParams(),
             ]);
             $cards = json_decode($response->getBody()->getContents(), true);
 
-            // Fetch checklists for each card and add them to the card array
             foreach ($cards as &$card) {
                 $card['checklist'] = $this->getCardChecklists($card['id']);
             }
@@ -384,7 +429,7 @@ class TrelloService
                 [
                     'name' => 'file',
                     'contents' => fopen($fileFullPath, 'r'),
-                    'filename' => basename($fileFullPath) // Ensure the filename is passed correctly
+                    'filename' => basename($fileFullPath)
                 ],
                 [
                     'name' => 'key',

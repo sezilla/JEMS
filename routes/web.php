@@ -4,13 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 });
 
 Route::post('/projects/allocate-teams', [ProjectController::class, 'allocateTeams']);
 Route::get('/projects/history', [ProjectController::class, 'getProjectHistory']);
+
+Route::post('/tasks/mark-as-done', [TaskController::class, 'markAsDone'])->name('tasks.markAsDone');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', function () {
