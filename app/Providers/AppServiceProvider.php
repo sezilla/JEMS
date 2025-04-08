@@ -21,9 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Filament::registerRenderHook(
-            'panels::auth.login.form.after',
-            fn (): string => Blade::render('@vite(\'resources/css/custom-login.css\')')
-        );
+       
     }
 }
