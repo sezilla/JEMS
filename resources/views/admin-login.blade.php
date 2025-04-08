@@ -22,32 +22,35 @@
                 </div>
 
             <div class="form-wrapper">
-                <form action="{{ route('admin.login') }}" method="POST" class="sign-in-form">
-                    @csrf
-                    <h2 class="brand-name">JEMS</h2>
-                    <h1 class="title">Login</h1>
-                    <p class="subtitle">Hey Admin! Ready to get started?</p>
+            <form action="{{ route('admin.login') }}" method="POST" class="sign-in-form">
+                @csrf
+                
+                <h2 class="brand-name">JEMS</h2>
+                <h1 class="title">Login</h1>
+                <p class="subtitle">Hey there! Ready to get started?</p>
 
-                    <label class="form-label" for="email">E-mail Address:</label>
-                    <div class="input-field">
-                        <i class="fas fa-user"></i>
-                        <input type="email" name="email" id="email" required />
-                    </div>
+                <label class="form-label" for="email">E-mail Address:</label>
+                <div class="input-field">
+                    <i class="fas fa-user"></i>
+                    <input type="email" name="email" id="email" placeholder="Enter your email" required />
+                </div>
 
-                    <label class="form-label" for="password">Password:</label>
-                    <div class="input-field">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" name="password" id="password" required />
-                    </div>
+                <label class="form-label" for="password">Password:</label>
+                <div class="input-field">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" id="password" placeholder="Enter your password" required />
+                    <i class="fas fa-eye toggle-password" onclick="togglePassword()" style="cursor: pointer; margin-right: 15px;"></i>
+                </div>
 
-                    <div class="remember-me">
-                        <label>
-                            <input type="checkbox" name="remember"> Remember Me
-                        </label>
-                    </div>
+                <div class="remember-me">
+                    <label>
+                        <input type="checkbox" name="remember"> Remember Me
+                    </label>
+                </div>
 
-                    <input type="submit" value="Login" class="btn" />
-                </form>
+                <input type="submit" value="Login" class="btn" />
+            </form>
+
 
             </div>
 
@@ -56,5 +59,21 @@
     </div>
 
     <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        </script>
+
 </body>
 </html>

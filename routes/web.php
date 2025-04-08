@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/', function () {
     return view('landing');
@@ -25,6 +26,7 @@ Route::get('/admin/login', function () {
 })->name('admin.login');
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', function () {
