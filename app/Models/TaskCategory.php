@@ -10,10 +10,9 @@ class TaskCategory extends Model
     use HasFactory;
 
     protected $table = 'task_category';
-    
+
     protected $fillable = [
         'name',
-        // 'start_percentage',
-        // 'max_percentage',
+        'slug',
     ];
 }
