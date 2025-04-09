@@ -56,9 +56,11 @@
             </div>
 
         </div>
-        <p class="footer-text">® DDDM</p>
+        
 
     </div>
+
+    <p class="footer-text">® DDDM</p>
 
     <script src="{{ asset('js/app.js') }}"></script>
     <script>

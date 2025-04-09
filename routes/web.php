@@ -8,7 +8,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/', function () {
-    return view('landing');
+    return view('landing1');
 });
 
 Route::post('/projects/allocate-teams', [ProjectController::class, 'allocateTeams']);
@@ -23,9 +23,9 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::get('/admin/login', function () {
     return view('admin-login'); // We'll create this view next
-})->name('admin.login');
+})->name('admin-login');
 
-Route::post('/admin/login', [AdminAuthController::class, 'login']);
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login');
 
 
 Route::middleware('auth')->group(function () {
