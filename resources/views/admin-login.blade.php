@@ -15,8 +15,8 @@
                     <img src="/images/logo.webp" alt="Logo" class="panel-logo">
                     <div class="panel-text">
                         <h1>Welcome back, Admin!</h1>
-                        <p><br>You're not an Admin? Login here instead.</p>
-                        <a href="{{ route('login') }}" class="btn admin-login-btn">Switch to User Login</a>
+                        <p><br>You're not an admin? Please login to your respective login page.</p>
+                        <a href="{{ url()->previous() !== url()->current() ? url()->previous() : url('/') }}" class="btn admin-login-btn">Go back</a>
                     </div>
                     
                 </div>

@@ -11,11 +11,9 @@ class AdminAuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        // If you’re using the same users table, this will work:
-        if (Auth::attempt($credentials)) {
-            // You can check if the user is actually an admin here
-            // (optional depending on your system)
-            return redirect()->intended('/admin/dashboard');
+        if (Auth::attempt($credentials, $request->has('remember'))) {
+            $request->session()->regenerate();
+            return redirect()->intended('/admin');
         }
 
         return back()->withErrors([
@@ -24,5 +22,21 @@ class AdminAuthController extends Controller
         
 
         
+    }
+    public function authenticate(): ?LoginResponse
+    {
+        $data = $this->form->getState();
+
+        $credentials = [
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ];
+
+        if (Auth::attempt($credentials, $data['remember'] ?? false)) {
+            $panel = $data['panel'];
+        }
+
+        $this->addError('email', __('auth.failed'));
+        return null;
     }
 }
