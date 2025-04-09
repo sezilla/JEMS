@@ -154,6 +154,15 @@ php artisan db:seed --class=PackageTaskSeeder
 php artisan db:seed --class=SkillTask
 ```
 
+New way to reset for local servers
+
+```bash
+php artisan migrate:fresh --seed
+php artisan shield:install --fresh
+php artisan shield:generate
+php artisan db:seed --class=DevSeeder
+```
+
 ## 🧹 Troubleshooting
 
 ### If styles are not working properly:
