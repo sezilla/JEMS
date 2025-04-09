@@ -105,6 +105,27 @@ class Project extends Model
                     'allocated_teams' => $allocatedTeams,
                 ]);
 
+                $teamMembers = [];
+                $userSkills = [];
+
+                foreach ($allocatedTeams as $team) {
+                    $teamId = $team['id'];
+                    $teamMembers[$teamId] = [];
+
+                    foreach ($team['users'] as $user) {
+                        $userId = $user['id'];
+                        $teamMembers[$teamId][] = $userId;
+                        $userSkills[$userId] = $user['skills'];
+                    }
+                }
+
+                MemberAllocation::create([
+                    'project_id' => $project->id,
+                    'team_members' => $teamMembers,
+                    'user_skills' => $userSkills,
+                ]);
+
+
                 $project->teams()->sync($allocatedTeams);
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
