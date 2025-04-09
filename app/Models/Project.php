@@ -125,7 +125,6 @@ class Project extends Model
                     'user_skills' => $userSkills,
                 ]);
 
-
                 $project->teams()->sync($allocatedTeams);
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
