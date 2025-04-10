@@ -11,6 +11,7 @@ class AuthController extends Controller
     {
 
         $credentials = $request->only('email', 'password');
+        $request->session()->forget('url.intended');
 
         // Attempt to log the user in
         if (Auth::attempt($credentials, $request->has('remember'))) {

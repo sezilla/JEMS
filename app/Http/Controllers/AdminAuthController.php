@@ -10,6 +10,7 @@ class AdminAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        $request->session()->forget('url.intended');
 
         if (Auth::attempt($credentials, $request->has('remember'))) {
             $request->session()->regenerate();
