@@ -28,7 +28,11 @@
                 <h2 class="brand-name">JEMS</h2>
                 <h1 class="title">Login</h1>
                 <p class="subtitle">Hey there! Ready to get started?</p>
-
+                @if ($errors->has('email'))
+                    <div class="form-error">
+                        {{ $errors->first('email') }}
+                    </div>
+                    @endif
                 <label class="form-label" for="email">E-mail Address:</label>
                 <div class="input-field">
                     <i class="fas fa-user"></i>
