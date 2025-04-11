@@ -41,13 +41,14 @@ class AppPanelProvider extends PanelProvider
             // ->brandLogo(asset('storage/images/logo.svg'))
             ->brandName('JEM')
             ->id('app')
+            // ->login(CustomLogin::class)
             ->login()
             ->passwordReset()
             ->emailVerification()
             // ->profile()
             ->path('app')
             ->colors([
-                'primary' => '#6366f1',
+                'primary' => '#b22d67',
             ])
 
             // ->topNavigation([
@@ -107,7 +108,8 @@ class AppPanelProvider extends PanelProvider
                         directory: 'avatars',
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn() => auth()->user()->can('view-edit-profile-page'))
+                    ->shouldRegisterNavigation(fn() => auth()->check() && auth()->user()->can('view-edit-profile-page'))
+
                     ->customProfileComponents([
                         \App\Livewire\AddSkills::class,
                     ]),

@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
+use Filament\Support\Facades\FilamentView;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,9 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Filament::registerRenderHook(
+        FilamentView::registerRenderHook(
             'panels::auth.login.form.after',
-            fn (): string => Blade::render('@vite(\'resources/css/custom-login.css\')')
+            fn(): View => view('filament.auth.login')
         );
     }
 }
