@@ -2,7 +2,7 @@
     <div class="branding-logo">
         <img src="{{ asset('images/logo.webp') }}" alt="Logo">
     </div>
-    <h3 class="slogan-text">We make every event unforgettable</h3>
+    <h3 class="slogan-text">We make every event</h3>
     <h1 class="slogan-highlight">UNFORGETTABLE</h1>
 </div>
 
