@@ -8,13 +8,11 @@ use Database\Seeders\dev\TaskSeeder;
 use Database\Seeders\dev\TeamSeeder;
 use Database\Seeders\dev\SkillSeeder;
 use Database\Seeders\dev\PackageSeeder;
-use Database\Seeders\dev\DummyUserSeeder;
-use Database\Seeders\dev\DepartmentSeeder;
+use Database\Seeders\Dev\DepartmentSeeder;
 use Database\Seeders\dev\PermissionSeeder;
 use Database\Seeders\dev\TaskCategorySeeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class DevSeeder extends Seeder
+class ProdSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -23,14 +21,13 @@ class DevSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            PermissionSeeder::class,
             DepartmentSeeder::class,
             PackageSeeder::class,
             SkillSeeder::class,
             TaskCategorySeeder::class,
             TaskSeeder::class,
             TeamSeeder::class,
-            DummyUserSeeder::class,
-            PermissionSeeder::class,
         ]);
     }
 }

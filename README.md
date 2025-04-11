@@ -144,23 +144,22 @@ Use these credentials to access the admin dashboard:
 
 If you need to reset and reload the application completely:
 
-```bash
-php artisan migrate:fresh
-php artisan db:seed
-php artisan shield:install --fresh
-php artisan shield:generate
-php artisan db:seed --class=Roles
-php artisan db:seed --class=PackageTaskSeeder
-php artisan db:seed --class=SkillTask
-```
-
-New way to reset for local servers
+Development (with dummy accounts)
 
 ```bash
 php artisan migrate:fresh --seed
 php artisan shield:install --fresh
 php artisan shield:generate
 php artisan db:seed --class=DevSeeder
+```
+
+For Production
+
+```bash
+php artisan migrate:fresh --seed
+php artisan shield:install --fresh
+php artisan shield:generate
+php artisan db:seed --class=ProdSeeder
 ```
 
 ## 🧹 Troubleshooting
@@ -205,3 +204,15 @@ Please communicate with the team before making any changes to avoid breaking the
 ## 📄 License
 
 This project is proprietary software. All rights reserved.
+
+old:
+
+```bash
+php artisan migrate:fresh
+php artisan db:seed
+php artisan shield:install --fresh
+php artisan shield:generate
+php artisan db:seed --class=Roles
+php artisan db:seed --class=PackageTaskSeeder
+php artisan db:seed --class=SkillTask
+```
