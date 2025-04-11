@@ -1,13 +1,73 @@
-<h3 id="slogan">Together we achieve exceptional goodness!</h3>
+<div class="branding-wrapper">
+    <div class="branding-logo">
+        <img src="{{ asset('images/logo.webp') }}" alt="Logo">
+    </div>
+    <h3 class="slogan-text">We make every event unforgettable</h3>
+    <h1 class="slogan-highlight">UNFORGETTABLE</h1>
+</div>
+
 
 <style>
     body {
-        background: rgb(34, 193, 195) !important;
-        background: linear-gradient(0deg, rgba(34, 193, 195, 1) 0%, rgba(253, 187, 45, 1) 100%) !important;
-        ;
+        background: linear-gradient(-190deg, rgba(255, 255, 255, 0.7), rgba(248, 107, 132, 0.7)),
+                    url('/images/loginimg.jpg') no-repeat center center fixed !important;
+        background-size: cover !important;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .branding-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: 40px;
+        padding: 10px;
+    }
+
+    .branding-logo img {
+        width: 300px;
+        height: auto;
+    }
+
+    .slogan-text {
+        font-size: 1.3em;
+        color: white;
+        margin: 10px 0 0;
+        font-weight: 600;
+        text-shadow: 2px 2px 5px black;
+    }
+
+    .slogan-highlight {
+        font-size: 2em;
+        color: #f86b84;
+        margin: 0;
+        font-weight: 900;
+        text-shadow: 2px 2px 5px black;
     }
 
     @media screen and (min-width: 1024px) {
+        .branding-wrapper {
+            position: fixed;
+            top: 30px;
+            left: 100px;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .branding-logo img {
+            width: 380px;
+        }
+
+        .slogan-text {
+            font-size: 3em;
+        }
+
+        .slogan-highlight {
+            font-size: 4em;
+
+        }
+
         main {
             position: absolute;
             right: 100px;
@@ -20,34 +80,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: darkcyan;
+            background: #f86b84 !important;
             border-radius: 12px;
             z-index: -9;
-
-            /*box-shadow: -50px 80px 4px 10px #555;*/
-            -webkit-transform: rotate(7deg);
-            -moz-transform: rotate(7deg);
-            -o-transform: rotate(7deg);
-            -ms-transform: rotate(7deg);
             transform: rotate(7deg);
-        }
-
-        .fi-logo {
-            position: fixed;
-            left: 100px;
-            font-size: 3em;
-            color: cornsilk;
-        }
-
-        #slogan {
-            position: fixed;
-            left: 100px;
-            margin-top: 50px;
-            color: bisque;
-            font-family: cursive;
-            font-size: 2em;
-            font-weight: bold;
-            text-shadow: #3f6212 2px 2px 5px;
         }
     }
 </style>
