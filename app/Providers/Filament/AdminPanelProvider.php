@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             // ->brandLogo(asset('storage/images/logo.svg'))
             // ->defaultThemeMode(ThemeMode::Light)
-            ->brandName('JEM')
+            ->brandName('JEMS')
             ->default()
             ->id('admin')
             ->path('admin')

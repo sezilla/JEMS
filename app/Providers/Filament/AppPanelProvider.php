@@ -48,7 +48,7 @@ class AppPanelProvider extends PanelProvider
             // ->profile()
             ->path('app')
             ->colors([
-                'primary' => '#6366f1',
+                'primary' => '#b22d67',
             ])
 
             // ->topNavigation([
