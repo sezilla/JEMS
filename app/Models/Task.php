@@ -17,12 +17,12 @@ class Task extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'description',
         // 'duration',
         'department_id',
         'task_category_id',
     ];
-
 
     public function packages()
     {

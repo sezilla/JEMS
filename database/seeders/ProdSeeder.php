@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\dev\RoleSeeder;
 use Database\Seeders\dev\TaskSeeder;
 use Database\Seeders\dev\TeamSeeder;
+use Database\Seeders\dev\PackageTask;
 use Database\Seeders\dev\SkillSeeder;
 use Database\Seeders\dev\PackageSeeder;
 use Database\Seeders\Dev\DepartmentSeeder;
@@ -28,6 +29,7 @@ class ProdSeeder extends Seeder
             TaskCategorySeeder::class,
             TaskSeeder::class,
             TeamSeeder::class,
+            PackageTask::class,
         ]);
     }
 }

@@ -17,9 +17,13 @@ class PackageSeeder extends Seeder
 
         foreach ($packages as $key => $data) {
             Package::updateOrCreate(
-                ['name' => $data['name']],
-                ['description' => $data['description']]
+                ['id' => $data['id']],
+                [
+                    'name' => $data['name'],
+                    'description' => $data['description'],
+                ]
             );
+            
         }
     }
 }

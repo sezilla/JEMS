@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Database\Seeders\dev\RoleSeeder;
 use Database\Seeders\dev\TaskSeeder;
 use Database\Seeders\dev\TeamSeeder;
+use Database\Seeders\dev\PackageTask;
 use Database\Seeders\dev\SkillSeeder;
 use Database\Seeders\dev\PackageSeeder;
 use Database\Seeders\dev\DummyUserSeeder;
@@ -23,6 +24,7 @@ class DevSeeder extends Seeder
     {
         $this->call([
             RoleSeeder::class,
+            PermissionSeeder::class,
             DepartmentSeeder::class,
             PackageSeeder::class,
             SkillSeeder::class,
@@ -30,7 +32,7 @@ class DevSeeder extends Seeder
             TaskSeeder::class,
             TeamSeeder::class,
             DummyUserSeeder::class,
-            PermissionSeeder::class,
+            PackageTask::class,
         ]);
     }
 }

@@ -63,8 +63,11 @@ class PackageTask extends Pivot
         parent::boot();
 
         static::creating(function ($packageTask) {
-            $task = $packageTask->task;
-            $packageTask->name = $task->name;
+            $task = Task::find($packageTask->task_id);
+        
+            if ($task) {
+                $packageTask->name = $task->name;
+            }
         });
 
         static::created(function ($packageTask) {
