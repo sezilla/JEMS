@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Filament\Http\Responses\Auth\Contracts\LoginResponse;
+use Filament\Pages\Auth\Login as BaseLogin;
 
 class AdminAuthController extends Controller
 {
@@ -20,24 +22,19 @@ class AdminAuthController extends Controller
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput();
-        
-
-        
     }
-    public function authenticate(): ?LoginResponse
+    public function authenticateFromFilament(array $data): ?LoginResponse
     {
-        $data = $this->form->getState();
-
         $credentials = [
             'email' => $data['email'],
             'password' => $data['password'],
         ];
 
         if (Auth::attempt($credentials, $data['remember'] ?? false)) {
-            $panel = $data['panel'];
+            session()->regenerate();
+            return app(LoginResponse::class);
         }
 
-        $this->addError('email', __('auth.failed'));
         return null;
     }
 }

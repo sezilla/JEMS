@@ -42,6 +42,7 @@ class AppPanelProvider extends PanelProvider
             ->brandName('JEM')
             ->id('app')
             // ->login(CustomLogin::class)
+            ->login()
             ->passwordReset()
             ->emailVerification()
             // ->profile()

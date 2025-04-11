@@ -16,16 +16,16 @@ Route::get('/projects/history', [ProjectController::class, 'getProjectHistory'])
 
 Route::post('/tasks/mark-as-done', [TaskController::class, 'markAsDone'])->name('tasks.markAsDone');
 
-Route::get('/login', function () {
-    return view('login'); // this shows your Blade login form
-})->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+// Route::get('/login', function () {
+//     return view('login'); // this shows your Blade login form
+// })->name('login');
+// Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::get('/admin/login', function () {
-    return view('admin-login'); // We'll create this view next
-})->name('admin-login');
+// Route::get('/admin/login', function () {
+//     return view('admin-login'); // We'll create this view next
+// })->name('admin-login');
 
-Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login');
+// Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login');
 
 
 Route::middleware('auth')->group(function () {
