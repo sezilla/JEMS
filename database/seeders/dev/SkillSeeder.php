@@ -16,11 +16,14 @@ class SkillSeeder extends Seeder
     {
         $skills = Config::get('seeder.skill');
 
-        foreach ($skills as $skill) {
-            Skill::updateOrCreate([
-                'name' => $skill['name'],
-                'description' => $skill['description'],
-            ]);
+        foreach ($skills as $slug => $skill) {
+            Skill::updateOrCreate(
+                ['name' => $skill['name']],
+                [
+                    'description' => $skill['description'],
+                    // 'slug' => $slug,
+                ]
+            );
         }
     }
 }

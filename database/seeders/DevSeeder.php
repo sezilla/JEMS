@@ -9,6 +9,7 @@ use Database\Seeders\dev\TeamSeeder;
 use Database\Seeders\dev\PackageTask;
 use Database\Seeders\dev\SkillSeeder;
 use Database\Seeders\dev\PackageSeeder;
+use Database\Seeders\dev\DepartmentSkill;
 use Database\Seeders\dev\DummyUserSeeder;
 use Database\Seeders\dev\DepartmentSeeder;
 use Database\Seeders\dev\PermissionSeeder;
@@ -28,6 +29,7 @@ class DevSeeder extends Seeder
             DepartmentSeeder::class,
             PackageSeeder::class,
             SkillSeeder::class,
+            DepartmentSkill::class,
             TaskCategorySeeder::class,
             TaskSeeder::class,
             TeamSeeder::class,
