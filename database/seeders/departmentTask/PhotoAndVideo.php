@@ -29,6 +29,12 @@ class PhotoAndVideo extends Seeder
             'drone-operation',
             'organization',
             'av-skills',
+            'technical-skills',
+            'video-editing',
+            'photo-editing',
+            'audio-visual-knowledge',
+            'music-knowledge',
+
         ];
 
         foreach ($skillIds as $skillId) {

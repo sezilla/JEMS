@@ -10,10 +10,11 @@ use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
+use Spatie\Permission\Models\Role;
+
 use Filament\Forms\Components\Select;
 
 use Filament\Support\Enums\Alignment;
-
 use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
@@ -225,6 +226,12 @@ class UserResource extends Resource
                     })
                     ->label('Department')
                     ->relationship('departments', 'name'),
+                SelectFilter::make('roles')
+                    ->options(function () {
+                        return Role::where('name', '!=', 'super admin')->pluck('name', 'id');
+                    })
+                    ->label('Role')
+                    ->relationship('roles', 'name'),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),

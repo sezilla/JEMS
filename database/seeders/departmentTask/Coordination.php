@@ -33,6 +33,8 @@ class Coordination extends Seeder
             'coordination',
             'crisis-management',
             'multitasking',
+            'event-management',
+            'event-coordination'
         ];
 
         foreach ($skillIds as $skillId) {
