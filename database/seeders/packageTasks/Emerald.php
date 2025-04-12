@@ -51,7 +51,7 @@ class Emerald extends Seeder
             'prenuptial-pictorial-session',
             'confirm-shot-list',
             'design-photo-frame',
-            'setup-photobooth',
+            'setup-photo-booth',
             'setup-drone',
             'setup-projector-screen',
             'same-day-edit-video',
