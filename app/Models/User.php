@@ -101,11 +101,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
 
-    public function messages()
-    {
-        return $this->hasMany(Message::class);
-    }
-
 
 
     /**
@@ -143,11 +138,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         }
 
         return false;
-    }
-
-    public function posts()
-    {
-        return $this->hasMany(Post::class);
     }
 
 

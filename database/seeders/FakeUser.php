@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Database\Seeders\dev\DummyUserSeeder;
+use Database\Seeders\dev\TestProjectSeeder;
 
 class FakeUser extends Seeder
 {
@@ -13,7 +14,8 @@ class FakeUser extends Seeder
     public function run(): void
     {
         $this->call([
-            DummyUserSeeder::class,
+            // DummyUserSeeder::class,
+            TestProjectSeeder::class,
         ]);
     }
 }
