@@ -93,7 +93,7 @@ class UserResource extends Resource
                             ->visible(fn($livewire) => $livewire instanceof Pages\EditUser),
                         Select::make('departments')
                             ->relationship('departments', 'name', function ($query, $get) {
-                                $selectedRole = \Spatie\Permission\Models\Role::where('id', $get('roles'))->value('name');
+                                $selectedRole = Role::where('id', $get('roles'))->value('name');
 
                                 if ($selectedRole === 'Department Admin') {
                                     $query->whereDoesntHave('users', function ($subQuery) {
@@ -111,28 +111,53 @@ class UserResource extends Resource
                             ->afterStateUpdated(
                                 fn($state, callable $set) =>
                                 $set('teams', null)
-                            ),
+                            )
+                            ->visible(fn($get) => Role::where('id', $get('roles'))->value('name') !== 'HR Admin'),
 
 
                         Select::make('teams')
                             ->relationship('teams', 'name', function ($query, $get) {
                                 $departments = $get('departments');
+                                $selectedRole = Role::where('id', $get('roles'))->value('name');
 
-                                if (!$departments) {
-                                    return $query;
+                                if ($departments) {
+                                    if (!is_array($departments)) {
+                                        $departments = [$departments];
+                                    }
+
+                                    $query->whereHas('departments', function ($query) use ($departments) {
+                                        $query->whereIn('id', $departments);
+                                    });
                                 }
 
-                                if (!is_array($departments)) {
-                                    $departments = [$departments];
+                                if (empty($departments)) {
+                                    $query->whereRaw('1 = 0');
                                 }
 
-                                return $query->whereHas('departments', function ($query) use ($departments) {
-                                    $query->whereIn('id', $departments);
-                                });
+                                if ($selectedRole === 'Team Leader') {
+                                    $query->whereDoesntHave('users', function ($subQuery) {
+                                        $subQuery->whereHas('roles', function ($roleQuery) {
+                                            $roleQuery->where('name', 'Team Leader');
+                                        });
+                                    });
+                                }
+
+                                if ($selectedRole === 'Coordinator') {
+                                    $query->whereHas('departments', function ($query) {
+                                        $query->where('name', 'Coordination');
+                                    });
+                                }
+
+                                if ($selectedRole !== 'Coordinator') {
+                                    $query->whereDoesntHave('departments', function ($query) {
+                                        $query->where('name', 'Coordination');
+                                    });
+                                }
                             })
                             ->label('Team')
                             ->preload()
-                            ->reactive(),
+                            ->reactive()
+                            ->visible(fn($get) => !in_array(Role::where('id', $get('roles'))->value('name'), ['Department Admin', 'HR Admin'])),
                     ]),
             ]);
     }

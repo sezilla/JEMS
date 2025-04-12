@@ -2,17 +2,22 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms;
+use Filament\Tables;
+use Filament\Forms\Set;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use App\Models\TaskCategory;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\MarkdownEditor;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TaskCategoryResource\Pages;
 use App\Filament\Resources\TaskCategoryResource\RelationManagers;
-use App\Models\TaskCategory;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\TextInput;
 
 class TaskCategoryResource extends Resource
 {
@@ -26,36 +31,17 @@ class TaskCategoryResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required(),
-                // TextInput::make('start_percentage')
-                //     ->required()
-                //     ->numeric()
-                //     ->suffix('%')
-                //     ->default(0)
-                //     ->afterStateHydrated(function (TextInput $component, $state) {
-                //         $component->state($state * 100);
-                //     })
-                //     ->dehydrateStateUsing(function ($state) {
-                //         return $state / 100;
-                //     })
-                //     ->minValue(0)
-                //     ->maxValue(100),
-                // TextInput::make('max_percentage')
-                //     ->required()
-                //     ->numeric()
-                //     ->suffix('%')
-                //     ->default(0)
-                //     ->afterStateHydrated(function (TextInput $component, $state) {
-                //         // Convert the stored decimal value to a percentage for display
-                //         $component->state($state * 100);
-                //     })
-                //     ->dehydrateStateUsing(function ($state) {
-                //         // Convert the percentage back to a decimal for storage
-                //         return $state / 100;
-                //     })
-                //     ->minValue(0)
-                //     ->maxValue(100),
+                Section::make()
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->required()
+                            ->columnSpan(1),
+                        MarkdownEditor::make('description')
+                            ->required()
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                    ])->columns(2),
             ]);
     }
 
@@ -64,31 +50,42 @@ class TaskCategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                // Tables\Columns\TextColumn::make('start_percentage')
-                //     ->label('progress range')
-                //     ->formatStateUsing(fn ($record) => 
-                //         ($record->start_percentage * 100) . '% - ' . ($record->max_percentage * 100) . '%'
-                //     )
-                //     ->searchable(),
+                    ->description(fn($record) => Str::limit($record->description, 25))
+                    ->searchable()
+                    ->limit(25)
+                    ->width('40%'),
+
+                TextColumn::make('tasks')
+                    ->label('Tasks')
+                    ->getStateUsing(function ($record) {
+                        return $record->tasks
+                            ->pluck('name')
+                            ->map(fn($name) => e($name))
+                            ->implode('<br>');
+                    })
+                    ->html()
+                    ->wrap()
+                    ->searchable()
+                    ->limit(100),
+
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TaskRelationManager::class,
         ];
     }
 
@@ -100,6 +97,7 @@ class TaskCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
+            'view' => Pages\ViewTaskCategories::route('/{record}'),
             'index' => Pages\ListTaskCategories::route('/'),
             'create' => Pages\CreateTaskCategory::route('/create'),
             'edit' => Pages\EditTaskCategory::route('/{record}/edit'),

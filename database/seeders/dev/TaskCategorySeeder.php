@@ -19,7 +19,11 @@ class TaskCategorySeeder extends Seeder
         foreach ($taskCategories as $key => $category) {
             TaskCategory::updateOrCreate(
                 ['slug' => $key],
-                ['name' => $category['name']]
+                [
+                    'name' => $category['name'],
+                    'description' => $category['description']
+                ]
+
             );
         }
     }

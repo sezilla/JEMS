@@ -1,104 +1,54 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\TaskCategoryResource\RelationManagers;
 
 use Filament\Forms;
-use App\Models\Task;
 use Filament\Tables;
-use App\Models\Package;
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use App\Models\TaskCategory;
-use Filament\Resources\Resource;
 use Filament\Support\Enums\Alignment;
-use Filament\Forms\Components\Section;
-use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\TaskResource\Pages;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TaskResource\RelationManagers;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class TaskResource extends Resource
+class TaskRelationManager extends RelationManager
 {
-    protected static ?string $model = Task::class;
+    protected static string $relationship = 'tasks';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $recordTitleAttribute = 'name';
 
-    public static function form(Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Section::make()
-                    // ->description('Fill in the details of the task')
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-
-                        Forms\Components\MarkdownEditor::make('description')
-                            ->label('Description')
-                            ->required(),
-                    ]),
-                Section::make()
-                    ->description('Fill in the details of the task')
-                    ->columnSpan(1)
-                    ->schema([
-                        Forms\Components\Select::make('department_id')
-                            ->label('Department')
-                            ->relationship('department', 'name')
-                            ->required()
-                            ->preload()
-                            ->columnSpan(1),
-
-                        Forms\Components\Select::make('task_category_id')
-                            ->label('Category')
-                            ->relationship('category', 'name')
-                            ->required()
-                            ->preload()
-                            ->columnSpan(1),
-
-                        Forms\Components\Select::make('package_id')
-                            ->label('Package')
-                            ->relationship('packages', 'name')
-                            ->required()
-                            ->preload()
-                            ->multiple()
-                            ->columnSpan(2),
-
-                        Forms\Components\Select::make('skill_id')
-                            ->label('Skills Required')
-                            ->relationship('skills', 'name')
-                            ->multiple()
-                            ->required()
-                            ->preload()
-                            ->columnSpan(2),
-                    ])->columns([
-                        'sm' => 1,
-                        'lg' => 2,
-                    ]),
-
-            ])->columns([
-                'sm' => 1,
-                'lg' => 2,
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
             ]);
     }
 
-
-    public static function table(Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('name')
             ->columns([
                 Stack::make([
                     Split::make([
                         Tables\Columns\TextColumn::make('name')
-                            ->size(TextColumn\TextColumnSize::Large)
+                            ->size(TextColumnSize::Large)
                             // ->weight(FontWeight::SemiBold)
                             ->searchable()
                             ->limit(25)
@@ -109,7 +59,7 @@ class TaskResource extends Resource
                                     return 'Department';
                                 })
                                 ->alignment(Alignment::End)
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->size(TextColumnSize::ExtraSmall)
                                 ->weight(FontWeight::Thin)
                                 ->formatStateUsing(function ($column, $state) {
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
@@ -137,7 +87,7 @@ class TaskResource extends Resource
                             ->getStateUsing(function ($record) {
                                 return 'Packages Included';
                             })
-                            ->size(TextColumn\TextColumnSize::ExtraSmall)
+                            ->size(TextColumnSize::ExtraSmall)
                             ->weight(FontWeight::Thin)
                             ->formatStateUsing(function ($column, $state) {
                                 return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
@@ -159,29 +109,12 @@ class TaskResource extends Resource
                                 }
                             ),
                     ]),
-                    Split::make([
-                        Stack::make([
-                            Tables\Columns\TextColumn::make('category.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Prep Timeline';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            Tables\Columns\TextColumn::make('category.name')
-                                ->searchable()
-                                ->limit(30),
-                        ])
-                    ]),
                     Stack::make([
                         Tables\Columns\TextColumn::make('skills.name')
                             ->getStateUsing(function ($record) {
                                 return 'Skills Required';
                             })
-                            ->size(TextColumn\TextColumnSize::ExtraSmall)
+                            ->size(TextColumnSize::ExtraSmall)
                             ->weight(FontWeight::Thin)
                             ->formatStateUsing(function ($column, $state) {
                                 return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
@@ -213,42 +146,15 @@ class TaskResource extends Resource
                     })
                     ->label('Department')
                     ->relationship('department', 'name'),
-
-                SelectFilter::make('task_category_id')
-                    ->options(function () {
-                        return TaskCategory::pluck('name', 'id');
-                    })
-                    ->label('Category')
-                    ->relationship('category', 'name'),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Project Management';
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListTasks::route('/'),
-            'create' => Pages\CreateTask::route('/create'),
-            'edit' => Pages\EditTask::route('/{record}/edit'),
-        ];
     }
 }
