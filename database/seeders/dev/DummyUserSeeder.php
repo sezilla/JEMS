@@ -47,24 +47,6 @@ class DummyUserSeeder extends Seeder
         $adminDepCoordination->assignRole(config('filament-shield.admin_dep.name'));
         $adminDepCoordination->departments()->attach(config('seeder.department.coordination.id'));
 
-        // Coordinator Users
-        // $coordinationDepartmentId = config('seeder.department.coordination.id');
-        // $coordinationTeams = Team::whereHas('departments', function ($query) use ($coordinationDepartmentId) {
-        //     $query->where('department_id', $coordinationDepartmentId);
-        // })->get();
-
-        // $coordinationTeams = $coordinationTeams->shuffle();
-
-        // User::factory()->count(24)->create()->each(function ($user, $index) use ($coordinationTeams) {
-        //     $user->assignRole(config('filament-shield.coordinator_user.name'));
-
-        //     $user->departments()->attach(config('seeder.department.coordination.id'));
-
-        //     if ($index < $coordinationTeams->count()) {
-        //         $user->teams()->attach($coordinationTeams[$index]->id);
-        //     }
-        // });
-
         // Team Leaders
         // Catering Department leaders
         $cateringDepartmentId = config('seeder.department.catering.id');
