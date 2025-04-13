@@ -65,7 +65,6 @@ class TaskCategoryResource extends Resource
                     })
                     ->html()
                     ->wrap()
-                    ->searchable()
                     ->limit(100),
 
             ])
@@ -97,9 +96,9 @@ class TaskCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'view' => Pages\ViewTaskCategories::route('/{record}'),
             'index' => Pages\ListTaskCategories::route('/'),
             'create' => Pages\CreateTaskCategory::route('/create'),
+            'view' => Pages\ViewTaskCategories::route('/{record}'),
             'edit' => Pages\EditTaskCategory::route('/{record}/edit'),
         ];
     }

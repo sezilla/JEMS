@@ -13,158 +13,94 @@
                     @foreach ($card['checklists'] as $checklist)
                         <x-filament::card>
                             <header class="mb-2 flex justify-between items-center">
-                                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ $checklist['name'] }}</h3>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ $checklist['name'] }}
+                                </h3>
                             </header>
                             <ul class="divide-y divide-gray-200 dark:divide-gray-700">
                                 @foreach ($checklist['items'] as $item)
-                                    <li class="py-3 flex items-center justify-between"
-                                        x-data="{
-                                            showModal: false, 
-                                            dueDate: '{{ $item['due'] ?? '' }}', 
-                                            status: '{{ strtolower($item['state']) }}',
-                                            formattedDueDate: '{{ $item['due'] ? \Carbon\Carbon::parse($item['due'])->format('F d, Y') : 'No Due Date' }}',
-                                            errorMessage: '',
-                                            updateStatus(newStatus) {
-                                                this.status = newStatus;
-                                            }
-                                        }">
-
+                                    <li class="py-3 flex items-center justify-between">
                                         <div>
-                                            <p class="font-semibold text-gray-800 dark:text-gray-200">{{ $item['name'] }}</p>
-                                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                Due: <span x-text="formattedDueDate"></span>
+                                            <p class="font-semibold text-gray-800 dark:text-gray-200">
+                                                {{ $item['name'] }}
                                             </p>
+                                            <div class="flex items-center gap-2">
+                                                <!-- Due date modal -->
+                                                <x-filament::modal id="set-due-date-modal-{{ $item['id'] }}"
+                                                    :wire:key="'modal-'.$item['id']">
+                                                    <x-slot name="trigger">
+                                                        <x-filament::icon-button icon="heroicon-m-calendar"
+                                                            wire:click="setCurrentTask({{ json_encode(
+                                                                array_merge($item, [
+                                                                    'card_id' => $card['id'],
+                                                                    'checklist_id' => $checklist['id'],
+                                                                    'item_id' => $item['id'],
+                                                                ]),
+                                                            ) }})" />
+                                                    </x-slot>
+                                                    <!-- Display current due date -->
+                                                    <p>
+                                                        Due:
+                                                        <span>
+                                                            {{ $item['due'] ? \Carbon\Carbon::parse($item['due'])->format('F d, Y') : 'No Due Date' }}
+                                                        </span>
+                                                    </p>
+                                                    <x-filament::input.wrapper>
+                                                        <x-filament::input type="date" wire:model.defer="dueDate" />
+                                                    </x-filament::input.wrapper>
+                                                    <div class="flex justify-end space-x-3">
+                                                        <x-filament::button color="primary" wire:click="saveDueDate">
+                                                            Save
+                                                        </x-filament::button>
+                                                    </div>
+                                                </x-filament::modal>
+                                                <!-- Display due date outside the modal -->
+                                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                    <span>
+                                                        {{ $item['due'] ? \Carbon\Carbon::parse($item['due'])->format('F d, Y') : '' }}
+                                                    </span>
+                                                </p>
+                                            </div>
 
                                             <div class="mt-2 flex gap-2">
-                                                <x-filament::badge color="success" class="px-3 py-1 text-sm"
-                                                    icon="heroicon-o-check-circle"	
-                                                    x-show="status === 'complete'"
-                                                    style="display: none;">
-                                                    Complete
-                                                </x-filament::badge>
-                                                <x-filament::badge color="warning" class="px-3 py-1 text-sm"
-                                                    icon="heroicon-o-x-circle"
-                                                    x-show="status !== 'complete'"
-                                                    style="display: none;">
-                                                    Incomplete
-                                                </x-filament::badge>
+                                                @if (strtolower($item['state']) === 'complete')
+                                                    <x-filament::badge color="success" class="px-3 py-1 text-sm"
+                                                        icon="heroicon-o-check-circle">
+                                                        Complete
+                                                    </x-filament::badge>
+                                                @else
+                                                    <x-filament::badge color="warning" class="px-3 py-1 text-sm"
+                                                        icon="heroicon-o-x-circle">
+                                                        Incomplete
+                                                    </x-filament::badge>
+                                                @endif
                                             </div>
                                         </div>
 
-                                        <div class="flex items-center space-x-2 pl-4">
-                                            <x-filament::button color="warning" @click="showModal = true">
-                                                Edit
-                                            </x-filament::button>
-
-                                            <x-filament::button color="success" @click="updateStatus('complete')">
-                                                Done
-                                            </x-filament::button>
-                                        </div>
-
-
-
-                                        <!-- ito na yoooooon -->
-                                        <!-- Modal -->
-                                        <x-filament::modal>
+                                        <!-- Additional modal (for example, editing a label) -->
+                                        <x-filament::modal id="edit-label-modal-{{ $item['id'] }}"
+                                            :wire:key="'modal-edit-'.$item['id']">
                                             <x-slot name="trigger">
-                                                <x-filament::button>
-                                                    Open modal
-                                                </x-filament::button>
+                                                <x-filament::icon-button icon="heroicon-m-pencil-square"
+                                                    label="New label" />
                                             </x-slot>
-
-                                            {{-- Modal content --}}
-                                            <form>
-                                                <div class="space-y-4">
-                                                    <!-- Select Due Date -->
-                                                    <div>
-                                                        <label for="due_date" class="block text-sm font-medium text-gray-700">{{ __('Due Date') }}</label>
-                                                        <x-filament::input id="due_date" type="date" name="due_date" required />
-                                                    </div>
-
-                                                    <!-- Select Status -->
-                                                    <div>
-                                                        <label for="status" class="block text-sm font-medium text-gray-700">{{ __('Status') }}</label>
-                                                        <x-filament::select id="status" name="status" :options="['complete' => 'Complete', 'incomplete' => 'Incomplete']" required />
-                                                    </div>
-
-                                                    <!-- Select Users -->
-                                                    <div>
-                                                        <label for="user_id" class="block text-sm font-medium text-gray-700">{{ __('Assign Users') }}</label>
-                                                        <x-filament::select id="user_id" name="user_id[]" :options="App\Models\User::all()->pluck('name', 'id')->toArray()" multiple required />
-                                                    </div>
-                                                </div>
-                                            </form>
-                                        </x-filament::modal>
-
-                                        <div x-show="showModal"
-                                             x-cloak
-                                             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"
-                                             role="dialog"
-                                             aria-modal="true">
-                                            <div class="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-xl w-full max-w-xl">
-                                                <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                                                    Edit Task
-                                                </h2>
-
-                                                <!-- Due Date -->
-                                                <div class="mb-4">
-                                                    <label for="dueDate" class="block font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                        Due Date
-                                                    </label>
-                                                    <input type="date" x-model="dueDate" id="dueDate"
-                                                           class="w-full border-gray-300 dark:border-gray-700 
-                                                                  bg-gray-100 dark:bg-gray-800 
-                                                                  rounded-md p-2 focus:ring focus:ring-blue-200"
-                                                           @change="
-                                                                let selectedDate = new Date(dueDate);
-                                                                let today = new Date();
-                                                                today.setHours(0, 0, 0, 0); 
-
-                                                                if (selectedDate < today) {
-                                                                    errorMessage = 'Due date cannot be in the past.';
-                                                                    dueDate = '';
-                                                                } else {
-                                                                    errorMessage = '';
-                                                                }
-                                                           ">
-                                                    <p class="text-sm text-red-500 dark:text-red-400" x-text="errorMessage"></p>
-                                                </div>
-
-                                                <!-- Status -->
-                                                <div class="mb-6">
-                                                    <label for="status" class="block font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                        Status
-                                                    </label>
-                                                    <select x-model="status" id="status"
-                                                            class="w-full border-gray-300 dark:border-gray-700 
-                                                                   bg-gray-100 dark:bg-gray-800 
-                                                                   rounded-md p-2 focus:ring focus:ring-blue-200">
+                                            <div class="space-y-6">
+                                                <x-filament::input.wrapper>
+                                                    <x-filament::input type="text" wire:model.defer="name" />
+                                                </x-filament::input.wrapper>
+                                                <x-filament::input.wrapper>
+                                                    <x-filament::input.select wire:model.defer="status">
                                                         <option value="incomplete">Incomplete</option>
-                                                        <option value="complete">Complete</option>
-                                                    </select>
-                                                </div>
-
+                                                        <option value="completed">Completed</option>
+                                                    </x-filament::input.select>
+                                                </x-filament::input.wrapper>
                                                 <!-- Modal Actions -->
                                                 <div class="flex justify-end space-x-3">
-                                                    <x-filament::button color="gray" @click="showModal = false">
-                                                        Cancel
-                                                    </x-filament::button>
-
-                                                    <x-filament::button color="primary"
-                                                        @click="
-                                                            if (dueDate) {
-                                                                let selectedDate = new Date(dueDate);
-                                                                formattedDueDate = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(selectedDate);
-                                                            } else {
-                                                                formattedDueDate = 'No Due Date';
-                                                            }
-                                                            showModal = false;
-                                                        ">
+                                                    <x-filament::button color="primary" wire:click="saveLabel">
                                                         Save
                                                     </x-filament::button>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </x-filament::modal>
                                     </li>
                                 @endforeach
                             </ul>

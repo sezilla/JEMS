@@ -8,6 +8,7 @@ use App\Services\TrelloTask;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Filament\Notifications\Notification;
 use App\Filament\App\Resources\ProjectResource;
 
 class Task extends Page
@@ -18,7 +19,10 @@ class Task extends Page
     public ?array $trelloCards = null;
     public ?array $tableData = [];
     public ?array $selectedTask = null;
-    public bool $showModal = false;
+    public $dueDate;
+    public $currentTask = [];
+    public $checklistId;
+    public $checkItemId;
 
     public function mount($record)
     {
@@ -74,14 +78,14 @@ class Task extends Page
             foreach ($card['checklists'] as $checklist) {
                 foreach ($checklist['items'] as $item) {
                     $tableData[] = [
-                        'card_id'            => $card['id'],
-                        'checklist_id'       => $checklist['id'],
-                        'item_id'            => $item['id'],
-                        'department'         => $card['name'],
-                        'due_date'           => $card['due'] ?? null,
-                        'checklist'          => $checklist['name'],
-                        'task'               => $item['name'],
-                        'task_status'        => $item['state'] === 'complete' ? 'complete' : 'incomplete',
+                        'card_id'      => $card['id'],
+                        'checklist_id' => $checklist['id'],
+                        'item_id'      => $item['id'],
+                        'department'   => $card['name'],
+                        'due_date'     => $card['due'] ?? null,
+                        'checklist'    => $checklist['name'],
+                        'task'         => $item['name'],
+                        'task_status'  => $item['state'] === 'complete' ? 'complete' : 'incomplete',
                     ];
                 }
             }
@@ -90,72 +94,75 @@ class Task extends Page
         return $tableData;
     }
 
-    public function markAsDone($cardId, $checkItemId)
+    public function setCurrentTask($item)
     {
-        $trelloTask = app(TrelloTask::class);
-        
-        foreach ($this->trelloCards as &$card) {
-            if ($card['id'] === $cardId) {
-                foreach ($card['checklists'] as &$checklist) {
-                    foreach ($checklist['items'] as &$item) {
-                        if ($item['id'] === $checkItemId) {
-                            $newState = $item['state'] === 'complete' ? 'incomplete' : 'complete';
-                            $success = $trelloTask->updateChecklistItemState($cardId, $checkItemId, $newState);
+        $this->checklistId = $item['checklist_id'];
+        $this->checkItemId = $item['item_id'];
+        $this->currentTask = $item;
+        $this->dueDate = $item['due'] ?? null;
+    }
 
-                            if ($success) {
-                                $item['state'] = $newState;
-                                $this->tableData = $this->setTableData();
-                            } else {
-                                Log::error("Failed to update checklist item state for ID: {$checkItemId}");
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
+
+    public function setCheckItemDue(array $taskData, string $dueDate)
+    {
+        if (!isset($taskData['card_id'], $taskData['item_id'])) {
+            Log::warning('Missing card_id or item_id in task data.');
+            return null;
+        }
+
+        $cardId = $taskData['card_id'];
+        $checkItemId = $taskData['item_id'];
+
+        $trelloService = app(TrelloTask::class);
+        return $trelloService->setCheckItemDueDate($cardId, $checkItemId, $dueDate);
+
+        if ($response) {
+            Log::info("Due date set for checklist item: " . $checkItemId);
+        } else {
+            Log::error("Failed to set due date for checklist item: " . $checkItemId);
         }
     }
 
-    public function openModal($task)
+    public function saveDueDate()
     {
-        $this->selectedTask = $task;
-        $this->showModal = true;
-    }
+        if (!isset($this->currentTask['checklist_id'], $this->currentTask['item_id'])) {
+            Notification::make()
+                ->title('Missing Data')
+                ->body('Missing checklist or item data.')
+                ->danger()
+                ->send();
 
-    public function closeModal()
-    {
-        $this->showModal = false;
-        $this->selectedTask = null;
-    }
+            return;
+        }
 
-    
-    public function editTaskAction(): Action
-    {
-        return Action::make('editTask')
-            ->label('Edit Task')
-            ->modalHeading('Edit Task')
-            ->form([
-                DatePicker::make('due_date')
-                    ->label('Due Date')
-                    ->required()
-                    ->afterOrEqual('today')
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if (strtotime($state) < strtotime(date('Y-m-d'))) {
-                            $set('due_date', null);
-                            Notification::make()
-                                ->title('Due date cannot be in the past.')
-                                ->danger()
-                                ->send();
-                        }
-                    }),
-            ])
-            ->action(function (array $data): void {
-                // Save logic here (e.g., update the task)
-                Notification::make()
-                    ->title('Task updated successfully!')
-                    ->success()
-                    ->send();
-            });
+        $response = $this->setCheckItemDue($this->currentTask, $this->dueDate);
+
+        if ($response && isset($response['id'])) {
+            Notification::make()
+                ->title('Due Date Set')
+                ->body('Due date set successfully.')
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Failed to Set Due Date')
+                ->body('An error occurred while trying to update the due date.')
+                ->danger()
+                ->send();
+        }
+
+        $project = Project::find($this->currentTask['card_id']);
+        $boardId = $project?->trello_board_id;
+        if ($boardId) {
+            $this->fetchTrelloCards($boardId);
+            $this->tableData = $this->setTableData();
+        }
+
+        Log::info('Due date saved successfully for task.', [
+            'task' => $this->currentTask,
+            'due_date' => $this->dueDate,
+        ]);
+
+        return $response;
     }
 }

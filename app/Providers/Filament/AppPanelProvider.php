@@ -62,7 +62,7 @@ class AppPanelProvider extends PanelProvider
                     ->label('Administration')
                     ->url('/admin')
                     ->icon('heroicon-o-cog-8-tooth')
-                    ->visible(fn() => auth()->user() && auth()->user()->hasRole(['super_admin', 'Admin', 'Coordinator'])),
+                    ->visible(fn() => auth()->user() && auth()->user()->hasRole(['super admin', 'Coordinator', 'Department Admin', 'HR Admin'])),
                 'profile' => MenuItem::make()
                     ->label(fn() => auth()->user()->name)
                     ->url(fn(): string => EditProfilePage::getUrl())

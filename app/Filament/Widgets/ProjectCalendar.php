@@ -23,8 +23,8 @@ class ProjectCalendar extends FullCalendarWidget
                     ->id($event->id)
                     ->title($event->name)
                     ->start($event->start)
-                    // ->backgroundColor($event->theme_color)
-                    // ->borderColor($event->theme_color)
+                    ->backgroundColor($event->theme_color)
+                    ->borderColor($event->theme_color)
                     ->end($event->end)
                     ->url(
                         url: ProjectResource::getUrl(name: 'view', parameters: ['record' => $event]),
