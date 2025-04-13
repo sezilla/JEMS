@@ -17,13 +17,16 @@ class SkillSeeder extends Seeder
         $skills = Config::get('seeder.skill');
 
         foreach ($skills as $slug => $skill) {
-            Skill::updateOrCreate(
-                ['name' => $skill['name']],
+            $skillModel = Skill::updateOrCreate(
                 [
+                    'name' => $skill['name'],
                     'description' => $skill['description'],
-                    // 'slug' => $slug,
                 ]
             );
+
+            if (isset($skill['departments']) && is_array($skill['departments'])) {
+                $skillModel->department()->syncWithoutDetaching($skill['departments']);
+            }
         }
     }
 }

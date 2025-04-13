@@ -132,28 +132,6 @@ class TrelloTask
         return null;
     }
 
-    public function setDueDateToCard($listId, $cardName, $dueDate)
-    {
-        $card = $this->getCardByName($listId, $cardName);
-        if (!$card) {
-            Log::error("Card '{$cardName}' not found in list {$listId}.");
-            return null;
-        }
-
-        try {
-            $response = $this->client->put("cards/{$card['id']}", [
-                'query' => array_merge($this->getAuthParams(), [
-                    'due' => $dueDate,
-                ]),
-            ]);
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to set due date for card: ' . $e->getMessage());
-        }
-
-        return null;
-    }
-
     public function getCardChecklists($cardId)
     {
         try {
@@ -198,6 +176,48 @@ class TrelloTask
             return json_decode($response->getBody()->getContents(), true);
         } catch (RequestException $e) {
             Log::error("Failed to update checklist item {$checkItemId} in card {$cardId} to state {$state}: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function setDueDateToCard($listId, $cardName, $dueDate)
+    {
+        $card = $this->getCardByName($listId, $cardName);
+        if (!$card) {
+            Log::error("Card '{$cardName}' not found in list {$listId}.");
+            return null;
+        }
+
+        try {
+            $response = $this->client->put("cards/{$card['id']}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'due' => $dueDate,
+                ]),
+            ]);
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for card: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    public function setCheckItemDueDate($cardId, $checkItemId, $dueDate)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'due' => $dueDate,
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Set due date for checklist item {$checkItemId} on card {$cardId} to {$dueDate}.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
             return null;
         }
     }

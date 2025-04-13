@@ -14,7 +14,7 @@ class FakeUser extends Seeder
     public function run(): void
     {
         $this->call([
-            // DummyUserSeeder::class,
+            DummyUserSeeder::class,
             TestProjectSeeder::class,
         ]);
     }

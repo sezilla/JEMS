@@ -51,7 +51,7 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
+                            ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -61,19 +61,19 @@ class ProjectResource extends Resource
                             ->preload()
                             ->searchable()
                             ->options(Package::all()->pluck('name', 'id'))
-                            ->disabled(fn ($record) => $record !== null),
+                            ->disabled(fn($record) => $record !== null),
                         Forms\Components\MarkdownEditor::make('description')
                             ->columnSpanFull(),
 
 
-                            Forms\Components\DatePicker::make('start')
+                        Forms\Components\DatePicker::make('start')
                             ->columnSpan(1)
                             ->label('Start Date')
                             ->required()
                             ->default(now()->toDateString()),
                         Forms\Components\DatePicker::make('end')
                             ->columnSpan(1)
-                            ->label('End Date')
+                            ->label('Event Date')
                             ->required()
                             ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
                             ->after('start') // Ensures 'end' is after 'start'
@@ -84,7 +84,7 @@ class ProjectResource extends Resource
                                         if ($start) {
                                             $startDate = Carbon::parse($start);
                                             $endDate = Carbon::parse($value);
-                                            
+
                                             if ($endDate->lessThan($startDate->addMonths(4))) {
                                                 $fail('The end date must be at least 4 months after the start date.');
                                             }
@@ -118,7 +118,7 @@ class ProjectResource extends Resource
                             ->columnSpan('full'),
                         ColorPicker::make('theme_color')
                             ->columnSpan(1),
-                        
+
                         FileUpload::make('thumbnail_path')
                             ->disk('public')
                             ->columnSpan(1)
@@ -205,32 +205,32 @@ class ProjectResource extends Resource
                         //     ->label('Other Coordinators')
                         //     ->searchable()
                         //     ->preload(),
-                        
+
                     ]),
 
                 Section::make()
                     ->columns(3)
                     ->description('Teams')
                     // ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
-                    ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
+                    ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                     ->collapsible()
                     ->schema([
                         Forms\Components\Select::make('team1')
-                            ->relationship('cateringTeam', 'name') 
+                            ->relationship('cateringTeam', 'name')
                             ->label('Catering')
-                                // ->multiple()
+                            // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team2')
-                            ->relationship('hairAndMakeupTeam', 'name') 
+                            ->relationship('hairAndMakeupTeam', 'name')
                             ->label('Hair and Makeup')
                             // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team3')
-                            ->relationship('photoAndVideoTeam', 'name') 
+                            ->relationship('photoAndVideoTeam', 'name')
                             ->label('Photo and Video')
                             // ->multiple()
                             ->preload()
@@ -244,14 +244,14 @@ class ProjectResource extends Resource
                             ->searchable(),
 
                         Forms\Components\Select::make('team5')
-                            ->relationship('entertainmentTeam', 'name') 
+                            ->relationship('entertainmentTeam', 'name')
                             ->label('Entertainment')
                             // ->multiple()
                             ->preload()
                             ->searchable(),
 
                         Forms\Components\Select::make('team6')
-                            ->relationship('coordinationTeam', 'name') 
+                            ->relationship('coordinationTeam', 'name')
                             ->label('Other Coordination')
                             // ->multiple()
                             ->preload()
@@ -260,7 +260,7 @@ class ProjectResource extends Resource
                     ]),
             ]);
     }
-    
+
 
     public static function table(Table $table): Table
     {
@@ -296,7 +296,7 @@ class ProjectResource extends Resource
             //         })
             //         ->html()
             //         ->verticallyAlignStart(),
-                
+
             //     TextColumn::make('teams.name')
             //         ->label('Teams')
             //         ->searchable()
@@ -317,22 +317,22 @@ class ProjectResource extends Resource
             //     TextColumn::make('bride_name')
             //         ->searchable()
             //         ->limit(15),
-                    
+
             //     TextColumn::make('groomCoordinator.name')
             //         ->label('Groom Coordinator') 
             //         ->searchable()
             //         ->limit(15),
-                
+
             //     TextColumn::make('brideCoordinator.name') 
             //         ->label('Bride Coordinator') 
             //         ->searchable()
             //         ->limit(15),
-                
+
             //     TextColumn::make('headCoordinator.name') 
             //         ->label('Head Coordinator') 
             //         ->searchable()
             //         ->limit(15),
-                
+
 
 
 
@@ -342,7 +342,7 @@ class ProjectResource extends Resource
             //     //     ->sortable()
             //     //     ->toggleable(isToggledHiddenByDefault: true)
             //     //     ->visible(fn (ViewAction $livewire) => $livewire instanceof ViewAction),
-                
+
             //     // TextColumn::make('updated_at')
             //     //     ->dateTime()
             //     //     ->sortable()
@@ -380,7 +380,7 @@ class ProjectResource extends Resource
                                     ->limit(15)
                                     ->badge()
                                     ->color(
-                                        fn (string $state): string => match ($state) {
+                                        fn(string $state): string => match ($state) {
                                             'Ruby' => 'ruby',
                                             'Garnet' => 'garnet',
                                             'Emerald' => 'emerald',
@@ -395,7 +395,7 @@ class ProjectResource extends Resource
                                     ->copyMessage('Color code copied')
                                     ->copyMessageDuration(1500)
                             ]),
-                            
+
                             TextColumn::make('venue'),
                             Stack::make([
                                 TextColumn::make('start')
@@ -412,12 +412,12 @@ class ProjectResource extends Resource
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
                             ]),
-                            
+
                         ])->space(3),
                     ]),
                     Split::make([
                         Stack::make([
-                            TextColumn::make('headCoordinator.name') 
+                            TextColumn::make('headCoordinator.name')
                                 ->getStateUsing(function ($record) {
                                     return 'Head coor';
                                 })
@@ -427,8 +427,8 @@ class ProjectResource extends Resource
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('headCoordinator.name') 
-                                ->label('Head Coordinator') 
+                            TextColumn::make('headCoordinator.name')
+                                ->label('Head Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
@@ -444,14 +444,14 @@ class ProjectResource extends Resource
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('groomCoordinator.name') 
-                                ->label('Groom Coordinator') 
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
                         ]),
                         Stack::make([
-                            TextColumn::make('brideCoordinator.name') 
+                            TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
                                     return 'Bride coor';
                                 })
@@ -461,15 +461,15 @@ class ProjectResource extends Resource
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('brideCoordinator.name') 
-                                ->label('Bride Coordinator') 
+                            TextColumn::make('brideCoordinator.name')
+                                ->label('Bride Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
                         ]),
-                        
+
                     ]),
-                    TextColumn::make('teams.name') 
+                    TextColumn::make('teams.name')
                         ->getStateUsing(function ($record) {
                             return 'Teams';
                         })
@@ -479,8 +479,8 @@ class ProjectResource extends Resource
                             return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                         })
                         ->html(),
-                    ImageColumn::make('teams.image') 
-                        ->label('Bride Coordinator') 
+                    ImageColumn::make('teams.image')
+                        ->label('Bride Coordinator')
                         ->searchable()
                         ->stacked()
                         ->limit(6)
@@ -490,8 +490,8 @@ class ProjectResource extends Resource
                     //     ->label('Date Added')
                     //     ->date()
                     //     ->sortable(),
-                    
-               ])->space(3),
+
+                ])->space(3),
             ])->defaultSort('end', 'asc')
             ->contentGrid([
                 'md' => 2,
@@ -499,9 +499,7 @@ class ProjectResource extends Resource
                 'sm' => 1,
             ])
             ->paginated([12, 24, 48, 96, 'all'])
-            ->filters([
-                
-            ])
+            ->filters([])
             ->actions([
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\ViewAction::make()
