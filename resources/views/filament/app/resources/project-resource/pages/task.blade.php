@@ -61,7 +61,41 @@
                                             </x-filament::button>
                                         </div>
 
+
+
+                                        <!-- ito na yoooooon -->
                                         <!-- Modal -->
+                                        <x-filament::modal>
+                                            <x-slot name="trigger">
+                                                <x-filament::button>
+                                                    Open modal
+                                                </x-filament::button>
+                                            </x-slot>
+
+                                            {{-- Modal content --}}
+                                            <form>
+                                                <div class="space-y-4">
+                                                    <!-- Select Due Date -->
+                                                    <div>
+                                                        <label for="due_date" class="block text-sm font-medium text-gray-700">{{ __('Due Date') }}</label>
+                                                        <x-filament::input id="due_date" type="date" name="due_date" required />
+                                                    </div>
+
+                                                    <!-- Select Status -->
+                                                    <div>
+                                                        <label for="status" class="block text-sm font-medium text-gray-700">{{ __('Status') }}</label>
+                                                        <x-filament::select id="status" name="status" :options="['complete' => 'Complete', 'incomplete' => 'Incomplete']" required />
+                                                    </div>
+
+                                                    <!-- Select Users -->
+                                                    <div>
+                                                        <label for="user_id" class="block text-sm font-medium text-gray-700">{{ __('Assign Users') }}</label>
+                                                        <x-filament::select id="user_id" name="user_id[]" :options="App\Models\User::all()->pluck('name', 'id')->toArray()" multiple required />
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </x-filament::modal>
+
                                         <div x-show="showModal"
                                              x-cloak
                                              class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"

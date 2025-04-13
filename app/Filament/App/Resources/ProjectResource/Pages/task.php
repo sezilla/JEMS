@@ -127,4 +127,35 @@ class Task extends Page
         $this->showModal = false;
         $this->selectedTask = null;
     }
+
+    
+    public function editTaskAction(): Action
+    {
+        return Action::make('editTask')
+            ->label('Edit Task')
+            ->modalHeading('Edit Task')
+            ->form([
+                DatePicker::make('due_date')
+                    ->label('Due Date')
+                    ->required()
+                    ->afterOrEqual('today')
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if (strtotime($state) < strtotime(date('Y-m-d'))) {
+                            $set('due_date', null);
+                            Notification::make()
+                                ->title('Due date cannot be in the past.')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+            ])
+            ->action(function (array $data): void {
+                // Save logic here (e.g., update the task)
+                Notification::make()
+                    ->title('Task updated successfully!')
+                    ->success()
+                    ->send();
+            });
+    }
 }
