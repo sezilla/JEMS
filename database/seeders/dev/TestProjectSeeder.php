@@ -35,46 +35,46 @@ class TestProjectSeeder extends Seeder
             ]
         );
 
-        Project::updateOrCreate(
-            [
-                'name' => 'Test Project 2',
-                'description' => 'This is a test project.',
-                'venue' => 'Test Venue',
-                'groom_name' => fake()->name(),
-                'bride_name' => fake()->name(),
-                'theme_color' => '#FF5733',
-                'special_request' => 'Could we have a live band performance and a photo booth setup?',
-                'start' => now(),
-                'end' => now()->addDays(200),
-            ],
-            [
-                'user_id' => User::role('HR Admin')->inRandomOrder()->first()?->id,
-                'package_id' => config('seeder.package.sapphire.id'),
-                'groom_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-                'bride_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-                'head_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-            ]
-        );
+        // Project::updateOrCreate(
+        //     [
+        //         'name' => 'Test Project 1',
+        //         'description' => 'This is a test project.',
+        //         'venue' => 'Test Venue',
+        //         'groom_name' => fake()->name(),
+        //         'bride_name' => fake()->name(),
+        //         'theme_color' => '#FF5733',
+        //         'special_request' => 'Could we have a live band performance and a photo booth setup?',
+        //         'start' => now(),
+        //         'end' => now()->addDays(200),
+        //     ],
+        //     [
+        //         'user_id' => User::role('HR Admin')->inRandomOrder()->first()?->id,
+        //         'package_id' => config('seeder.package.sapphire.id'),
+        //         'groom_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //         'bride_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //         'head_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //     ]
+        // );
 
-        Project::updateOrCreate(
-            [
-                'name' => 'Test Project 3',
-                'description' => 'This is a test project.',
-                'venue' => 'Test Venue',
-                'groom_name' => fake()->name(),
-                'bride_name' => fake()->name(),
-                'theme_color' => '#FF5733',
-                'special_request' => 'Could we have a live band performance and a photo booth setup?',
-                'start' => now(),
-                'end' => now()->addDays(200),
-            ],
-            [
-                'user_id' => User::role('HR Admin')->inRandomOrder()->first()?->id,
-                'package_id' => config('seeder.package.emerald.id'),
-                'groom_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-                'bride_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-                'head_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
-            ]
-        );
+        // Project::updateOrCreate(
+        //     [
+        //         'name' => 'Test Project 2',
+        //         'description' => 'This is a test project.',
+        //         'venue' => 'Test Venue',
+        //         'groom_name' => fake()->name(),
+        //         'bride_name' => fake()->name(),
+        //         'theme_color' => '#FF5733',
+        //         'special_request' => 'Could we have a live band performance and a photo booth setup?',
+        //         'start' => now(),
+        //         'end' => now()->addDays(200),
+        //     ],
+        //     [
+        //         'user_id' => User::role('HR Admin')->inRandomOrder()->first()?->id,
+        //         'package_id' => config('seeder.package.emerald.id'),
+        //         'groom_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //         'bride_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //         'head_coordinator' => User::role('Coordinator')->inRandomOrder()->first()?->id,
+        //     ]
+        // );
     }
 }
