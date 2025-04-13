@@ -103,26 +103,6 @@ class Task extends Page
     }
 
 
-    public function setCheckItemDue(array $taskData, string $dueDate)
-    {
-        if (!isset($taskData['card_id'], $taskData['item_id'])) {
-            Log::warning('Missing card_id or item_id in task data.');
-            return null;
-        }
-
-        $cardId = $taskData['card_id'];
-        $checkItemId = $taskData['item_id'];
-
-        $trelloService = app(TrelloTask::class);
-        return $trelloService->setCheckItemDueDate($cardId, $checkItemId, $dueDate);
-
-        if ($response) {
-            Log::info("Due date set for checklist item: " . $checkItemId);
-        } else {
-            Log::error("Failed to set due date for checklist item: " . $checkItemId);
-        }
-    }
-
     public function saveDueDate()
     {
         if (!isset($this->currentTask['checklist_id'], $this->currentTask['item_id'])) {
@@ -151,6 +131,7 @@ class Task extends Page
                 ->send();
         }
 
+        // Refresh Trello cards and table
         $project = Project::find($this->currentTask['card_id']);
         $boardId = $project?->trello_board_id;
         if ($boardId) {
@@ -162,6 +143,28 @@ class Task extends Page
             'task' => $this->currentTask,
             'due_date' => $this->dueDate,
         ]);
+
+        return $response;
+    }
+
+    public function setCheckItemDue(array $taskData, string $dueDate)
+    {
+        if (!isset($taskData['card_id'], $taskData['item_id'])) {
+            Log::warning('Missing card_id or item_id in task data.');
+            return null;
+        }
+
+        $cardId = $taskData['card_id'];
+        $checkItemId = $taskData['item_id'];
+
+        $trelloService = app(TrelloTask::class);
+        $response = $trelloService->setCheckItemDueDate($cardId, $checkItemId, $dueDate);
+
+        if ($response) {
+            Log::info("Due date set for checklist item: " . $checkItemId);
+        } else {
+            Log::error("Failed to set due date for checklist item: " . $checkItemId);
+        }
 
         return $response;
     }
