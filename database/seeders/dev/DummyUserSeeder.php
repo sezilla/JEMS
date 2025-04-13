@@ -47,6 +47,9 @@ class DummyUserSeeder extends Seeder
         $adminDepCoordination->assignRole(config('filament-shield.admin_dep.name'));
         $adminDepCoordination->departments()->attach(config('seeder.department.coordination.id'));
 
+
+
+        //----------------------------------------------------------
         // Team Leaders
         // Catering Department leaders
         $cateringDepartmentId = config('seeder.department.catering.id');
@@ -138,6 +141,10 @@ class DummyUserSeeder extends Seeder
             }
         });
 
+
+
+
+        //----------------------------------------------------------
         // Members
 
         // Catering Department
