@@ -8,7 +8,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/', function () {
-    return view('landing1');
+    return view('landing2');
 });
 
 Route::post('/projects/allocate-teams', [ProjectController::class, 'allocateTeams']);
