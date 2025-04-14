@@ -16,6 +16,8 @@ class Task extends Page
     protected static string $resource = ProjectResource::class;
     protected static string $view = 'filament.app.resources.project-resource.pages.task';
 
+    // protected static ?string $title = 'Task Page';
+
     public ?array $trelloCards = null;
     public ?array $tableData = [];
     public ?array $selectedTask = null;
