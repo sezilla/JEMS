@@ -81,7 +81,7 @@
                                     Admin Dashboard
                                  </a>
                               @else
-                                 <a href="{{ url('/login') }}"
+                                 <a href="{{ url('app/login') }}"
                                     class="block px-4 py-2 text-sm text-black hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                                     Log in
                                  </a>
