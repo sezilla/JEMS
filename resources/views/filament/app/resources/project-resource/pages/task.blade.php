@@ -23,9 +23,51 @@
                                         <li class="py-3 flex items-center justify-between"
                                             wire:key="checklist-item-{{ $item['id'] }}">
                                             <div>
-                                                <p class="font-semibold text-gray-800 dark:text-gray-200">
-                                                    {{ $item['name'] }}
-                                                </p>
+                                                <div class="flex gap-4">
+                                                    <p class="font-semibold text-gray-800 dark:text-gray-200">
+                                                        {{ $item['name'] }}
+                                                    </p>
+                                                    <!-- edit task modal -->
+                                                    <x-filament::modal id="edit-label-modal-{{ $item['id'] }}"
+                                                        :wire:key="'modal-edit-'.$item['id']">
+                                                        <x-slot name="trigger">
+                                                            <x-filament::icon-button icon="heroicon-m-pencil-square"
+                                                                wire:click="setCurrentTask({{ json_encode(
+                                                                    array_merge($item, [
+                                                                        'card_id' => $card['id'],
+                                                                        'checklist_id' => $checklist['id'],
+                                                                        'item_id' => $item['id'],
+                                                                    ]),
+                                                                ) }})" />
+                                                        </x-slot>
+                                                        <div class="space-y-6">
+                                                            <x-filament::input.wrapper>
+                                                                <x-filament::input type="text"
+                                                                    wire:model.defer="task" />
+                                                            </x-filament::input.wrapper>
+                                                            <x-filament::input.wrapper>
+                                                                <x-filament::input type="date"
+                                                                    wire:model.defer="dueDate" />
+                                                            </x-filament::input.wrapper>
+                                                            <x-filament::input.wrapper>
+                                                                <x-filament::input.select wire:model.defer="status">
+                                                                    <option value="user">ako</option>
+                                                                </x-filament::input.select>
+                                                            </x-filament::input.wrapper>
+                                                            <label class="flex items-center space-x-2">
+                                                                <x-filament::input.checkbox wire:model="task_status" />
+                                                                <span>
+                                                                    Is Completed
+                                                                </span>
+                                                            </label>
+                                                            <div class="flex justify-end space-x-3">
+                                                                <x-filament::button color="primary" wire:click="">
+                                                                    Save
+                                                                </x-filament::button>
+                                                            </div>
+                                                        </div>
+                                                    </x-filament::modal>
+                                                </div>
                                                 <div class="flex items-center gap-2">
                                                     <!-- Due date modal -->
                                                     <x-filament::modal id="set-due-date-modal-{{ $item['id'] }}"
@@ -81,33 +123,26 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Optional edit label modal -->
+                                            <!-- complete modal -->
                                             <x-filament::modal id="edit-label-modal-{{ $item['id'] }}"
                                                 :wire:key="'modal-edit-'.$item['id']">
                                                 <x-slot name="trigger">
-                                                    <x-filament::icon-button icon="heroicon-m-pencil-square"
-                                                        label="New label" />
+                                                    <x-filament::icon-button icon="heroicon-m-check"
+                                                        wire:click="setCurrentTask({{ json_encode(
+                                                            array_merge($item, [
+                                                                'card_id' => $card['id'],
+                                                                'checklist_id' => $checklist['id'],
+                                                                'item_id' => $item['id'],
+                                                            ]),
+                                                        ) }})" />
                                                 </x-slot>
-                                                <div class="space-y-6">
-                                                    <x-filament::input.wrapper>
-                                                        <x-filament::input type="text" wire:model.defer="name" />
-                                                    </x-filament::input.wrapper>
-                                                    <x-filament::input.wrapper>
-                                                        <x-filament::input.select wire:model.defer="status">
-                                                            <option value="user">ako</option>
-                                                        </x-filament::input.select>
-                                                    </x-filament::input.wrapper>
-                                                    <label class="flex items-center space-x-2">
-                                                        <x-filament::input.checkbox wire:model="task_status" />
-                                                        <span>
-                                                            Is Completed
-                                                        </span>
-                                                    </label>
-                                                    <div class="flex justify-end space-x-3">
-                                                        <x-filament::button color="primary" wire:click="">
-                                                            Save
-                                                        </x-filament::button>
-                                                    </div>
+                                                <p class="text-gray-800 dark:text-gray-200">
+                                                    Are you sure you want to mark this task as complete?
+                                                </p>
+                                                <div class="flex justify-end space-x-3">
+                                                    <x-filament::button color="primary" {{-- wire:click="markTaskAsComplete" --}}>
+                                                        Submit
+                                                    </x-filament::button>
                                                 </div>
                                             </x-filament::modal>
                                         </li>
