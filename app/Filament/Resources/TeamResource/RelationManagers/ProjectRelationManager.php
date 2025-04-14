@@ -66,7 +66,8 @@ class ProjectRelationManager extends RelationManager
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
-                            TextColumn::make('name')
+                            TextColumn::make('description')
+                                ->limit(40)
                                 ->searchable(),
                             Split::make([
                                 TextColumn::make('package.name')
@@ -75,12 +76,13 @@ class ProjectRelationManager extends RelationManager
                                     ->limit(15)
                                     ->badge()
                                     ->color(
-                                        fn (string $state): string => match ($state) {
+                                        fn(string $state): string => match ($state) {
                                             'Ruby' => 'ruby',
                                             'Garnet' => 'garnet',
                                             'Emerald' => 'emerald',
                                             'Infinity' => 'infinity',
-                                            'sapphire' => 'sapphire',
+                                            'Sapphire' => 'sapphire',
+                                            default => 'gray',
                                         }
                                     ),
                                 ColorColumn::make('theme_color')
@@ -89,12 +91,12 @@ class ProjectRelationManager extends RelationManager
                                     ->copyMessage('Color code copied')
                                     ->copyMessageDuration(1500)
                             ]),
-                            
+
                             TextColumn::make('venue'),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
-                                    ->sortable()
+                                    // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
                                         return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                     })
@@ -102,17 +104,16 @@ class ProjectRelationManager extends RelationManager
                                 TextColumn::make('end')
                                     ->label('Event Date')
                                     ->date()
-                                    ->sortable()
                                     ->fontFamily(FontFamily::Mono)
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
                             ]),
-                            
+
                         ])->space(3),
                     ]),
                     Split::make([
                         Stack::make([
-                            TextColumn::make('headCoordinator.name') 
+                            TextColumn::make('headCoordinator.name')
                                 ->getStateUsing(function ($record) {
                                     return 'Head coor';
                                 })
@@ -122,8 +123,8 @@ class ProjectRelationManager extends RelationManager
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('headCoordinator.name') 
-                                ->label('Head Coordinator') 
+                            TextColumn::make('headCoordinator.name')
+                                ->label('Head Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
@@ -139,14 +140,14 @@ class ProjectRelationManager extends RelationManager
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('groomCoordinator.name') 
-                                ->label('Groom Coordinator') 
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
                         ]),
                         Stack::make([
-                            TextColumn::make('brideCoordinator.name') 
+                            TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
                                     return 'Bride coor';
                                 })
@@ -156,19 +157,38 @@ class ProjectRelationManager extends RelationManager
                                     return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
-                            TextColumn::make('brideCoordinator.name') 
-                                ->label('Bride Coordinator') 
+                            TextColumn::make('brideCoordinator.name')
+                                ->label('Bride Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
                         ]),
+
                     ]),
+                    TextColumn::make('teams.name')
+                        ->getStateUsing(function ($record) {
+                            return 'Teams';
+                        })
+                        ->size(TextColumn\TextColumnSize::ExtraSmall)
+                        ->weight(FontWeight::Thin)
+                        ->formatStateUsing(function ($column, $state) {
+                            return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                        })
+                        ->html(),
+                    ImageColumn::make('teams.image')
+                        ->label('Bride Coordinator')
+                        ->searchable()
+                        ->stacked()
+                        ->limit(6)
+                        ->circular()
+                        ->limitedRemainingText(),
                     // TextColumn::make('start')
                     //     ->label('Date Added')
                     //     ->date()
                     //     ->sortable(),
-                    
-               ])->space(3),
+
+
+                ])->space(3),
             ])
             ->filters([
                 //
@@ -180,7 +200,7 @@ class ProjectRelationManager extends RelationManager
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\DeleteAction::make(),
             ])
-            
+
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
