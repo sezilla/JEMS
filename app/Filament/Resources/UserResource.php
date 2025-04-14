@@ -58,9 +58,12 @@ class UserResource extends Resource
                     ->columnSpan(1)
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->columnSpan(1)
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->regex('/^[A-Za-z\s]+$/')
+                            ->label('Full Name')
+                            ->validationAttribute('name'),
+
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->columnSpan(1)
