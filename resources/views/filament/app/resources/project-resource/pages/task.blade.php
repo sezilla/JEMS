@@ -29,7 +29,8 @@
                                                         item_id: null,
                                                         name: '',
                                                         due_date: null,
-                                                        state: 'incomplete'
+                                                        state: 'incomplete',
+                                                        user_id: null
                                                     })" />
                                             </x-slot>
 
@@ -37,12 +38,29 @@
 
                                             <x-filament::input.wrapper>
                                                 <x-filament::input type="text" wire:model.defer="currentTask.name"
-                                                    label="Task Name" />
+                                                    label="Task Name" required />
                                             </x-filament::input.wrapper>
 
                                             <x-filament::input.wrapper>
                                                 <x-filament::input type="date"
                                                     wire:model.defer="currentTask.due_date" label="Due Date" />
+                                            </x-filament::input.wrapper>
+
+                                            <x-filament::input.wrapper>
+                                                <x-filament::input.select wire:model.defer="currentTask.user_id"
+                                                    id="user-select">
+                                                    <option value="">Select User</option>
+                                                    @foreach ($users as $user)
+                                                        <option value="{{ $user->id }}">
+                                                            {{ $user->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </x-filament::input.select>
+                                                @if (app()->environment('local'))
+                                                    <div class="text-xs text-gray-500 mt-1">
+                                                        Selected user_id: {{ $currentTask['user_id'] ?? 'null' }}
+                                                    </div>
+                                                @endif
                                             </x-filament::input.wrapper>
 
                                             <div class="flex justify-end space-x-3">
@@ -52,7 +70,7 @@
                                                 </x-filament::button>
                                             </div>
                                         </x-filament::modal>
-                                        <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" />
+                                        {{-- <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" /> --}}
                                     </div>
                                 </header>
                                 <ul class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -75,8 +93,8 @@
                                                                     item_id: '{{ $item['id'] }}',
                                                                     name: '{{ $item['name'] }}',
                                                                     due_date: '{{ $item['due_date'] ?? '' }}',
-                                                                    state: '{{ $item['state'] ?? 'incomplete' }}'
-                                                                    , user_id: '{{ $item['user_id'] ?? '' }}'
+                                                                    state: '{{ $item['state'] ?? 'incomplete' }}',
+                                                                    user_id: '{{ $item['user_id'] ?? '' }}'
                                                                 })" />
                                                         </x-slot>
 
@@ -227,7 +245,8 @@
                                                             </span>
                                                         </p>
                                                         <x-filament::input.wrapper>
-                                                            <x-filament::input.select wire:model.defer="user_id">
+                                                            <x-filament::input.select wire:model="user_id"
+                                                                id="user-select">
                                                                 <option value="">Select User</option>
                                                                 @foreach ($users as $user)
                                                                     <option value="{{ $user->id }}">
@@ -235,6 +254,12 @@
                                                                     </option>
                                                                 @endforeach
                                                             </x-filament::input.select>
+                                                            <!-- Debug output during development -->
+                                                            @if (app()->environment('local'))
+                                                                <div class="text-xs text-gray-500 mt-1">
+                                                                    Selected user_id: {{ $user_id ?? 'null' }}
+                                                                </div>
+                                                            @endif
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
                                                             <x-filament::button color="primary"

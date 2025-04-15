@@ -317,70 +317,64 @@ class Task extends Page
             );
         }
 
-        $userCheckItemModel = $this->project->checklist;
-        $checklistId = $this->currentTask['checklist_id'];
-        $itemId = $this->currentTask['item_id'];
-
-        $userId = !empty($this->user_id) ? (int)$this->user_id : null;
-
-        Log::info('Pre-assignment values', [
-            'user_id_property' => $this->user_id,
-            'parsed_user_id' => $userId
-        ]);
-
-        if (!$userId) {
-            return $this->showNotification(
-                false,
-                '',
-                '',
-                'Missing User',
-                'Please select a user to assign.'
-            );
-        }
-
-        if (!$userCheckItemModel) {
-            $userCheckItemModel = new \App\Models\ChecklistUser([
-                'project_id' => $this->project->id,
-                'user_checklist' => [],
-            ]);
-            $this->project->checklist()->save($userCheckItemModel);
-        }
-
-        $currentChecklist = $userCheckItemModel->user_checklist ?? [];
-        $currentChecklist[$checklistId] = [
-            'check_item_id' => $itemId,
-            'user_id'       => $userId,
-        ];
-
-        $userCheckItemModel->user_checklist = $currentChecklist;
-        $saved = $userCheckItemModel->save();
-
-        if ($saved) {
-            $this->userCheckItem = $userCheckItemModel->user_checklist;
+        $userId = null;
+        if (isset($this->currentTask['user_id']) && !empty($this->currentTask['user_id'])) {
+            $userId = (int) $this->currentTask['user_id'];
+        } elseif (!empty($this->user_id)) {
+            $userId = (int) $this->user_id;
             $this->currentTask['user_id'] = $userId;
+        }
 
-            Log::info('User assignment updated', [
-                'checklist_id' => $checklistId,
-                'item_id' => $itemId,
+        if ($userId && $this->project) {
+            $checklistId = $this->currentTask['checklist_id'];
+            $itemId = $this->currentTask['item_id'];
+
+            $checklistUser = $this->project->checklist;
+            if (!$checklistUser) {
+                $checklistUser = new \App\Models\ChecklistUser([
+                    'project_id' => $this->project->id,
+                    'user_checklist' => [],
+                ]);
+                $this->project->checklist()->save($checklistUser);
+            }
+
+            $userChecklist = $checklistUser->user_checklist ?? [];
+
+            if (!isset($userChecklist[$checklistId]) || !is_array($userChecklist[$checklistId])) {
+                $userChecklist[$checklistId] = [];
+            }
+
+            $userChecklist[$checklistId][] = [
                 'user_id' => $userId,
-                'success' => true
-            ]);
-        } else {
-            Log::error('Failed to assign user to checklist item', [
+                'check_item_id' => $itemId,
+            ];
+
+            $checklistUser->user_checklist = $userChecklist;
+            $checklistUser->save();
+
+            $this->userCheckItem = $userChecklist;
+
+            Log::info('User assignment updated in database', [
                 'checklist_id' => $checklistId,
-                'item_id' => $itemId,
-                'user_id' => $userId,
+                'item_id'      => $itemId,
+                'user_id'      => $userId,
+                'project_id'   => $this->project->id
             ]);
         }
 
         $this->refreshData();
 
+        Log::info('Task edit attempt', [
+            'task'    => $this->currentTask,
+        ]);
+
+        $success = true;
         return $this->showNotification(
-            $saved,
-            'User Assigned',
-            'User successfully assigned to checklist item.',
-            'Assignment Failed',
-            'An error occurred while assigning the user.'
+            $success,
+            'Task Updated',
+            'Task updated successfully.',
+            'Update Failed',
+            'An error occurred while updating the task.'
         );
     }
 
@@ -488,6 +482,10 @@ class Task extends Page
 
     public function createTask()
     {
+        if (!empty($this->user_id)) {
+            $this->currentTask['user_id'] = $this->user_id;
+        }
+
         if (!isset($this->currentTask['checklist_id'], $this->currentTask['card_id'])) {
             return $this->showNotification(
                 false,
@@ -504,7 +502,58 @@ class Task extends Page
             $this->currentTask['name'],
             $this->currentTask['due_date'] ?? null
         );
+
         $success = $response && isset($response['id']);
+
+        if ($success) {
+            $this->currentTask['item_id'] = $response['id'];
+        }
+
+
+        $userId = null;
+        if (isset($this->currentTask['user_id']) && !empty($this->currentTask['user_id'])) {
+            $userId = (int) $this->currentTask['user_id'];
+        } elseif (!empty($this->user_id)) {
+            $userId = (int) $this->user_id;
+            $this->currentTask['user_id'] = $userId;
+        }
+
+        if ($userId && $this->project) {
+            $checklistId = $this->currentTask['checklist_id'];
+            $itemId = $this->currentTask['item_id'];
+
+            $checklistUser = $this->project->checklist;
+            if (!$checklistUser) {
+                $checklistUser = new \App\Models\ChecklistUser([
+                    'project_id' => $this->project->id,
+                    'user_checklist' => [],
+                ]);
+                $this->project->checklist()->save($checklistUser);
+            }
+
+            $userChecklist = $checklistUser->user_checklist ?? [];
+
+            if (!isset($userChecklist[$checklistId]) || !is_array($userChecklist[$checklistId])) {
+                $userChecklist[$checklistId] = [];
+            }
+
+            $userChecklist[$checklistId][] = [
+                'user_id' => $userId,
+                'check_item_id' => $itemId,
+            ];
+
+            $checklistUser->user_checklist = $userChecklist;
+            $checklistUser->save();
+
+            $this->userCheckItem = $userChecklist;
+
+            Log::info('User assignment updated in database', [
+                'checklist_id' => $checklistId,
+                'item_id'      => $itemId,
+                'user_id'      => $userId,
+                'project_id'   => $this->project->id
+            ]);
+        }
 
         $this->refreshData();
 
