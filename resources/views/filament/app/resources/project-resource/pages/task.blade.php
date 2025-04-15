@@ -130,7 +130,7 @@
                                                                             x-on:click="$wire.setCurrentTask({
                                                                                 checklist_id: '{{ $checklist['id'] }}',
                                                                                 item_id: '{{ $item['id'] }}'
-                                                                            })" />
+                                                                            }); $dispatch('close-modal')" />
                                                                     </x-slot>
                                                                     <div
                                                                         class="flex flex-col items-center justify-center gap-2">
