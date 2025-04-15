@@ -60,7 +60,7 @@ class UserResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
-                            ->regex('/^[A-Za-z\s]+$/')
+                            ->regex('/^[A-Za-z\s.]+$/')
                             ->label('Full Name')
                             ->validationAttribute('name'),
 
