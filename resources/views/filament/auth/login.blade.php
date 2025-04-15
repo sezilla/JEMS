@@ -10,7 +10,7 @@
 <style>
     body {
         background: linear-gradient(-190deg, rgba(255, 255, 255, 0.7), rgba(248, 107, 132, 0.7)),
-                    url('/images/loginimg.jpg') no-repeat center center fixed !important;
+        url("{{ asset('images/loginimg.jpg') }}")no-repeat center center fixed !important;
         background-size: cover !important;
         margin: 0;
         font-family: 'Poppins', sans-serif;
