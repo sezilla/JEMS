@@ -1,18 +1,18 @@
 <x-filament::page>
     <div wire:poll.10s>
-        @if ($trelloCards && count($trelloCards))
+        @if (!empty($trelloCards))
             @foreach ($trelloCards as $card)
                 <x-filament::section class="mb-8" wire:key="card-{{ $card['id'] }}">
                     <header class="flex items-center justify-between mb-4">
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $card['name'] }}</h2>
                         <span class="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
                             {{ $card['due'] ? \Carbon\Carbon::parse($card['due'])->format('F d, Y') : 'No Due Date' }}
-                            <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" wire:click="" />
+                            <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" />
                         </span>
                     </header>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach ($card['checklists'] as $checklist)
+                        @foreach ($card['checklists'] ?? [] as $checklist)
                             <x-filament::card wire:key="checklist-{{ $checklist['id'] }}">
                                 <header class="mb-2 flex justify-between items-center">
                                     <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -20,22 +20,20 @@
                                     </h3>
                                     <div class="flex gap-2">
                                         <x-filament::modal id="add-checklist-item-modal-{{ $checklist['id'] }}"
-                                            :wire:key="'modal-'.$checklist['id']">
+                                            wire:key="modal-add-{{ $checklist['id'] }}">
                                             <x-slot name="trigger">
                                                 <x-filament::icon-button icon="heroicon-o-plus"
-                                                    wire:click="setCurrentTask({{ json_encode([
-                                                        'checklist_id' => $checklist['id'],
-                                                        'card_id' => $card['id'],
-                                                        'item_id' => null,
-                                                        'name' => '',
-                                                        'due_date' => null,
-                                                        'state' => 'incomplete',
-                                                    ]) }})" />
+                                                    x-on:click="$wire.setCurrentTask({
+                                                        checklist_id: '{{ $checklist['id'] }}',
+                                                        card_id: '{{ $card['id'] }}',
+                                                        item_id: null,
+                                                        name: '',
+                                                        due_date: null,
+                                                        state: 'incomplete'
+                                                    })" />
                                             </x-slot>
 
-                                            <p class="text-gray-800 dark:text-gray-200">
-                                                Add Task
-                                            </p>
+                                            <p class="text-gray-800 dark:text-gray-200">Add Task</p>
 
                                             <x-filament::input.wrapper>
                                                 <x-filament::input type="text" wire:model.defer="currentTask.name"
@@ -48,7 +46,8 @@
                                             </x-filament::input.wrapper>
 
                                             <div class="flex justify-end space-x-3">
-                                                <x-filament::button color="primary" wire:click="createTask">
+                                                <x-filament::button color="primary" wire:click="createTask"
+                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                     Add
                                                 </x-filament::button>
                                             </div>
@@ -57,7 +56,7 @@
                                     </div>
                                 </header>
                                 <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    @foreach ($checklist['items'] as $item)
+                                    @foreach ($checklist['items'] ?? [] as $item)
                                         <li class="py-3 flex items-center justify-between"
                                             wire:key="checklist-item-{{ $item['id'] }}">
                                             <div>
@@ -65,19 +64,19 @@
                                                     <p class="font-semibold text-gray-800 dark:text-gray-200">
                                                         {{ $item['name'] }}
                                                     </p>
-                                                    <!-- edit check item modal -->
+                                                    <!-- Edit check item modal -->
                                                     <x-filament::modal id="edit-label-modal-{{ $item['id'] }}"
-                                                        :wire:key="'modal-edit-'.$item['id']">
+                                                        wire:key="modal-edit-{{ $item['id'] }}">
                                                         <x-slot name="trigger">
                                                             <x-filament::icon-button icon="heroicon-m-pencil-square"
-                                                                wire:click="setCurrentTask({{ json_encode([
-                                                                    'card_id' => $card['id'],
-                                                                    'checklist_id' => $checklist['id'],
-                                                                    'item_id' => $item['id'],
-                                                                    'name' => $item['name'],
-                                                                    'due_date' => $item['due_date'] ?? null,
-                                                                    'state' => $item['state'] ?? 'incomplete',
-                                                                ]) }})" />
+                                                                x-on:click="$wire.setCurrentTask({
+                                                                    card_id: '{{ $card['id'] }}',
+                                                                    checklist_id: '{{ $checklist['id'] }}',
+                                                                    item_id: '{{ $item['id'] }}',
+                                                                    name: '{{ $item['name'] }}',
+                                                                    due_date: '{{ $item['due_date'] ?? '' }}',
+                                                                    state: '{{ $item['state'] ?? 'incomplete' }}'
+                                                                })" />
                                                         </x-slot>
 
                                                         <div class="space-y-6">
@@ -87,14 +86,14 @@
                                                                 </p>
                                                                 <x-filament::modal
                                                                     id="delete-task-modal-{{ $item['id'] }}"
-                                                                    :wire:key="'modal-delete-'.$item['id']">
+                                                                    wire:key="modal-delete-{{ $item['id'] }}">
                                                                     <x-slot name="trigger">
                                                                         <x-filament::icon-button icon="heroicon-o-trash"
                                                                             color="danger"
-                                                                            wire:click="setCurrentTask({{ json_encode([
-                                                                                'checklist_id' => $checklist['id'],
-                                                                                'item_id' => $item['id'],
-                                                                            ]) }})" />
+                                                                            x-on:click="$wire.setCurrentTask({
+                                                                                checklist_id: '{{ $checklist['id'] }}',
+                                                                                item_id: '{{ $item['id'] }}'
+                                                                            })" />
                                                                     </x-slot>
                                                                     <div
                                                                         class="flex flex-col items-center justify-center gap-2">
@@ -109,7 +108,8 @@
                                                                     </div>
                                                                     <div class="flex justify-end space-x-3">
                                                                         <x-filament::button color="danger"
-                                                                            wire:click="deleteTask">
+                                                                            wire:click="deleteTask"
+                                                                            x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                             Delete
                                                                         </x-filament::button>
                                                                     </div>
@@ -124,12 +124,12 @@
                                                             <x-filament::input.wrapper>
                                                                 <x-filament::input type="date"
                                                                     wire:model.defer="currentTask.due_date"
-                                                                    label="Task Name" />
+                                                                    label="Due Date" />
                                                             </x-filament::input.wrapper>
                                                             <label class="py-2 flex gap-2">
                                                                 <x-filament::input.checkbox label="Is Completed"
                                                                     wire:model="currentTask.state" value="complete"
-                                                                    :checked="strtolower($item['state']) === 'complete'" :unchecked="strtolower($item['state']) === 'incomplete'" />
+                                                                    :checked="strtolower($item['state'] ?? '') === 'complete'" :unchecked="strtolower($item['state'] ?? '') === 'incomplete'" />
                                                                 <span class="text-sm text-gray-500 dark:text-gray-400">
                                                                     Is Completed
                                                                 </span>
@@ -137,27 +137,27 @@
                                                             <div class="flex justify-end space-x-3">
                                                                 <x-filament::button color="primary"
                                                                     wire:click="saveEditTask"
-                                                                    wire:loading.attr="disabled">
+                                                                    wire:loading.attr="disabled"
+                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                     Save
                                                                 </x-filament::button>
                                                             </div>
                                                         </div>
                                                     </x-filament::modal>
-
                                                 </div>
+
                                                 <div class="flex gap-2 p-1">
                                                     <!-- Due date modal -->
                                                     <x-filament::modal id="set-due-date-modal-{{ $item['id'] }}"
-                                                        :wire:key="'modal-'.$item['id']">
+                                                        wire:key="modal-due-{{ $item['id'] }}">
                                                         <x-slot name="trigger">
                                                             <x-filament::icon-button icon="heroicon-m-calendar"
-                                                                wire:click="setCurrentTask({{ json_encode(
-                                                                    array_merge($item, [
-                                                                        'card_id' => $card['id'],
-                                                                        'checklist_id' => $checklist['id'],
-                                                                        'item_id' => $item['id'],
-                                                                    ]),
-                                                                ) }})" />
+                                                                x-on:click="$wire.setCurrentTask({
+                                                                    ...{{ json_encode($item) }},
+                                                                    card_id: '{{ $card['id'] }}',
+                                                                    checklist_id: '{{ $checklist['id'] }}',
+                                                                    item_id: '{{ $item['id'] }}'
+                                                                })" />
                                                         </x-slot>
                                                         <p>
                                                             Due:
@@ -170,39 +170,42 @@
                                                                 wire:model.defer="dueDate" />
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
-                                                            <x-filament::button color="primary"
-                                                                wire:click="saveDueDate">
+                                                            <x-filament::button color="primary" wire:click="saveDueDate"
+                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                 Save
                                                             </x-filament::button>
                                                         </div>
                                                     </x-filament::modal>
 
                                                     <!-- Display due date -->
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                        <span>
-                                                            {{ $item['due'] ? \Carbon\Carbon::parse($item['due'])->format('F d, Y') : '' }}
-                                                        </span>
-                                                    </p>
+                                                    @if (!empty($item['due']))
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ \Carbon\Carbon::parse($item['due'])->format('F d, Y') }}
+                                                        </p>
+                                                    @endif
                                                 </div>
-                                                <div class="flex gap-2 p-1">
 
-                                                    {{-- assigned user modal --}}
+                                                <div class="flex gap-2 p-1">
+                                                    <!-- Assigned user modal -->
                                                     <x-filament::modal id="set-user-modal-{{ $item['id'] }}"
-                                                        :wire:key="'modal-'.$item['id']">
+                                                        wire:key="modal-user-{{ $item['id'] }}">
                                                         <x-slot name="trigger">
                                                             <x-filament::icon-button icon="heroicon-m-user"
-                                                                wire:click="setCurrentTask({{ json_encode(
-                                                                    array_merge($item, [
-                                                                        'card_id' => $card['id'],
-                                                                        'checklist_id' => $checklist['id'],
-                                                                        'item_id' => $item['id'],
-                                                                    ]),
-                                                                ) }})" />
+                                                                x-on:click="$wire.setCurrentTask({
+                                                                    ...{{ json_encode($item) }},
+                                                                    card_id: '{{ $card['id'] }}',
+                                                                    checklist_id: '{{ $checklist['id'] }}',
+                                                                    item_id: '{{ $item['id'] }}'
+                                                                })" />
                                                         </x-slot>
                                                         <p>
                                                             Assigned to:
                                                             <span>
-                                                                {{ $item['user_id'] ? \App\Models\User::find($item['user_id'])->name : 'No Assigned User' }}
+                                                                @if (!empty($item['user_id']))
+                                                                    {{ \App\Models\User::find($item['user_id'])->name ?? 'Unknown' }}
+                                                                @else
+                                                                    No Assigned User
+                                                                @endif
                                                             </span>
                                                         </p>
                                                         <x-filament::input.wrapper>
@@ -217,21 +220,23 @@
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
                                                             <x-filament::button color="primary"
-                                                                wire:click="assignUserToCheckItem">
+                                                                wire:click="assignUserToCheckItem"
+                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                 Save
                                                             </x-filament::button>
                                                         </div>
                                                     </x-filament::modal>
 
-                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                        <span>
-                                                            {{ $item['user_id'] ?? 'No User Assigned' }}
-                                                        </span>
-                                                    </p>
+                                                    <!-- Display assigned user -->
+                                                    @if (!empty($item['user_id']))
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                            {{ optional(\App\Models\User::find($item['user_id']))->name ?? 'Unknown' }}
+                                                        </p>
+                                                    @endif
                                                 </div>
 
                                                 <div class="mt-2 flex gap-2">
-                                                    @if (strtolower($item['state']) === 'complete')
+                                                    @if (strtolower($item['state'] ?? '') === 'complete')
                                                         <x-filament::badge color="success" class="px-3 py-1 text-sm"
                                                             icon="heroicon-o-check-circle">
                                                             Complete
@@ -245,25 +250,25 @@
                                                 </div>
                                             </div>
 
-                                            <!-- complete modal -->
-                                            <x-filament::modal id="edit-label-modal-{{ $item['id'] }}"
-                                                :wire:key="'modal-edit-'.$item['id']">
+                                            <!-- Complete task modal -->
+                                            <x-filament::modal id="complete-task-modal-{{ $item['id'] }}"
+                                                wire:key="modal-complete-{{ $item['id'] }}">
                                                 <x-slot name="trigger">
                                                     <x-filament::icon-button icon="heroicon-m-check"
-                                                        wire:click="setCurrentTask({{ json_encode(
-                                                            array_merge($item, [
-                                                                'card_id' => $card['id'],
-                                                                'checklist_id' => $checklist['id'],
-                                                                'item_id' => $item['id'],
-                                                            ]),
-                                                        ) }})" />
+                                                        x-on:click="$wire.setCurrentTask({
+                                                            ...{{ json_encode($item) }},
+                                                            card_id: '{{ $card['id'] }}',
+                                                            checklist_id: '{{ $checklist['id'] }}',
+                                                            item_id: '{{ $item['id'] }}'
+                                                        })" />
                                                 </x-slot>
                                                 <p class="text-gray-800 dark:text-gray-200">
                                                     Are you sure you want to mark this task as complete?
                                                 </p>
                                                 <div class="flex justify-end space-x-3">
                                                     <x-filament::button color="primary"
-                                                        wire:click="updateCheckItemState">
+                                                        wire:click="updateCheckItemState"
+                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                         Submit
                                                     </x-filament::button>
                                                 </div>
@@ -280,4 +285,21 @@
             <div class="p-6 text-gray-600 dark:text-gray-400">No tasks found.</div>
         @endif
     </div>
+
+    <!-- Add Livewire refresh listeners -->
+    <script>
+        document.addEventListener('livewire:load', function() {
+            Livewire.on('taskCreated', () => {
+                Livewire.emit('refresh');
+            });
+
+            Livewire.on('taskUpdated', () => {
+                Livewire.emit('refresh');
+            });
+
+            Livewire.on('taskDeleted', () => {
+                Livewire.emit('refresh');
+            });
+        });
+    </script>
 </x-filament::page>

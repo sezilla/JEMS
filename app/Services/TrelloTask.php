@@ -244,24 +244,34 @@ class TrelloTask
         }
     }
 
-    public function updateCheckItemDetails($cardId, $checkItemId, $name, $due, $state)
+    public function updateCheckItemDetails($cardId, $checkItemId, $name = null, $due = null, $state = null)
     {
         try {
+            $queryParams = $this->getAuthParams();
+
+            if ($name !== null) {
+                $queryParams['name'] = $name;
+            }
+
+            if ($due !== null) {
+                $queryParams['due'] = $due;
+            }
+
+            if ($state !== null && in_array($state, ['complete', 'incomplete'])) {
+                $queryParams['state'] = $state;
+            }
+
             $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
-                'query' => array_merge($this->getAuthParams(), [
-                    'name' => $name,
-                    'due' => $due,
-                    'state' => in_array($state, ['complete', 'incomplete']) ? $state : 'incomplete',
-                ]),
+                'query' => $queryParams,
             ]);
 
             $responseData = json_decode($response->getBody()->getContents(), true);
 
-            Log::info("Created a new checklist item in checklist {$checkItemId} with name '{$name}' and due date '{$due}'.");
+            Log::info("Updated checklist item {$checkItemId} on card {$cardId} with details: name='{$name}', due='{$due}', state='{$state}'.");
 
             return $responseData;
         } catch (RequestException $e) {
-            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            Log::error("Failed to update checklist item {$checkItemId} on card {$cardId}: " . $e->getMessage());
             return null;
         }
     }
