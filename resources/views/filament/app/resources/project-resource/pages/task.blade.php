@@ -76,6 +76,7 @@
                                                                     name: '{{ $item['name'] }}',
                                                                     due_date: '{{ $item['due_date'] ?? '' }}',
                                                                     state: '{{ $item['state'] ?? 'incomplete' }}'
+                                                                    , user_id: '{{ $item['user_id'] ?? '' }}'
                                                                 })" />
                                                         </x-slot>
 
@@ -125,6 +126,23 @@
                                                                 <x-filament::input type="date"
                                                                     wire:model.defer="currentTask.due_date"
                                                                     label="Due Date" />
+                                                            </x-filament::input.wrapper>
+                                                            <x-filament::input.wrapper>
+                                                                <x-filament::input.select wire:model="user_id"
+                                                                    id="user-select">
+                                                                    <option value="">Select User</option>
+                                                                    @foreach ($users as $user)
+                                                                        <option value="{{ $user->id }}">
+                                                                            {{ $user->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </x-filament::input.select>
+                                                                <!-- Debug output during development -->
+                                                                @if (app()->environment('local'))
+                                                                    <div class="text-xs text-gray-500 mt-1">
+                                                                        Selected user_id: {{ $user_id ?? 'null' }}
+                                                                    </div>
+                                                                @endif
                                                             </x-filament::input.wrapper>
                                                             <label class="py-2 flex gap-2">
                                                                 <x-filament::input.checkbox label="Is Completed"
