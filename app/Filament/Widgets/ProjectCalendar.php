@@ -10,6 +10,12 @@ use App\Models\Project;
 
 class ProjectCalendar extends FullCalendarWidget
 {
+    public static function canView(): bool
+    {
+        // Only show it on custom pages, not the dashboard
+        return request()->routeIs('filament.admin.pages.calendar');
+    }
+
     public function fetchEvents(array $fetchInfo): array
     {
         return Project::query()
