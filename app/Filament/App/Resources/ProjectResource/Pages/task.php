@@ -114,10 +114,17 @@ class Task extends Page
 
                     if (
                         isset($this->userCheckItem[$checklist['id']]) &&
-                        isset($this->userCheckItem[$checklist['id']]['check_item_id']) &&
-                        $item['id'] === $this->userCheckItem[$checklist['id']]['check_item_id']
+                        is_array($this->userCheckItem[$checklist['id']])
                     ) {
-                        $item['user_id'] = $this->userCheckItem[$checklist['id']]['user_id'];
+                        foreach ($this->userCheckItem[$checklist['id']] as $assignment) {
+                            if (
+                                isset($assignment['check_item_id']) &&
+                                $item['id'] === $assignment['check_item_id']
+                            ) {
+                                $item['user_id'] = $assignment['user_id'];
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -127,6 +134,7 @@ class Task extends Page
                 ]);
             }
         }
+
 
         $this->trelloCards = $cards;
     }
@@ -154,7 +162,7 @@ class Task extends Page
                         'checklist'    => $checklist['name'],
                         'task'         => $item['name'],
                         'task_status'  => $item['state'] === 'complete' ? 'complete' : 'incomplete',
-                        'user_id'      => $item['user_id'] ?? null, // Changed from 1 to null to avoid default assignment
+                        'user_id'      => $item['user_id'] ?? null,
                     ];
                 }
             }
@@ -408,9 +416,9 @@ class Task extends Page
 
         $userId = null;
         if (isset($this->currentTask['user_id']) && !empty($this->currentTask['user_id'])) {
-            $userId = (int)$this->currentTask['user_id'];
+            $userId = (int) $this->currentTask['user_id'];
         } elseif (!empty($this->user_id)) {
-            $userId = (int)$this->user_id;
+            $userId = (int) $this->user_id;
             $this->currentTask['user_id'] = $userId;
         }
 
@@ -428,7 +436,12 @@ class Task extends Page
             }
 
             $userChecklist = $checklistUser->user_checklist ?? [];
-            $userChecklist[$checklistId] = [
+
+            if (!isset($userChecklist[$checklistId]) || !is_array($userChecklist[$checklistId])) {
+                $userChecklist[$checklistId] = [];
+            }
+
+            $userChecklist[$checklistId][] = [
                 'user_id' => $userId,
                 'check_item_id' => $itemId,
             ];
@@ -440,9 +453,9 @@ class Task extends Page
 
             Log::info('User assignment updated in database', [
                 'checklist_id' => $checklistId,
-                'item_id' => $itemId,
-                'user_id' => $userId,
-                'project_id' => $this->project->id
+                'item_id'      => $itemId,
+                'user_id'      => $userId,
+                'project_id'   => $this->project->id
             ]);
         }
 
@@ -450,7 +463,7 @@ class Task extends Page
 
         Log::info('Task edit attempt', [
             'success' => $success,
-            'task' => $this->currentTask,
+            'task'    => $this->currentTask,
         ]);
 
         return $this->showNotification(
