@@ -99,6 +99,8 @@ class TrelloTask
         return null;
     }
 
+    // public function get
+
     public function getCardStatus($listId, $cardName)
     {
         $card = $this->getCardByName($listId, $cardName);
@@ -219,6 +221,96 @@ class TrelloTask
         } catch (RequestException $e) {
             Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    public function setCheckItemState($cardId, $checkItemId, $state)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'state' => in_array($state, ['complete', 'incomplete']) ? $state : 'incomplete',
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Set state for checklist item {$checkItemId} on card {$cardId} to {$state}.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateCheckItemDetails($cardId, $checkItemId, $name = null, $due = null, $state = null)
+    {
+        try {
+            $queryParams = $this->getAuthParams();
+
+            if ($name !== null) {
+                $queryParams['name'] = $name;
+            }
+
+            if ($due !== null) {
+                $queryParams['due'] = $due;
+            }
+
+            if ($state !== null && in_array($state, ['complete', 'incomplete'])) {
+                $queryParams['state'] = $state;
+            }
+
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => $queryParams,
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Updated checklist item {$checkItemId} on card {$cardId} with details: name='{$name}', due='{$due}', state='{$state}'.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error("Failed to update checklist item {$checkItemId} on card {$cardId}: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function createCheckItem($checklistId, $name, $due)
+    {
+        try {
+            $response = $this->client->post("checklists/{$checklistId}/checkItems", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'name' => $name,
+                    'due' => $due,
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Created checklist item for {$checklistId} with name '{$name}'.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function deleteCheckItem($checklistId, $checkItemId)
+    {
+        try {
+            $response = $this->client->delete("checklists/{$checklistId}/checkItems/{$checkItemId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            Log::info("Deleted checklist item {$checkItemId} from checklist {$checklistId}.");
+
+            // Return true to indicate success, since Trello returns no content on success
+            return true;
+        } catch (RequestException $e) {
+            Log::error('Failed to delete checklist item: ' . $e->getMessage());
+            return false;
         }
     }
 }

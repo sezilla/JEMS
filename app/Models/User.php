@@ -101,6 +101,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         return $this->belongsToMany(Skill::class, 'user_skills', 'user_id', 'skill_id');
     }
 
+    public function checklist()
+    {
+        return $this->hasMany(ChecklistUser::class, 'user_id');
+    }
+
+
 
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace app\Filament\App\Widgets;
 
 use Filament\Widgets\Widget;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
@@ -13,7 +13,7 @@ class ProjectCalendar extends FullCalendarWidget
     public static function canView(): bool
     {
         // Only show it on custom pages, not the dashboard
-        return request()->routeIs('filament.admin.pages.calendar');
+        return request()->routeIs('filament.app.pages.calendar');
     }
 
     public function fetchEvents(array $fetchInfo): array
