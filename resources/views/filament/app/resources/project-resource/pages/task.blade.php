@@ -85,8 +85,35 @@
                                                                 <p class="text-gray-800 dark:text-gray-200">
                                                                     Edit Task
                                                                 </p>
-                                                                <x-filament::icon-button icon="heroicon-o-trash"
-                                                                    color="danger" />
+                                                                <x-filament::modal
+                                                                    id="delete-task-modal-{{ $item['id'] }}"
+                                                                    :wire:key="'modal-delete-'.$item['id']">
+                                                                    <x-slot name="trigger">
+                                                                        <x-filament::icon-button icon="heroicon-o-trash"
+                                                                            color="danger"
+                                                                            wire:click="setCurrentTask({{ json_encode([
+                                                                                'checklist_id' => $checklist['id'],
+                                                                                'item_id' => $item['id'],
+                                                                            ]) }})" />
+                                                                    </x-slot>
+                                                                    <div
+                                                                        class="flex flex-col items-center justify-center gap-2">
+                                                                        <x-filament::icon
+                                                                            icon="heroicon-o-exclamation-triangle"
+                                                                            class="text-red-500"
+                                                                            style="width: 34px; height: 34px;" />
+                                                                        <p
+                                                                            class="text-gray-800 dark:text-gray-200 text-center">
+                                                                            Are you sure you want to delete this task?
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="flex justify-end space-x-3">
+                                                                        <x-filament::button color="danger"
+                                                                            wire:click="deleteTask">
+                                                                            Delete
+                                                                        </x-filament::button>
+                                                                    </div>
+                                                                </x-filament::modal>
                                                             </div>
 
                                                             <x-filament::input.wrapper>

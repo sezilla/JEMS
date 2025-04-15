@@ -460,4 +460,51 @@ class Task extends Page
 
         return $response;
     }
+
+    public function deleteTask()
+    {
+        if (!isset($this->currentTask['checklist_id'], $this->currentTask['item_id'])) {
+            Notification::make()
+                ->title('Missing Data')
+                ->body('Missing checklist or item data.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $trelloService = app(TrelloTask::class);
+        $success = $trelloService->deleteCheckItem(
+            $this->currentTask['checklist_id'],
+            $this->currentTask['item_id']
+        );
+
+        if ($success) {
+            Notification::make()
+                ->title('Task Deleted')
+                ->body('Task deleted successfully.')
+                ->success()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Failed to Delete Task')
+                ->body('An error occurred while trying to delete the task.')
+                ->danger()
+                ->send();
+        }
+
+        $project = Project::find($this->project->id);
+        $boardId = $project?->trello_board_id;
+        if ($boardId) {
+            $this->fetchTrelloCards($boardId);
+            $this->tableData = $this->setTableData();
+        }
+
+        Log::info('Task deleted.', [
+            'checklist_id' => $this->currentTask['checklist_id'],
+            'item_id' => $this->currentTask['item_id'],
+        ]);
+
+        return $success;
+    }
 }

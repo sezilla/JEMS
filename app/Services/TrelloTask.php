@@ -286,4 +286,21 @@ class TrelloTask
             return null;
         }
     }
+
+    public function deleteCheckItem($checklistId, $checkItemId)
+    {
+        try {
+            $response = $this->client->delete("checklists/{$checklistId}/checkItems/{$checkItemId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            Log::info("Deleted checklist item {$checkItemId} from checklist {$checklistId}.");
+
+            // Return true to indicate success, since Trello returns no content on success
+            return true;
+        } catch (RequestException $e) {
+            Log::error('Failed to delete checklist item: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
