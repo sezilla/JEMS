@@ -7,7 +7,27 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $card['name'] }}</h2>
                         <span class="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
                             {{ $card['due'] ? \Carbon\Carbon::parse($card['due'])->format('F d, Y') : 'No Due Date' }}
-                            <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" />
+                            @if (auth()->user()->hasRole('Coordinator'))
+                                <x-filament::modal id="set-card-due" wire:key="modal-card-due-{{ $card['id'] }}">
+                                    <x-slot name="trigger">
+                                        <x-filament::icon-button icon="heroicon-o-ellipsis-vertical"
+                                            x-on:click="$wire.setCurrentTask({
+                                                card_id: '{{ $card['id'] }}',
+                                                due_date: '{{ $card['due'] ?? '' }}',
+                                            })" />
+                                    </x-slot>
+                                    <p class="text-gray-800 dark:text-gray-200">Set Department Due</p>
+                                    <x-filament::input.wrapper>
+                                        <x-filament::input type="date" wire:model.defer="currentTask.due_date" />
+                                    </x-filament::input.wrapper>
+                                    <div class="flex justify-end space-x-3">
+                                        <x-filament::button color="primary" wire:click="setDepartmentDue"
+                                            x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                            Save
+                                        </x-filament::button>
+                                    </div>
+                                </x-filament::modal>
+                            @endif
                         </span>
                     </header>
 
@@ -19,40 +39,61 @@
                                         {{ $checklist['name'] }}
                                     </h3>
                                     <div class="flex gap-2">
-                                        <x-filament::modal id="add-checklist-item-modal-{{ $checklist['id'] }}"
-                                            wire:key="modal-add-{{ $checklist['id'] }}">
-                                            <x-slot name="trigger">
-                                                <x-filament::icon-button icon="heroicon-o-plus"
-                                                    x-on:click="$wire.setCurrentTask({
+                                        @if (auth()->user()->hasRole('Coordinator'))
+                                            <x-filament::modal id="add-checklist-item-modal-{{ $checklist['id'] }}"
+                                                wire:key="modal-add-{{ $checklist['id'] }}">
+                                                <x-slot name="trigger">
+                                                    <x-filament::icon-button icon="heroicon-o-plus"
+                                                        x-on:click="$wire.setCurrentTask({
                                                         checklist_id: '{{ $checklist['id'] }}',
                                                         card_id: '{{ $card['id'] }}',
                                                         item_id: null,
                                                         name: '',
                                                         due_date: null,
-                                                        state: 'incomplete'
+                                                        state: 'incomplete',
+                                                        user_id: null
                                                     })" />
-                                            </x-slot>
+                                                </x-slot>
 
-                                            <p class="text-gray-800 dark:text-gray-200">Add Task</p>
+                                                <p class="text-gray-800 dark:text-gray-200">Add Task</p>
 
-                                            <x-filament::input.wrapper>
-                                                <x-filament::input type="text" wire:model.defer="currentTask.name"
-                                                    label="Task Name" />
-                                            </x-filament::input.wrapper>
+                                                <x-filament::input.wrapper>
+                                                    <x-filament::input type="text"
+                                                        wire:model.defer="currentTask.name" label="Task Name"
+                                                        required />
+                                                </x-filament::input.wrapper>
 
-                                            <x-filament::input.wrapper>
-                                                <x-filament::input type="date"
-                                                    wire:model.defer="currentTask.due_date" label="Due Date" />
-                                            </x-filament::input.wrapper>
+                                                <x-filament::input.wrapper>
+                                                    <x-filament::input type="date"
+                                                        wire:model.defer="currentTask.due_date" label="Due Date" />
+                                                </x-filament::input.wrapper>
 
-                                            <div class="flex justify-end space-x-3">
-                                                <x-filament::button color="primary" wire:click="createTask"
-                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
-                                                    Add
-                                                </x-filament::button>
-                                            </div>
-                                        </x-filament::modal>
-                                        <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" />
+                                                <x-filament::input.wrapper>
+                                                    <x-filament::input.select wire:model.defer="currentTask.user_id"
+                                                        id="user-select">
+                                                        <option value="">Select User</option>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">
+                                                                {{ $user->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </x-filament::input.select>
+                                                    @if (app()->environment('local'))
+                                                        <div class="text-xs text-gray-500 mt-1">
+                                                            Selected user_id: {{ $currentTask['user_id'] ?? 'null' }}
+                                                        </div>
+                                                    @endif
+                                                </x-filament::input.wrapper>
+
+                                                <div class="flex justify-end space-x-3">
+                                                    <x-filament::button color="primary" wire:click="createTask"
+                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                        Add
+                                                    </x-filament::button>
+                                                </div>
+                                            </x-filament::modal>
+                                        @endif
+                                        {{-- <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" /> --}}
                                     </div>
                                 </header>
                                 <ul class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -75,8 +116,8 @@
                                                                     item_id: '{{ $item['id'] }}',
                                                                     name: '{{ $item['name'] }}',
                                                                     due_date: '{{ $item['due_date'] ?? '' }}',
-                                                                    state: '{{ $item['state'] ?? 'incomplete' }}'
-                                                                    , user_id: '{{ $item['user_id'] ?? '' }}'
+                                                                    state: '{{ $item['state'] ?? 'incomplete' }}',
+                                                                    user_id: '{{ $item['user_id'] ?? '' }}'
                                                                 })" />
                                                         </x-slot>
 
@@ -85,51 +126,59 @@
                                                                 <p class="text-gray-800 dark:text-gray-200">
                                                                     Edit Task
                                                                 </p>
-                                                                <x-filament::modal
-                                                                    id="delete-task-modal-{{ $item['id'] }}"
-                                                                    wire:key="modal-delete-{{ $item['id'] }}">
-                                                                    <x-slot name="trigger">
-                                                                        <x-filament::icon-button icon="heroicon-o-trash"
-                                                                            color="danger"
-                                                                            x-on:click="$wire.setCurrentTask({
+                                                                @if (auth()->user()->hasRole('Coordinator'))
+                                                                    <x-filament::modal
+                                                                        id="delete-task-modal-{{ $item['id'] }}"
+                                                                        wire:key="modal-delete-{{ $item['id'] }}">
+                                                                        <x-slot name="trigger">
+                                                                            <x-filament::icon-button
+                                                                                icon="heroicon-o-trash" color="danger"
+                                                                                x-on:click="$dispatch('close-modal'); $wire.setCurrentTask({
                                                                                 checklist_id: '{{ $checklist['id'] }}',
                                                                                 item_id: '{{ $item['id'] }}'
-                                                                            })" />
-                                                                    </x-slot>
-                                                                    <div
-                                                                        class="flex flex-col items-center justify-center gap-2">
-                                                                        <x-filament::icon
-                                                                            icon="heroicon-o-exclamation-triangle"
-                                                                            class="text-red-500"
-                                                                            style="width: 34px; height: 34px;" />
-                                                                        <p
-                                                                            class="text-gray-800 dark:text-gray-200 text-center">
-                                                                            Are you sure you want to delete this task?
-                                                                        </p>
-                                                                    </div>
-                                                                    <div class="flex justify-end space-x-3">
-                                                                        <x-filament::button color="danger"
-                                                                            wire:click="deleteTask"
-                                                                            x-on:click="$dispatch('close-modal'); $wire.$refresh()">
-                                                                            Delete
-                                                                        </x-filament::button>
-                                                                    </div>
-                                                                </x-filament::modal>
+                                                                            });" />
+
+                                                                        </x-slot>
+                                                                        <div
+                                                                            class="flex flex-col items-center justify-center gap-2">
+                                                                            <x-filament::icon
+                                                                                icon="heroicon-o-exclamation-triangle"
+                                                                                class="text-red-500"
+                                                                                style="width: 34px; height: 34px;" />
+                                                                            <p
+                                                                                class="text-gray-800 dark:text-gray-200 text-center">
+                                                                                Are you sure you want to delete this
+                                                                                task?
+                                                                            </p>
+                                                                        </div>
+                                                                        <div class="flex justify-end space-x-3">
+                                                                            <x-filament::button color="danger"
+                                                                                wire:click="deleteTask"
+                                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                                Delete
+                                                                            </x-filament::button>
+                                                                        </div>
+                                                                    </x-filament::modal>
+                                                                @endif
                                                             </div>
 
                                                             <x-filament::input.wrapper>
                                                                 <x-filament::input type="text"
                                                                     wire:model.defer="currentTask.name"
-                                                                    label="Task Name" />
+                                                                    label="Task Name" :disabled="!auth()->user()->hasRole('Coordinator')" />
                                                             </x-filament::input.wrapper>
-                                                            <x-filament::input.wrapper>
-                                                                <x-filament::input type="date"
-                                                                    wire:model.defer="currentTask.due_date"
-                                                                    label="Due Date" />
-                                                            </x-filament::input.wrapper>
+                                                            @if (auth()->user()->hasRole('Coordinator'))
+                                                                <x-filament::input.wrapper>
+                                                                    <x-filament::input type="date"
+                                                                        wire:model.defer="currentTask.due_date"
+                                                                        label="Due Date" />
+                                                                </x-filament::input.wrapper>
+                                                            @endif
                                                             <x-filament::input.wrapper>
                                                                 <x-filament::input.select wire:model="user_id"
-                                                                    id="user-select">
+                                                                    id="user-select" :disabled="!auth()
+                                                                        ->user()
+                                                                        ->hasAnyRole(['Coordinator', 'Team Leader'])">
                                                                     <option value="">Select User</option>
                                                                     @foreach ($users as $user)
                                                                         <option value="{{ $user->id }}">
@@ -185,22 +234,23 @@
                                                         </p>
                                                         <x-filament::input.wrapper>
                                                             <x-filament::input type="date"
-                                                                wire:model.defer="dueDate" />
+                                                                wire:model.defer="dueDate" :disabled="!auth()->user()->hasRole('Coordinator')" />
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
-                                                            <x-filament::button color="primary" wire:click="saveDueDate"
-                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
-                                                                Save
-                                                            </x-filament::button>
+                                                            @if (auth()->user()->hasRole('Coordinator'))
+                                                                <x-filament::button color="primary"
+                                                                    wire:click="saveDueDate"
+                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                    Save
+                                                                </x-filament::button>
+                                                            @endif
                                                         </div>
                                                     </x-filament::modal>
 
                                                     <!-- Display due date -->
-                                                    @if (!empty($item['due']))
-                                                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                                                            {{ \Carbon\Carbon::parse($item['due'])->format('F d, Y') }}
-                                                        </p>
-                                                    @endif
+                                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                        {{ !empty($item['due']) ? \Carbon\Carbon::parse($item['due'])->format('F d, Y') : 'No Due Date' }}
+                                                    </p>
                                                 </div>
 
                                                 <div class="flex gap-2 p-1">
@@ -227,7 +277,10 @@
                                                             </span>
                                                         </p>
                                                         <x-filament::input.wrapper>
-                                                            <x-filament::input.select wire:model.defer="user_id">
+                                                            <x-filament::input.select wire:model="user_id"
+                                                                id="user-select" :disabled="!auth()
+                                                                    ->user()
+                                                                    ->hasAnyRole(['Coordinator', 'Team Leader'])">
                                                                 <option value="">Select User</option>
                                                                 @foreach ($users as $user)
                                                                     <option value="{{ $user->id }}">
@@ -235,13 +288,21 @@
                                                                     </option>
                                                                 @endforeach
                                                             </x-filament::input.select>
+                                                            <!-- Debug output during development -->
+                                                            @if (app()->environment('local'))
+                                                                <div class="text-xs text-gray-500 mt-1">
+                                                                    Selected user_id: {{ $user_id ?? 'null' }}
+                                                                </div>
+                                                            @endif
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
-                                                            <x-filament::button color="primary"
-                                                                wire:click="assignUserToCheckItem"
-                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
-                                                                Save
-                                                            </x-filament::button>
+                                                            @if (auth()->user()->hasAnyRole(['Coordinator', 'Team Leader']))
+                                                                <x-filament::button color="primary"
+                                                                    wire:click="assignUserToCheckItem"
+                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                    Save
+                                                                </x-filament::button>
+                                                            @endif
                                                         </div>
                                                     </x-filament::modal>
 
@@ -249,6 +310,10 @@
                                                     @if (!empty($item['user_id']))
                                                         <p class="text-sm text-gray-500 dark:text-gray-400">
                                                             {{ optional(\App\Models\User::find($item['user_id']))->name ?? 'Unknown' }}
+                                                        </p>
+                                                    @else
+                                                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                            No Assigned User
                                                         </p>
                                                     @endif
                                                 </div>
@@ -303,21 +368,4 @@
             <div class="p-6 text-gray-600 dark:text-gray-400">No tasks found.</div>
         @endif
     </div>
-
-    <!-- Add Livewire refresh listeners -->
-    <script>
-        document.addEventListener('livewire:load', function() {
-            Livewire.on('taskCreated', () => {
-                Livewire.emit('refresh');
-            });
-
-            Livewire.on('taskUpdated', () => {
-                Livewire.emit('refresh');
-            });
-
-            Livewire.on('taskDeleted', () => {
-                Livewire.emit('refresh');
-            });
-        });
-    </script>
 </x-filament::page>

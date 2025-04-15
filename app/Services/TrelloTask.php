@@ -313,4 +313,24 @@ class TrelloTask
             return false;
         }
     }
+
+    public function setCardDue($cardId, $dueDate)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'due' => $dueDate,
+                ]),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for card', [
+                'card_id'  => $cardId,
+                'due_date' => $dueDate,
+                'message'  => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
 }
