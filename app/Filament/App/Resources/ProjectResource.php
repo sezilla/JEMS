@@ -261,6 +261,7 @@ class ProjectResource extends Resource
             // 'create' => Pages\CreateProject::route('/create'),
             // 'edit' => Pages\EditProject::route('/{record}/edit'),
             'task' => Pages\task::route('/{record}/task'),
+            'view' => Pages\ViewProject::route('/{record}'), 
         ];
     }
 }

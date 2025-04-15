@@ -75,7 +75,8 @@ class AppPanelProvider extends PanelProvider
                 // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([])
+            ->widgets([
+            ])
             ->viteTheme('resources/css/filament/app/theme.css')
             ->middleware([
                 EncryptCookies::class,
@@ -97,6 +98,8 @@ class AppPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+
+                \Saade\FilamentFullCalendar\FilamentFullCalendarPlugin::make(),
 
                 FilamentEditProfilePlugin::make()
                     // ->slug('profile')
