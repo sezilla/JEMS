@@ -74,15 +74,25 @@ class UserRelationManager extends RelationManager
                     })
                     ->form([
                         Select::make('user_id')
-                            ->label('Member')
-                            ->options(User::whereDoesntHave('teams', function ($query) {
-                                $query->where('teams.id', $this->ownerRecord->id);
-                            })->pluck('name', 'id'))
+                            ->label('Select Member')
+                            ->options(function () {
+                                $team = $this->ownerRecord;
+
+                                $departmentIds = $team->departments->pluck('id');
+
+                                return User::whereHas('departments', function ($query) use ($departmentIds) {
+                                    $query->whereIn('departments.id', $departmentIds);
+                                })
+                                    ->whereDoesntHave('teams', function ($query) use ($team) {
+                                        $query->where('teams.id', $team->id);
+                                    })
+                                    ->pluck('name', 'id');
+                            })
                             ->required()
                             ->multiple()
                             ->preload()
-                            ->label('Select Member')
                             ->searchable(),
+
                     ])
             ])
             ->actions([
