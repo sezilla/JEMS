@@ -127,10 +127,11 @@
                                                                     <x-slot name="trigger">
                                                                         <x-filament::icon-button icon="heroicon-o-trash"
                                                                             color="danger"
-                                                                            x-on:click="$wire.setCurrentTask({
+                                                                            x-on:click="$dispatch('close-modal'); $wire.setCurrentTask({
                                                                                 checklist_id: '{{ $checklist['id'] }}',
                                                                                 item_id: '{{ $item['id'] }}'
-                                                                            }); $dispatch('close-modal')" />
+                                                                            });" />
+
                                                                     </x-slot>
                                                                     <div
                                                                         class="flex flex-col items-center justify-center gap-2">
@@ -347,21 +348,4 @@
             <div class="p-6 text-gray-600 dark:text-gray-400">No tasks found.</div>
         @endif
     </div>
-
-    <!-- Add Livewire refresh listeners -->
-    <script>
-        document.addEventListener('livewire:load', function() {
-            Livewire.on('taskCreated', () => {
-                Livewire.emit('refresh');
-            });
-
-            Livewire.on('taskUpdated', () => {
-                Livewire.emit('refresh');
-            });
-
-            Livewire.on('taskDeleted', () => {
-                Livewire.emit('refresh');
-            });
-        });
-    </script>
 </x-filament::page>
