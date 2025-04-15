@@ -99,6 +99,8 @@ class TrelloTask
         return null;
     }
 
+    // public function get
+
     public function getCardStatus($listId, $cardName)
     {
         $card = $this->getCardByName($listId, $cardName);
@@ -214,6 +216,69 @@ class TrelloTask
             $responseData = json_decode($response->getBody()->getContents(), true);
 
             Log::info("Set due date for checklist item {$checkItemId} on card {$cardId} to {$dueDate}.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function setCheckItemState($cardId, $checkItemId, $state)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'state' => in_array($state, ['complete', 'incomplete']) ? $state : 'incomplete',
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Set state for checklist item {$checkItemId} on card {$cardId} to {$state}.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateCheckItemDetails($cardId, $checkItemId, $name, $due, $state)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'name' => $name,
+                    'due' => $due,
+                    'state' => in_array($state, ['complete', 'incomplete']) ? $state : 'incomplete',
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Created a new checklist item in checklist {$checkItemId} with name '{$name}' and due date '{$due}'.");
+
+            return $responseData;
+        } catch (RequestException $e) {
+            Log::error('Failed to set due date for checklist item: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function createCheckItem($checklistId, $name, $due)
+    {
+        try {
+            $response = $this->client->post("checklists/{$checklistId}/checkItems", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'name' => $name,
+                    'due' => $due,
+                ]),
+            ]);
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            Log::info("Created checklist item for {$checklistId} with name '{$name}'.");
 
             return $responseData;
         } catch (RequestException $e) {

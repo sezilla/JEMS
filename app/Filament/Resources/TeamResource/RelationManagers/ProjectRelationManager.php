@@ -108,7 +108,6 @@ class ProjectRelationManager extends RelationManager
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
                             ]),
-
                         ])->space(3),
                     ]),
                     Split::make([

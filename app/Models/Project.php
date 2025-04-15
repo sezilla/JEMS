@@ -235,4 +235,9 @@ class Project extends Model
             $q->where('name', 'Coordination');
         });
     }
+
+    public function checklist()
+    {
+        return $this->hasOne(ChecklistUser::class);
+    }
 }

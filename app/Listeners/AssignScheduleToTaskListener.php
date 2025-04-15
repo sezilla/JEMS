@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\TrelloBoardIsFinalEvent;
 use App\Services\ProjectService;
+use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -29,5 +30,10 @@ class AssignScheduleToTaskListener implements ShouldQueue
         $project = $event->project;
 
         $this->projectService->assignTaskSchedules($project);
+
+        Notification::make()
+            ->title('Task schedules assigned successfully!')
+            ->success()
+            ->send();
     }
 }
