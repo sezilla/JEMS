@@ -173,8 +173,8 @@ class Task extends Page
 
     public function setCurrentTask($item)
     {
-        $this->checklistId = $item['checklist_id'];
-        $this->checkItemId = $item['item_id'];
+        $this->checklistId = $item['checklist_id'] ?? null;
+        $this->checkItemId = $item['item_id'] ?? null;
         $this->currentTask = $item + ['project_id' => $this->project?->id];
         $this->checkItemName = $item['task'] ?? null;
         $this->dueDate = $item['due'] ?? null;
@@ -604,6 +604,42 @@ class Task extends Page
             'Task deleted successfully.',
             'Failed to Delete Task',
             'An error occurred while trying to delete the task.'
+        );
+    }
+
+    public function setDepartmentDue()
+    {
+        if (!isset($this->currentTask['card_id'], $this->currentTask['due_date'])) {
+            return $this->showNotification(
+                false,
+                '',
+                '',
+                'Missing Data',
+                'Missing card ID or due date.'
+            );
+        }
+
+        $cardId = $this->currentTask['card_id'];
+        $dueDate = $this->currentTask['due_date'];
+
+        $trelloService = app(TrelloTask::class);
+        $response = $trelloService->setCardDue($cardId, $dueDate);
+        $success = $response && isset($response['id']);
+
+        $this->refreshData();
+
+        Log::info('Department due date save attempt', [
+            'success'  => $success,
+            'card_id'  => $cardId,
+            'due_date' => $dueDate,
+        ]);
+
+        return $this->showNotification(
+            $success,
+            'Department Due Date Set',
+            'Due date set successfully.',
+            'Failed to Set Department Due Date',
+            'An error occurred while trying to update the due date.'
         );
     }
 }

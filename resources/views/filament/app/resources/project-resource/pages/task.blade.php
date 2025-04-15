@@ -7,7 +7,25 @@
                         <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $card['name'] }}</h2>
                         <span class="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
                             {{ $card['due'] ? \Carbon\Carbon::parse($card['due'])->format('F d, Y') : 'No Due Date' }}
-                            <x-filament::icon-button icon="heroicon-o-ellipsis-vertical" />
+                            <x-filament::modal id="set-card-due" wire:key="modal-card-due-{{ $card['id'] }}">
+                                <x-slot name="trigger">
+                                    <x-filament::icon-button icon="heroicon-o-ellipsis-vertical"
+                                        x-on:click="$wire.setCurrentTask({
+                                            card_id: '{{ $card['id'] }}',
+                                            due_date: '{{ $card['due'] ?? '' }}',
+                                        })" />
+                                </x-slot>
+                                <p class="text-gray-800 dark:text-gray-200">Set Department Due</p>
+                                <x-filament::input.wrapper>
+                                    <x-filament::input type="date" wire:model.defer="currentTask.due_date" />
+                                </x-filament::input.wrapper>
+                                <div class="flex justify-end space-x-3">
+                                    <x-filament::button color="primary" wire:click="setDepartmentDue"
+                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                        Save
+                                    </x-filament::button>
+                                </div>
+                            </x-filament::modal>
                         </span>
                     </header>
 
@@ -206,7 +224,8 @@
                                                                 wire:model.defer="dueDate" />
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
-                                                            <x-filament::button color="primary" wire:click="saveDueDate"
+                                                            <x-filament::button color="primary"
+                                                                wire:click="saveDueDate"
                                                                 x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                 Save
                                                             </x-filament::button>
