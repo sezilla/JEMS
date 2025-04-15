@@ -12,7 +12,7 @@ class Team extends Model
     public $table = 'teams';
 
     public $fillable = [
-        'name', 
+        'name',
         'description',
         'image',
     ];
@@ -25,18 +25,18 @@ class Team extends Model
                 $query->where('name', 'Team Leader');
             });
     }
-    
+
     public function departments()
     {
         return $this->belongsToMany(Department::class, 'departments_has_teams', 'team_id', 'department_id');
     }
-    
+
     public function members()
     {
         return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
-            // ->whereHas('roles', function ($query) {
-            //     $query->where('name', 'Member');
-            // });;
+        // ->whereHas('roles', function ($query) {
+        //     $query->where('name', 'Member');
+        // });;
     }
     public function users()
     {
@@ -45,7 +45,6 @@ class Team extends Model
 
     public function projects()
     {
-        return $this->belongsToMany(Project::class, 'project_teams','team_id', 'project_id');
+        return $this->belongsToMany(Project::class, 'project_teams', 'team_id', 'project_id');
     }
-
 }

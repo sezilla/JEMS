@@ -29,54 +29,67 @@ class TeamRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Section::make()
-                ->columnSpan(2)
-                ->columns(2)
-                ->schema([
-                    Forms\Components\TextInput::make('name')
-                        ->columnSpan('full')
-                        ->required()
-                        ->maxLength(255),
-                    Select::make('leader_id')
-                        ->relationship('leaders', 'name', function ($query) {
-                            $query->whereHas('roles', function ($q) {
-                                $q->where('name', 'Team Leader');
-                            });
-                        })
-                        ->label('Team Leader')
-                        ->preload()
-                        ->searchable(),
-                    Forms\Components\MarkdownEditor::make('description')
-                        ->required()
-                        ->columnSpan('full'),
-                    ]),
-            Section::make()
-                ->columnSpan(1)
-                ->columns(1)
-                ->schema([
-                    FileUpload::make('image')
-                        ->image()
-                        ->imageEditor()
-                        ->disk('public')
-                        ->columnSpan('1')
-                        ->directory('teams')
-                        ->label('Team Photo'),
-                    Select::make('members')
-                        ->multiple()
-                        ->relationship('members', 'name', function ($query) {
-                            $query->whereHas('roles', function ($q) {
-                                $q->where('name', 'Member');
-                            });
-                        })
-                        ->label('Members')
-                        ->preload()
-                        ->searchable()
-                        ->visible(fn ($livewire) => $livewire instanceof Pages\CreateTeam),
-                ])
+            ->schema([
+                Section::make()
+                    ->columnSpan(2)
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->columnSpan('full')
+                            ->required()
+                            ->maxLength(255),
+                        Select::make('leader_id')
+                            ->label('Team Leader')
+                            ->options(function () {
+                                $department = $this->ownerRecord;
 
-        ])
-        ->columns(3);
+                                if (!$department) {
+                                    return [];
+                                }
+
+                                return \App\Models\User::whereHas('roles', function ($q) {
+                                    $q->where('name', 'Team Leader');
+                                })
+                                    ->whereHas('departments', function ($q) use ($department) {
+                                        $q->where('departments.id', $department->id);
+                                    })
+                                    ->whereDoesntHave('teams')
+                                    ->pluck('name', 'id');
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+
+                        Forms\Components\MarkdownEditor::make('description')
+                            ->required()
+                            ->columnSpan('full'),
+                    ]),
+                Section::make()
+                    ->columnSpan(1)
+                    ->columns(1)
+                    ->schema([
+                        FileUpload::make('image')
+                            ->image()
+                            ->imageEditor()
+                            ->disk('public')
+                            ->columnSpan('1')
+                            ->directory('teams')
+                            ->label('Team Photo'),
+                        Select::make('members')
+                            ->multiple()
+                            ->relationship('members', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Member');
+                                });
+                            })
+                            ->label('Members')
+                            ->preload()
+                            ->searchable()
+                            ->visible(fn($livewire) => $livewire instanceof Pages\CreateTeam),
+                    ])
+
+            ])
+            ->columns(3);
     }
 
     public function table(Table $table): Table
