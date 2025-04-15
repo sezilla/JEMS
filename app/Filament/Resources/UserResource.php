@@ -122,6 +122,7 @@ class UserResource extends Resource
                             ->relationship('teams', 'name', function ($query, $get) {
                                 $departments = $get('departments');
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
+                                $selectedTeamId = $get('teams');
 
                                 if ($departments) {
                                     if (!is_array($departments)) {
@@ -133,16 +134,8 @@ class UserResource extends Resource
                                     });
                                 }
 
-                                if (empty($departments)) {
-                                    $query->whereRaw('1 = 0');
-                                }
-
                                 if ($selectedRole === 'Team Leader') {
-                                    $query->whereDoesntHave('users', function ($subQuery) {
-                                        $subQuery->whereHas('roles', function ($roleQuery) {
-                                            $roleQuery->where('name', 'Team Leader');
-                                        });
-                                    });
+                                    $query->whereDoesntHave('leaders');
                                 }
 
                                 if ($selectedRole === 'Coordinator') {
@@ -157,10 +150,13 @@ class UserResource extends Resource
                                     });
                                 }
                             })
+                            ->default(fn($get) => $get('teams'))
                             ->label('Team')
                             ->preload()
                             ->reactive()
-                            ->visible(fn($get) => !in_array(Role::where('id', $get('roles'))->value('name'), ['Department Admin', 'HR Admin'])),
+                            ->visible(fn($get, $livewire) =>
+                            !in_array(Role::where('id', $get('roles'))->value('name'), ['Department Admin', 'HR Admin'])
+                                && !(Role::where('id', $get('roles'))->value('name') === 'Team Leader' && $livewire instanceof Pages\EditUser)),
                     ]),
             ]);
     }

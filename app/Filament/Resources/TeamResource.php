@@ -61,12 +61,9 @@ class TeamResource extends Resource
 
                         Select::make('leader_id')
                             ->relationship('leaders', 'name', function ($query, $get) {
-                                $departmentId = $get('departments'); // Get the selected department ID
-                                $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'Team Leader');
-                                })->whereHas('departments', function ($q) use ($departmentId) {
-                                    $q->where('departments.id', $departmentId); // Filter by selected department
-                                });
+                                $query->whereHas('departments', function ($q) use ($get) {
+                                    $q->where('id', $get('departments'));
+                                })->whereDoesntHave('teams');
                             })
                             ->label('Team Leader')
                             ->preload()
