@@ -38,7 +38,13 @@ class Task extends Page
     public function mount($record)
     {
         $this->project = Project::find($record);
-        $this->users = User::all();
+
+        $teams = $this->project->teams()->with('users')->get();
+        $this->users = $teams->pluck('users')->flatten()->unique('id');
+        foreach ($this->users as $user) {
+            $user->load('teams');
+        }
+        // $this->users = User::all();
 
         if ($this->project->checklist) {
             $rawCheckItem = $this->project->checklist->user_checklist;

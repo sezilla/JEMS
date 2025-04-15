@@ -178,7 +178,7 @@
                                                                 <x-filament::input.select wire:model="user_id"
                                                                     id="user-select" :disabled="!auth()
                                                                         ->user()
-                                                                        ->hasRole('Coordinator', 'Team Leader')">
+                                                                        ->hasAnyRole(['Coordinator', 'Team Leader'])">
                                                                     <option value="">Select User</option>
                                                                     @foreach ($users as $user)
                                                                         <option value="{{ $user->id }}">
@@ -280,7 +280,7 @@
                                                             <x-filament::input.select wire:model="user_id"
                                                                 id="user-select" :disabled="!auth()
                                                                     ->user()
-                                                                    ->hasRole('Coordinator', 'Team Leader')">
+                                                                    ->hasAnyRole(['Coordinator', 'Team Leader'])">
                                                                 <option value="">Select User</option>
                                                                 @foreach ($users as $user)
                                                                     <option value="{{ $user->id }}">
@@ -296,7 +296,7 @@
                                                             @endif
                                                         </x-filament::input.wrapper>
                                                         <div class="flex justify-end space-x-3">
-                                                            @if (auth()->user()->hasRole('Coordinator', 'Team Leader'))
+                                                            @if (auth()->user()->hasAnyRole(['Coordinator', 'Team Leader']))
                                                                 <x-filament::button color="primary"
                                                                     wire:click="assignUserToCheckItem"
                                                                     x-on:click="$dispatch('close-modal'); $wire.$refresh()">
