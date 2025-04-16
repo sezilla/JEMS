@@ -108,25 +108,8 @@ class Project extends Model
                 $project->teams()->sync($allocatedTeams);
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
-                // $teamMembers = [];
-                // $userSkills = [];
+                // make python api request to allocate users to task
 
-                // foreach ($allocatedTeams as $team) {
-                //     $teamId = $team['id'];
-                //     $teamMembers[$teamId] = [];
-
-                //     foreach ($team['users'] as $user) {
-                //         $userId = $user['id'];
-                //         $teamMembers[$teamId][] = $userId;
-                //         $userSkills[$userId] = $user['skills'];
-                //     }
-                // }
-
-                // MemberAllocation::create([
-                //     'project_id' => $project->id,
-                //     'team_members' => $teamMembers,
-                //     'user_skills' => $userSkills,
-                // ]);
 
                 DB::commit();
             } catch (\Exception $e) {

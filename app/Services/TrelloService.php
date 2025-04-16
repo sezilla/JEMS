@@ -444,4 +444,17 @@ class TrelloService
 
         return json_decode($response->getBody(), true);
     }
+
+    public function getDepartmentsListId($boardId)
+    {
+        $lists = $this->getBoardLists($boardId);
+        if ($lists) {
+            foreach ($lists as $list) {
+                if ($list['name'] === 'Departments') {
+                    return $list['id'];
+                }
+            }
+        }
+        return null;
+    }
 }

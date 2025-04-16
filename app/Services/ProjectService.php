@@ -4,12 +4,14 @@ namespace App\Services;
 
 use Exception;
 use App\Models\Project;
+use App\Models\ChecklistUser;
 use App\Services\PythonService;
 use App\Services\TrelloService;
 use App\Models\TrelloProjectTask;
 use App\Events\AssignTaskSchedules;
 use App\Events\SyncTrelloBoardToDB;
 use Illuminate\Support\Facades\Log;
+use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardCreatedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
 
@@ -302,6 +304,8 @@ class ProjectService
         } else {
             Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
         }
+
+        DueDateAssignedEvent::dispatch($project);
     }
 
     private function arrayChangeKeyCaseRecursive(array $arr)
@@ -316,5 +320,107 @@ class ProjectService
             }
         }
         return $result;
+    }
+
+    public function allocateUserToTask(Project $project)
+    {
+        Log::info('Allocating users to tasks for project: ' . $project->name);
+
+        $departmentList = $this->trello_service->getDepartmentsListId($project->trello_board_id);
+        $cards = $this->trello_service->getListCards($departmentList);
+
+        $dataArray = [
+            'project_id' => $project->id,
+            'data_array' => []
+        ];
+
+        foreach ($cards as $card) {
+            $checklists = $this->trello_service->getChecklistsByCardId($card['id']);
+            $checklistArray = [];
+
+            foreach ($checklists as $checklist) {
+                $checkItems = $this->trello_service->getChecklistItems($checklist['id']);
+                $checkItemsArray = [];
+
+                foreach ($checkItems as $checkItem) {
+                    $checkItemsArray[] = [
+                        'check_item_id' => $checkItem['id'],
+                        'check_item_name' => $checkItem['name']
+                    ];
+                }
+
+                $checklistArray[] = [
+                    'checklist_id'   => $checklist['id'],
+                    'checklist_name' => $checklist['name'],
+                    'check_items'    => $checkItemsArray
+                ];
+            }
+
+            $dataArray['data_array'][] = [
+                'card_id' => $card['id'],
+                'card_name' => $card['name'],
+                'checklists' => $checklistArray
+            ];
+        }
+
+        $teams = $project->teams()->with(['users.skills'])->get();
+        $usersArray = [];
+
+        foreach ($teams as $team) {
+            foreach ($team->departments as $department) {
+                $departmentName = $department->name;
+                $usersInDept = [];
+
+                foreach ($team->users as $user) {
+                    $skills = $user->skills->pluck('name')->toArray();
+                    $usersInDept[] = [
+                        'user_id' => $user->id,
+                        'skills' => $skills
+                    ];
+                }
+
+                if (!isset($usersArray[$departmentName])) {
+                    $usersArray[$departmentName] = $usersInDept;
+                } else {
+                    $usersArray[$departmentName] = array_merge($usersArray[$departmentName], $usersInDept);
+                }
+            }
+        }
+
+        Log::info('Prepared task data array', $dataArray);
+        Log::info('Prepared user allocation array', $usersArray);
+
+        $response = $this->python_service->allocateUserToTask($project->id, $dataArray, $usersArray);
+        Log::info('Response from Python service', ['response' => $response]);
+
+        if (!isset($response['success']) || $response['success'] !== true) {
+            throw new \Exception('User Allocation Error: ' . ($response['error'] ?? 'Unknown error'));
+        }
+
+        $allocation = null;
+        if (isset($response['allocation'])) {
+            $allocation = $response['allocation'];
+            Log::info('Found allocation in response["allocation"]');
+        } elseif (isset($response['checklist_id'])) {
+            $allocation = $response['checklist_id'];
+            Log::info('Found allocation in response["checklist_id"]');
+        } elseif (isset($response['response']) && isset($response['response']['allocation'])) {
+            $allocation = $response['response']['allocation'];
+            Log::info('Found allocation in response["response"]["allocation"]');
+        }
+
+        if ($allocation) {
+            ChecklistUser::updateOrCreate(
+                ['project_id' => $project->id],
+                ['user_checklist' => $allocation]
+            );
+
+            Log::info('Checklist saved successfully.', ['checklist' => $allocation]);
+        } else {
+            Log::warning('No allocation data found in the response.', ['response_keys' => array_keys($response)]);
+        }
+
+        Log::info('User assigned to tasks for project: ' . $project->id);
+        return ['success' => true, 'message' => 'User allocation completed'];
     }
 }

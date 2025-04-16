@@ -108,4 +108,47 @@ class PythonService
             return ['error' => 'An error occurred while predicting categories. Please check the logs.'];
         }
     }
+
+    public function allocateUserToTask(int $projectId, array $dataArray, array $usersArray): array
+    {
+        $url = "{$this->baseUrl}/allocate-user-to-task";
+
+        try {
+            $response = Http::timeout(360)->post($url, [
+                'project_id' => $projectId,
+                'data_array' => $dataArray['data_array'],
+                'users' => $usersArray,
+            ]);
+
+            if ($response->failed()) {
+                Log::error('Python API error response: ' . $response->body());
+                return [
+                    'success' => false,
+                    'error' => 'Failed to connect to Python API',
+                    'http_status' => $response->status()
+                ];
+            }
+
+            $responseData = $response->json();
+
+            Log::info('Full Python API Response', [
+                'raw_response' => $response->body(),
+                'parsed_response' => $responseData,
+            ]);
+
+            if (!isset($responseData['success'])) {
+                $responseData['success'] = true;
+            }
+
+            return $responseData;
+        } catch (\Exception $e) {
+            Log::error('Exception during Python API call: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }

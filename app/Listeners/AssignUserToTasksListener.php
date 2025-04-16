@@ -2,18 +2,16 @@
 
 namespace App\Listeners;
 
-use App\Events\TrelloBoardIsFinalEvent;
 use App\Services\ProjectService;
-use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Log;
+use App\Events\DueDateAssignedEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AssignScheduleToTaskListener implements ShouldQueue
+class AssignUserToTasksListener implements ShouldQueue
 {
     use InteractsWithQueue;
-
     protected $projectService;
-
     /**
      * Create the event listener.
      */
@@ -25,18 +23,12 @@ class AssignScheduleToTaskListener implements ShouldQueue
     /**
      * Handle the event.
      */
-    public function handle(TrelloBoardIsFinalEvent $event): void
+    public function handle(DueDateAssignedEvent $event): void
     {
         $project = $event->project;
 
-        $this->projectService->assignTaskSchedules($project);
-
-        // Notification::make()
-        //     ->title('Task schedules assigned successfully!')
-        //     ->success()
-        //     ->send();
-
-        // $this->projectService->allocateUserToTask($project);
+        $this->projectService->allocateUserToTask($project);
+        Log::info('User assigned to tasks for project: ' . $project->id);
 
         // Notification::make()
         //     ->title('Task schedules assigned successfully!')
