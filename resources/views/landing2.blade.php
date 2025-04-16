@@ -43,13 +43,13 @@
          <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ml-auto">
                <li class="nav-item active">
-                  <a class="nav-link" href="index.html">Home</a>
+                  <a class="nav-link" href="{{ url('/') }}">Home</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="about.html">About</a>
+                  <a class="nav-link" href="{{ url('/about') }}">About</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="services.html">Services</a>
+                  <a class="nav-link" href="{{ url('/services') }}">Services</a>
                </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
@@ -260,7 +260,7 @@
                 </div>
             </div>
         </div>
-        </div>
+      </div>
 
       <!-- about sectuion end -->
       <!-- cream sectuion start -->
@@ -499,7 +499,7 @@
       <!-- copyright section start -->
       <div class="copyright_section">
          <div class="container">
-            <p class="copyright_text">2023 All Right Reserved By DDDM</p>
+            <p class="copyright_text">2025 All Right Reserved By DDDM</p>
          </div>
       </div>
       <!-- copyright section end -->
@@ -513,7 +513,7 @@
       <script src="js/landingpage/jquery.mCustomScrollbar.concat.min.js"></script>
       <script src="js/landingpage/custom.js"></script>
 
-        <script>
+      <script>
         function toggleReadMore() {
         const dots = document.getElementById("dots");
         const moreText = document.getElementById("moreText");
@@ -529,7 +529,7 @@
             btnText.textContent = "Read Less";
         }
         }
-        </script>
+      </script>
 
       <!-- javascript --> 
    </body>
