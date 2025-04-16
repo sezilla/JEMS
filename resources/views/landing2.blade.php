@@ -27,9 +27,50 @@
       <link rel="stylesheet" href="css/landingpage/jquery.mCustomScrollbar.min.css">
       <!-- Tweaks for older IEs-->
       <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <!-- Google Fonts - Poppins -->
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
    </head>
    <body>
-      <div class="header_section">
+
+   <div class="header_section">
+   <div class="container">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+         <a class="navbar-brand" href="index.html"><img src="images/logo.webp" style="height: 80px; width: auto;"></a>
+         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+         </button>
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+               <li class="nav-item active">
+                  <a class="nav-link" href="index.html">Home</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="about.html">About</a>
+               </li>
+               <li class="nav-item">
+                  <a class="nav-link" href="services.html">Services</a>
+               </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+               <!-- Dropdown for Login and Admin Login -->
+               <div class="dropdown">
+                  <button class="btn dropdown-toggle" type="button" id="loginDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <span style="color: #222222;">Login <i class="fa fa-user" aria-hidden="true"></i></span>
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="loginDropdown">
+                     <a class="dropdown-item" href="app/login">Log in</a>
+                     <a class="dropdown-item" href="admin/login">Log in as Admin</a>
+                  </div>
+               </div>
+            </form>
+         </div>
+      </nav>
+   </div>
+</div>
+
+
+      <!-- <div class="header_section">
          <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                <a class="navbar-brand"href="index.html"><img src="images/logo.webp" style="height: 80px; width: auto;"></a>
@@ -37,7 +78,7 @@
                <span class="navbar-toggler-icon"></span>
                </button>
                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  <!-- <ul class="navbar-nav ml-auto">
+                  <ul class="navbar-nav ml-auto">
                      <li class="nav-item active">
                         <a class="nav-link" href="index.html">Home</a>
                      </li>
@@ -45,23 +86,14 @@
                         <a class="nav-link" href="about.html">About</a>
                      </li>
                      <li class="nav-item">
-                        <a class="nav-link" href="icecream.html">Icecream</a>
-                     </li>
-                     <li class="nav-item">
                         <a class="nav-link" href="services.html">Services</a>
                      </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="blog.html">Blog</a>
-                     </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact Us</a>
-                     </li>
-                  </ul> -->
-                  <!-- <form class="form-inline my-2 my-lg-0">
+                  </ul>
+                  <form class="form-inline my-2 my-lg-0">
                      <div class="login_bt"><a href="#">Login <span style="color: #222222;"><i class="fa fa-user" aria-hidden="true"></i></span></a></div>
                      <div class="fa fa-search form-control-feedback"></div>
                   </form> -->
-                  <div class="absolute top-0 right-0 p-4 z-50" x-data="{ open: false }">
+                  <!-- <div class="absolute top-0 right-0 p-4 z-50" x-data="{ open: false }">
                      <div class="relative login_bt">
                         <a href="#" @click.prevent="open = !open" class="flex items-center gap-1 text-black dark:text-white">
                               Login 
@@ -92,12 +124,12 @@
                               @endauth
                         </div>
                      </div>
-                  </div>
+                  </div> -->
 
-
+<!-- 
                </div>
             </nav>
-         </div>
+         </div> -->
          <!-- banner section start --> 
          <div class="banner_section layout_padding">
             <div class="container">
@@ -218,12 +250,10 @@
                 <div class="col-md-6">
                     <h1 class="about_taital">About JEM</h1>
                     <p class="about_text" id="aboutText">
-                    Jhossa Event Management, founded by Jhossa and Raymond, began its journey when Jhossa, while pursuing her Mass Communication degree, delved into event organization, particularly specializing in wedding events. Raymond, her husband, played a pivotal role in promoting Jhossa's passion and together they crafted affordable wedding packages. 
+                    Jhossa Event Management, founded by Jhossa and Raymond, began with a focus on affordable wedding packages. 
                     <span id="dots">...</span>
                     <span id="moreText" style="display: none;">
-                    Their growing success led to the expansion of their team and services, allowing them to handle multiple weddings with efficiency and care.
-                     The company stands out by offering comprehensive, all-in-one wedding packages that spare clients the stress of coordinating with multiple vendors. This not only saves time but also significantly reduces costs. Each package is thoughtfully curated to include everything a couple needs for their big day.
-                     By 2024, Jhossa Event Management has grown to a team of nearly 400 and earned a strong reputation for delivering high-quality, memorable wedding experiences. Committed to excellence, the company continues to innovate and lead in the event industry, setting new standards with every celebration they create.</p>
+                     What started as a passion project during Jhossa's Mass Communication studies grew into a thriving business, offering all-in-one wedding solutions. By 2024, the company expanded to a team of nearly 400, known for delivering high-quality, memorable weddings while saving clients time and money. Committed to excellence, Jhossa Event Management continues to set new industry standards.</p>
                     <div class="read_bt_1">
                     <a href="javascript:void(0);" onclick="toggleReadMore()" id="readMoreBtn">Read More</a>
                     </div>
@@ -307,33 +337,56 @@
          <div class="container">
             <div class="row">
                <div class="col-md-12">
-                  <h1 class="services_taital">Our Ice Cream Services</h1>
-                  <p class="services_text">tempor incididunt ut labore et dolore magna aliqua</p>
+                  <h1 class="services_taital"><b>One of the best</b>
+                  <br>Event Management</h1>
+                  <p class="services_text">Jhossa Event Management offer Best Deal Affordable one stop shop wedding packages for stress and hassle free wedding event.</p>
                </div>
             </div>
             <div class="services_section_2">
                <div class="row">
                   <div class="col-md-4">
                      <div class="services_box">
-                        <h5 class="tasty_text"><span class="icon_img"><img src="images/icon-1.png"></span>Cookies Ice Cream</h5>
-                        <p class="lorem_text">commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fat </p>
+                        <h5 class="tasty_text"><span class="icon_img"><img src="images/003-support.png"></span>Friendly Team</h5>
+                        <p class="lorem_text">Our friendly team ensures smooth, stress-free planning.</p>
                      </div>
                   </div>
                   <div class="col-md-4">
                      <div class="services_box">
-                        <h5 class="tasty_text"><span class="icon_img"><img src="images/icon-2.png"></span>Cookies Ice Cream</h5>
-                        <p class="lorem_text">commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fat </p>
+                        <h5 class="tasty_text"><span class="icon_img"><img src="images/002-balloons.png"></span>Perfect Venues</h5>
+                        <p class="lorem_text">Choose from stunning venues that match your style, size, and budget.</p>
                      </div>
                   </div>
                   <div class="col-md-4">
                      <div class="services_box">
-                        <h5 class="tasty_text"><span class="icon_img"><img src="images/icon-1.png"></span>Cookies Ice Cream</h5>
-                        <p class="lorem_text">commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fat </p>
+                        <h5 class="tasty_text"><span class="icon_img"><img src="images/004-cheers.png"></span>Full Coordination</h5>
+                        <p class="lorem_text">We handle every detail so you can relax and enjoy your event.</p>
+                     </div>
+                  </div>
+               </div>
+            <div class="services_section_2">
+               <div class="row">
+                     <div class="col-md-4">
+                        <div class="services_box">
+                           <h5 class="tasty_text"><span class="icon_img"><img src="images/006-camera.png"></span>Timeless Memories</h5>
+                           <p class="lorem_text">We bring your vision to life with lasting, joyful memories.</p>
+                        </div>
+                     </div>
+                     <div class="col-md-4">
+                        <div class="services_box">
+                           <h5 class="tasty_text"><span class="icon_img"><img src="images/001-live-chat.png"></span>24/7 Support</h5>
+                           <p class="lorem_text">Need help anytime? We're here around the clock for you.</p>
+                        </div>
+                     </div>
+                     <div class="col-md-4">
+                        <div class="services_box">
+                           <h5 class="tasty_text"><span class="icon_img"><img src="images/007-lightbulb.png"></span>Brilliant Ideas</h5>
+                           <p class="lorem_text">Fresh, creative ideas to make your event truly stand out.</p>
+                        </div>
                      </div>
                   </div>
                </div>
             </div>
-            <div class="seemore_bt"><a href="#">Read More</a></div>
+            <div class="seemore_bt"><a href="#">Back to Top</a></div>
          </div>
       </div>
       <!-- services section end -->
@@ -342,7 +395,7 @@
          <div class="container">
             <div class="row">
                <div class="col-md-12">
-                  <h1 class="testimonial_taital">Testimonial</h1>
+                  <h1 class="testimonial_taital">JEM MANAGEMENT</h1>
                </div>
             </div>
             <div class="testimonial_section_2">
@@ -352,19 +405,16 @@
                         <div id="main_slider" class="carousel slide" data-ride="carousel">
                            <div class="carousel-inner">
                               <div class="carousel-item active">
-                                 <p class="testimonial_text">tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint</p>
-                                 <h4 class="client_name">Marri Fen</h4>
-                                 <div class="client_img"><img src="images/client-img.png"></div>
+                                 <h2>Chief Executive Officer</h2>
+                                 <p class="testimonial_text">As a CEO of JEM, we have typical roles and general responsibilities to each of everyone especially to our clients. We manage our company and supervise employees and promote their growth. Review, approve plans and promote company as well.</p>
+                                 <h4 class="client_name"><b>Jhossa</b> Dela Peña</h4>
+                                 <div class="client_img"><img src="images/madam.webp" style="width: 155px; height: auto; object-fit: cover;"></div>
                               </div>
                               <div class="carousel-item">
-                                 <p class="testimonial_text">tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint</p>
-                                 <h4 class="client_name">Marri Fen</h4>
-                                 <div class="client_img"><img src="images/client-img.png"></div>
-                              </div>
-                              <div class="carousel-item">
-                                 <p class="testimonial_text">tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint</p>
-                                 <h4 class="client_name">Marri Fen</h4>
-                                 <div class="client_img"><img src="images/client-img.png"></div>
+                                 <h2>Chief Marketing Officer</h2>
+                                 <p class="testimonial_text">Marketing used to be about making a myth and telling it. Now it's about telling a truth and share it. Jhossa Event Management moves forward by setting goals and then working to attain them. Bringing everyone together in pursuit of common goals is crucial to moving ahead, sustaining and growing this management over the long haul.</p>
+                                 <h4 class="client_name"><b>Raymond</b> Dela Peña</h4>
+                                 <div class="client_img"><img src="images/sir.webp" style="width: 145px; height: auto; object-fit: cover;"></div>
                               </div>
                            </div>
                            <a class="carousel-control-prev" href="#main_slider" role="button" data-slide="prev">
@@ -387,8 +437,10 @@
             <div class="row">
                <div class="col-md-4">
                   <div class="contact_main">
-                     <h1 class="contact_taital">Contact Us</h1>
-                     <form action="/action_page.php">
+                     <!-- <h1 class="contact_taital">Contact Us</h1> -->
+                     <a class="navbar-brand"href="index.html"><img src="images/logo.webp"></a>
+                     
+                     <!-- <form action="/action_page.php">
                         <div class="form-group">
                            <input type="text" class="email-bt" placeholder="Name" name="Name">
                         </div>
@@ -402,7 +454,7 @@
                            <textarea class="massage-bt" placeholder="Massage" rows="5" id="comment" name="Massage"></textarea>
                         </div>
                      </form>
-                     <div class="main_bt"><a href="#">SEND</a></div>
+                     <div class="main_bt"><a href="#">SEND</a></div> -->
                   </div>
                </div>
                <div class="col-md-8">
@@ -410,27 +462,27 @@
                      <ul>
                         <li>
                            <a href="#">
-                           <span class="padding_left_10 active"><i class="fa fa-map-marker" aria-hidden="true"></i></span>Making this the first true</a>
+                           <span class="padding_left_10 active"><i class="fa fa-map-marker" aria-hidden="true"></i></span>3rd Flr Blk 1 Lt 11 LBV. Commercial Bldg, Molino Blvd, Bacoor, Cavite</a>
                         </li>
                         <li>
                            <a href="#">
-                           <span class="padding_left_10"><i class="fa fa-phone" aria-hidden="true"></i></span>Call : +01 1234567890
+                           <span class="padding_left_10"><i class="fa fa-phone" aria-hidden="true"></i></span> 0960-203-6297 | 0931-713-2954 | 0916-527-7174
                            </a>
                         </li>
                         <li>
                            <a href="#">
-                           <span class="padding_left_10"><i class="fa fa-envelope" aria-hidden="true"></i></span>Email : demo@gmail.com
+                           <span class="padding_left_10"><i class="fa fa-envelope" aria-hidden="true"></i></span>jhossaeventmanagement@gmail.com
                            </a>
                         </li>
                      </ul>
                   </div>
-                  <div class="mail_main">
+                  <!-- <div class="mail_main">
                      <h3 class="newsletter_text">Newsletter</h3>
                      <div class="form-group">
                         <textarea class="update_mail" placeholder="Enter Your Email" rows="5" id="comment" name="Enter Your Email"></textarea>
                         <div class="subscribe_bt"><a href="#">Subscribe</a></div>
                      </div>
-                  </div>
+                  </div> -->
                   <div class="footer_social_icon">
                      <ul>
                         <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
@@ -447,7 +499,7 @@
       <!-- copyright section start -->
       <div class="copyright_section">
          <div class="container">
-            <p class="copyright_text">2020 All Rights Reserved. Design by <a href="https://html.design">Free Html Templates</a> Distribution by <a href="https://themewagon.com">ThemeWagon</a></p>
+            <p class="copyright_text">2023 All Right Reserved By DDDM</p>
          </div>
       </div>
       <!-- copyright section end -->
