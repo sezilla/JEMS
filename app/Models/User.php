@@ -57,30 +57,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     //php
 
-    protected static function booted(): void
-    {
-        if (config('filament-shield.member_user.enabled', true)) {
-
-            FilamentShield::createRole(name: config('filament-shield.member_user.name', 'Member'));
-        }
-        if (config('filament-shield.admin_hr.enabled', true)) {
-
-            FilamentShield::createRole(name: config('filament-shield.admin_hr.name', 'HR Admin'));
-        }
-        if (config('filament-shield.admin_dep.enabled', true)) {
-
-            FilamentShield::createRole(name: config('filament-shield.admin_dep.name', 'Department Admin'));
-        }
-        if (config('filament-shield.coordinator_user.enabled', true)) {
-
-            FilamentShield::createRole(name: config('filament-shield.coordinator_user.name', 'Coordinator'));
-        }
-        if (config('filament-shield.leader_user.enabled', true)) {
-
-            FilamentShield::createRole(name: config('filament-shield.leader_user.name', 'Team Leader'));
-        }
-    }
-
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->avatar_url ? Storage::url($this->avatar_url) : null;
