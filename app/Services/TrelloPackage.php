@@ -64,6 +64,53 @@ class TrelloPackage
         }
     }
 
+    public function updatePackageBoard($boardId, $name)
+    {
+        try {
+            Log::info('Updating Trello board with ID: ' . $boardId);
+
+            $response = $this->client->put("boards/{$boardId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'name' => $name,
+                ]),
+            ]);
+
+            $responseBody = $response->getBody()->getContents();
+            Log::info('Trello API Response: ' . $responseBody);
+
+            return json_decode($responseBody, true);
+        } catch (RequestException $e) {
+            Log::error('Failed to update Trello board: ' . $e->getMessage());
+            if ($e->hasResponse()) {
+                $responseContent = $e->getResponse()->getBody()->getContents();
+                Log::error('Response: ' . $responseContent);
+                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+            }
+            return null;
+        }
+    }
+
+    public function deletePackageBoard($boardId)
+    {
+        try {
+            Log::info('Deleting Trello board with ID: ' . $boardId);
+
+            $response = $this->client->delete("boards/{$boardId}", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to delete Trello board: ' . $e->getMessage());
+            if ($e->hasResponse()) {
+                $responseContent = $e->getResponse()->getBody()->getContents();
+                Log::error('Response: ' . $responseContent);
+                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+            }
+            return null;
+        }
+    }
+
     public function createList($boardId, $name)
     {
         try {

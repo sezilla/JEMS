@@ -27,6 +27,6 @@ class CreateTaskSchedulesListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->createTaskSchedules($project);
+        $this->projectService->assignTaskSchedules($project);
     }
 }
