@@ -54,40 +54,39 @@ class Package extends Model
             }
         });
 
-        static::updated(function ($package) {
-            Log::info('Checking for updated tasks in package: ' . $package->name);
-            $trelloPackage = new TrelloPackage();
+        // static::updated(function ($package) {
+        //     Log::info('Checking for updated tasks in package: ' . $package->name);
+        //     $trelloPackage = new TrelloPackage();
 
-            foreach ($package->tasks as $task) {
-                $department = $task->department;
-                if (!$department) {
-                    Log::warning('Task ' . $task->name . ' does not have a department. Skipping.');
-                    continue;
-                }
+        //     foreach ($package->tasks as $task) {
+        //         $department = $task->department;
+        //         if (!$department) {
+        //             Log::warning('Task ' . $task->name . ' does not have a department. Skipping.');
+        //             continue;
+        //         }
 
-                if (!$department->trello_card_id) {
-                    Log::info('Creating Trello card for department: ' . $department->name);
-                    $departmentCard = $trelloPackage->createDepartmentCard($package->trello_board_template_id, $department->name);
-                    if ($departmentCard && isset($departmentCard['id'])) {
-                        $department->trello_card_id = $departmentCard['id'];
-                        $department->save();
-                    }
-                }
+        //         if (!$department->trello_card_id) {
+        //             Log::info('Creating Trello card for department: ' . $department->name);
+        //             $departmentCard = $trelloPackage->createDepartmentCard($package->trello_board_template_id, $department->name);
+        //             if ($departmentCard && isset($departmentCard['id'])) {
+        //                 $department->trello_card_id = $departmentCard['id'];
+        //                 $department->save();
+        //             }
+        //         }
 
-                if ($department->trello_card_id) {
-                    Log::info('Adding checklist item for task: ' . $task->name . ' in department card ID: ' . $department->trello_card_id);
-                    $checklistItem = $trelloPackage->createChecklistItem($department->trello_card_id, $task->name);
+        //         if ($department->trello_card_id) {
+        //             Log::info('Adding checklist item for task: ' . $task->name . ' in department card ID: ' . $department->trello_card_id);
+        //             $checklistItem = $trelloPackage->createChecklistItem($department->trello_card_id, $task->name);
 
-                    if ($checklistItem && isset($checklistItem['id'])) {
-                        DB::table('task_package')->where('package_id', $package->id)->where('task_id', $task->id)->update([
-                            'trello_checklist_item_id' => $checklistItem['id']
-                        ]);
-                    }
-                }
-            }
-        });
+        //             if ($checklistItem && isset($checklistItem['id'])) {
+        //                 DB::table('task_package')->where('package_id', $package->id)->where('task_id', $task->id)->update([
+        //                     'trello_checklist_item_id' => $checklistItem['id']
+        //                 ]);
+        //             }
+        //         }
+        //     }
+        // });
     }
-
 
     public function tasks()
     {

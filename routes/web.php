@@ -11,6 +11,14 @@ Route::get('/', function () {
     return view('landing2');
 });
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
+Route::get('/services', function () {
+    return view('services');
+})->name('services');
+
 Route::post('/projects/allocate-teams', [ProjectController::class, 'allocateTeams']);
 Route::get('/projects/history', [ProjectController::class, 'getProjectHistory']);
 
