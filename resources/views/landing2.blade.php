@@ -46,10 +46,10 @@
                   <a class="nav-link" href="{{ url('/') }}">Home</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="{{ url('/about') }}">About</a>
+                  <a class="nav-link" href="#about">About</a>
                </li>
                <li class="nav-item">
-                  <a class="nav-link" href="{{ url('/services') }}">Services</a>
+                  <a class="nav-link" href="#services">Services</a>
                </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
@@ -241,7 +241,7 @@
             </div>
          </div>
       </div> -->
-      <div class="about_section layout_padding">
+      <div class="about_section layout_padding" id="about">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
@@ -333,7 +333,7 @@
       </div> -->
       <!-- cream sectuion end -->
       <!-- services section start -->
-      <div class="services_section layout_padding">
+      <div class="services_section layout_padding" id="services">
          <div class="container">
             <div class="row">
                <div class="col-md-12">
@@ -485,10 +485,9 @@
                   </div> -->
                   <div class="footer_social_icon">
                      <ul>
-                        <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-                        <li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-                        <li><a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li>
-                        <li><a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                        <li><a href="https://www.facebook.com/JhossaEM/" target="_blank" rel="noopener noreferrer"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
+                        <li><a href="https://www.instagram.com/jhossaeventmanagementig" target="_blank" rel="noopener noreferrer"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
+                        <li><a href="https://www.youtube.com/@jhossaeventmanagement7719" target="_blank" rel="noopener noreferrer"><i class="fa fa-youtube" aria-hidden="true"></i></a></li>
                      </ul>
                   </div>
                </div>
