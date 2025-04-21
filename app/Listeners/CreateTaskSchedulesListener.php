@@ -2,8 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Events\AssignTaskSchedules;
 use App\Services\ProjectService;
+use App\Events\AssignTaskSchedules;
+use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -28,5 +29,10 @@ class CreateTaskSchedulesListener implements ShouldQueue
         $project = $event->project;
 
         $this->projectService->assignTaskSchedules($project);
+
+        Notification::make()
+            ->title('Task Schedules Assigned')
+            ->body('Task schedules have been successfully assigned to your project.')
+            ->sendToDatabase($project->user_id);
     }
 }

@@ -31,16 +31,9 @@ class AssignScheduleToTaskListener implements ShouldQueue
 
         $this->projectService->assignTaskSchedules($project);
 
-        // Notification::make()
-        //     ->title('Task schedules assigned successfully!')
-        //     ->success()
-        //     ->send();
-
-        // $this->projectService->allocateUserToTask($project);
-
-        // Notification::make()
-        //     ->title('Task schedules assigned successfully!')
-        //     ->success()
-        //     ->send();
+        Notification::make()
+            ->title('Task Schedules Assigned')
+            ->body('The task schedules for your project have been successfully assigned.')
+            ->sendToDatabase($project->user_id);
     }
 }

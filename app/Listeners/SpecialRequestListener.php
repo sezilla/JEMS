@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Models\Project;
 use App\Services\ProjectService;
 use App\Events\TrelloBoardCreatedEvent;
+use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -30,5 +31,10 @@ class SpecialRequestListener implements ShouldQueue
         $project = $event->project;
 
         $this->projectService->createSpecialRequest($project);
+
+        Notification::make()
+            ->title('Special Request Created')
+            ->body('A special request has been created for your project.')
+            ->sendToDatabase($project->user_id);
     }
 }
