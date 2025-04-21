@@ -4,8 +4,8 @@ namespace App\Listeners;
 
 use App\Services\ProjectService;
 use App\Events\ProjectCreatedEvent;
+use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class CreateTrelloBoardListener implements ShouldQueue
