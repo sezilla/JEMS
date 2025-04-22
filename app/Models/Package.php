@@ -33,7 +33,31 @@ class Package extends Model
         parent::boot();
 
         static::created(function ($package) {
-            CreatePackageEvent::dispatch($package);
+            Log::info('Creating Trello board for project: ' . $package->name);
+            $trelloPackage = new TrelloPackage();
+
+            // Create Trello board for the new package
+            $boardResponse = $trelloPackage->createPackageBoard($package->name);
+
+            if ($boardResponse && isset($boardResponse['id'])) {
+                $package->trello_board_template_id = $boardResponse['id'];
+                $package->save();
+                Log::info('Trello board created with ID: ' . $boardResponse['id']);
+
+                $trelloPackage->createList($boardResponse['id'], 'Departments');
+                $trelloPackage->createList($boardResponse['id'], 'Coordinators');
+                $projectDetailsList = $trelloPackage->createList($boardResponse['id'], 'Project details');
+
+                if ($projectDetailsList && isset($projectDetailsList['id'])) {
+                    $trelloPackage->createCard($projectDetailsList['id'], 'name of couple');
+                    $trelloPackage->createCard($projectDetailsList['id'], 'package');
+                    $trelloPackage->createCard($projectDetailsList['id'], 'description');
+                    $trelloPackage->createCard($projectDetailsList['id'], 'special request');
+                    $trelloPackage->createCard($projectDetailsList['id'], 'venue of wedding');
+                    $trelloPackage->createCard($projectDetailsList['id'], 'wedding theme color');
+                }
+            }
+            // CreatePackageEvent::dispatch($package);
         });
 
         static::deleting(function ($package) {
