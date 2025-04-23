@@ -11,7 +11,7 @@ class PythonService
 
     public function __construct()
     {
-        $this->baseUrl = env('PYTHON_SERVICE_URL', 'http://127.0.0.1:3000');
+        $this->baseUrl = env('PYTHON_SERVICE_URL');
     }
 
     public function allocateTeams(int $projectId, int $packageId, string $startDate, string $endDate): array
