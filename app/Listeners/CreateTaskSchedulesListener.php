@@ -38,7 +38,7 @@ class CreateTaskSchedulesListener implements ShouldQueue
                 ->sendToDatabase($project->user);
         } catch (\Exception $e) {
             Notification::make()
-                ->error()
+                ->danger()
                 ->title('Error Assigning Task Schedules')
                 ->body('An error occurred while assigning task schedules: ' . $e->getMessage())
                 ->sendToDatabase($project->user);

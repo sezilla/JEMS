@@ -45,7 +45,7 @@ class SpecialRequestListener implements ShouldQueue
             }
         } catch (\Exception $e) {
             Notification::make()
-                ->error()
+                ->danger()
                 ->title('Special Request Failed')
                 ->body('Failed to create a special request for your project. Please try again later: ' . $e->getMessage())
                 ->sendToDatabase($user);
