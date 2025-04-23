@@ -43,13 +43,13 @@ class SpecialRequestListener implements ShouldQueue
                     ->body('A special request has been created and allocated to designated Department.')
                     ->sendToDatabase($user);
             }
-            SyncTrelloBoardToDB::dispatch($project);
         } catch (\Exception $e) {
             Notification::make()
                 ->error()
                 ->title('Special Request Failed')
-                ->body('Failed to create a special request for your project. Please try again later.')
+                ->body('Failed to create a special request for your project. Please try again later: ' . $e->getMessage())
                 ->sendToDatabase($user);
         }
+        SyncTrelloBoardToDB::dispatch($project);
     }
 }
