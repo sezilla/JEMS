@@ -2,8 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Events\TrelloBoardIsFinalEvent;
 use App\Services\ProjectService;
+use App\Events\DueDateAssignedEvent;
+use App\Events\TrelloBoardIsFinalEvent;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,11 +30,24 @@ class AssignScheduleToTaskListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->assignTaskSchedules($project);
+        $user = $event->project->user;
 
-        Notification::make()
-            ->title('Task Schedules Assigned')
-            ->body('The task schedules for your project have been successfully assigned.')
-            ->sendToDatabase($project->user_id);
+        try {
+            $this->projectService->assignTaskSchedules($project);
+
+            Notification::make()
+                ->success()
+                ->title('Task Schedules Assigned')
+                ->body('The task schedules for your project have been successfully assigned.')
+                ->sendToDatabase($user);
+
+            DueDateAssignedEvent::dispatch($project);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->error()
+                ->title('Error Assigning Task Schedules')
+                ->body('An error occurred while assigning task schedules: ' . $e->getMessage())
+                ->sendToDatabase($user);
+        }
     }
 }

@@ -4,6 +4,8 @@ namespace App\Listeners;
 
 use App\Services\ProjectService;
 use App\Events\SyncTrelloBoardToDB;
+use Illuminate\Support\Facades\Log;
+use App\Events\TrelloBoardIsFinalEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -27,6 +29,15 @@ class SyncTrelloBoardToDBListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->syncTrelloToDatabase($project);
+        try {
+            $this->projectService->syncTrelloToDatabase($project);
+
+            TrelloBoardIsFinalEvent::dispatch($project);
+        } catch (\Exception $e) {
+            Log::error('Error syncing Trello board to database: ' . $e->getMessage(), [
+                'project_id' => $project->id ?? null,
+                'exception' => $e,
+            ]);
+        }
     }
 }

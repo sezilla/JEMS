@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Services\ProjectService;
 use App\Events\ProjectCreatedEvent;
+use App\Events\TrelloBoardCreatedEvent;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -29,12 +30,24 @@ class CreateTrelloBoardListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->createTrelloBoardForProject($project);
+        try {
+            $this->projectService->createTrelloBoardForProject($project);
 
-        Notification::make()
-            ->title('Trello Board Created')
-            ->body('A new Trello board has been created for your project.')
-            ->sendToDatabase($project->user_id);
+            Notification::make()
+                ->success()
+                ->title('Trello Board Created')
+                ->body('The Trello board has been created for your project.')
+                ->sendToDatabase($project->user);
+
+            TrelloBoardCreatedEvent::dispatch($project);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->error()
+                ->title('Trello Board Creation Failed')
+                ->body('An error occurred while creating the Trello board: ' . $e->getMessage())
+                ->sendToDatabase($project->user);
+
+            $project->forceDelete();
+        }
     }
-
 }

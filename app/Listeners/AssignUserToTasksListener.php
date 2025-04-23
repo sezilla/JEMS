@@ -28,12 +28,25 @@ class AssignUserToTasksListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->allocateUserToTask($project);
-        Log::info('User assigned to tasks for project: ' . $project->id);
+        $user = $event->project->user;
 
-        Notification::make()
-            ->title('Tasks Assigned')
-            ->body('You have been assigned to tasks for project: ' . $project->name)
-            ->sendToDatabase($project->user_id);
+        try {
+            $this->projectService->allocateUserToTask($project);
+            Log::info('User assigned to tasks for project: ' . $project->id);
+
+            Notification::make()
+                ->success()
+                ->title('Tasks Assigned')
+                ->body('You have been assigned to tasks for project: ' . $project->name)
+                ->sendToDatabase($user);
+        } catch (\Exception $e) {
+            Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage());
+
+            Notification::make()
+                ->error()
+                ->title('Task Assignment Failed')
+                ->body('An error occurred while assigning tasks for project: ' . $project->name)
+                ->sendToDatabase($user);
+        }
     }
 }
