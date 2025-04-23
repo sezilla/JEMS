@@ -42,7 +42,7 @@ class CreateTrelloBoardListener implements ShouldQueue
             TrelloBoardCreatedEvent::dispatch($project);
         } catch (\Exception $e) {
             Notification::make()
-                ->error()
+                ->danger()
                 ->title('Trello Board Creation Failed')
                 ->body('An error occurred while creating the Trello board: ' . $e->getMessage())
                 ->sendToDatabase($project->user);

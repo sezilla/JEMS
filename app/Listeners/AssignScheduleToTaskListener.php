@@ -44,7 +44,7 @@ class AssignScheduleToTaskListener implements ShouldQueue
             DueDateAssignedEvent::dispatch($project);
         } catch (\Exception $e) {
             Notification::make()
-                ->error()
+                ->danger()
                 ->title('Error Assigning Task Schedules')
                 ->body('An error occurred while assigning task schedules: ' . $e->getMessage())
                 ->sendToDatabase($user);

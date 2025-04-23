@@ -43,7 +43,7 @@ class AssignUserToTasksListener implements ShouldQueue
             Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage());
 
             Notification::make()
-                ->error()
+                ->danger()
                 ->title('Task Assignment Failed')
                 ->body('An error occurred while assigning tasks for project: ' . $project->name)
                 ->sendToDatabase($user);
