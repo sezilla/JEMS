@@ -28,11 +28,20 @@ class CreateTaskSchedulesListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->assignTaskSchedules($project);
+        try {
+            $this->projectService->assignTaskSchedules($project);
 
-        Notification::make()
-            ->title('Task Schedules Assigned')
-            ->body('Task schedules have been successfully assigned to your project.')
-            ->sendToDatabase($project->user_id);
+            Notification::make()
+                ->success()
+                ->title('Task Schedules Assigned')
+                ->body('Task schedules have been successfully assigned to your project.')
+                ->sendToDatabase($project->user);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->error()
+                ->title('Error Assigning Task Schedules')
+                ->body('An error occurred while assigning task schedules: ' . $e->getMessage())
+                ->sendToDatabase($project->user);
+        }
     }
 }

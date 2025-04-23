@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Models\Project;
 use App\Services\ProjectService;
+use App\Events\SyncTrelloBoardToDB;
 use App\Events\TrelloBoardCreatedEvent;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
@@ -30,11 +31,25 @@ class SpecialRequestListener implements ShouldQueue
     {
         $project = $event->project;
 
-        $this->projectService->createSpecialRequest($project);
+        $user = $event->project->user;
 
-        Notification::make()
-            ->title('Special Request Created')
-            ->body('A special request has been created for your project.')
-            ->sendToDatabase($project->user_id);
+        try {
+            if (!empty($project->special_request)) {
+                $this->projectService->createSpecialRequest($project);
+
+                Notification::make()
+                    ->success()
+                    ->title('Special Request Allocated')
+                    ->body('A special request has been created and allocated to designated Department.')
+                    ->sendToDatabase($user);
+            }
+            SyncTrelloBoardToDB::dispatch($project);
+        } catch (\Exception $e) {
+            Notification::make()
+                ->error()
+                ->title('Special Request Failed')
+                ->body('Failed to create a special request for your project. Please try again later.')
+                ->sendToDatabase($user);
+        }
     }
 }

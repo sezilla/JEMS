@@ -105,76 +105,69 @@ class ProjectService
             } else {
                 Log::error('Project details list not found.');
             }
-            TrelloBoardCreatedEvent::dispatch($project);
         }
     }
 
     public function createSpecialRequest(Project $project)
     {
-        if (!empty($project->special_request)) {
-            Log::info('Classifying tasks due to special request', [
-                'project_id' => $project->id,
-                'special_request' => $project->special_request
-            ]);
+        Log::info('Classifying tasks due to special request', [
+            'project_id' => $project->id,
+            'special_request' => $project->special_request
+        ]);
 
-            $classificationResponse = $this->python_service->special_request(
-                $project->id,
-                $project->special_request
-            );
-            Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
+        $classificationResponse = $this->python_service->special_request(
+            $project->id,
+            $project->special_request
+        );
+        Log::info('Task classification response', ['response' => json_encode($classificationResponse)]);
 
-            if (isset($classificationResponse['error'])) {
-                throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
-            }
-
-            $departmentsList = $this->trello_service->getBoardListByName($project->trello_board_id, 'Departments');
-
-            if ($departmentsList) {
-                Log::info('Project details list found.');
-
-                $departmentCards = $this->trello_service->getCardsByListId($departmentsList['id']);
-                $departmentCardMap = [];
-
-                foreach ($departmentCards as $card) {
-                    $departmentCardMap[$card['name']] = $card['id'];
-                }
-
-                foreach ($classificationResponse['special_request'] as $task) {
-                    list($department, $taskDescription) = $task;
-
-                    if (isset($departmentCardMap[$department])) {
-                        $cardId = $departmentCardMap[$department];
-
-                        $checklists = $this->trello_service->getChecklistsByCardId($cardId);
-                        $checklistId = null;
-
-                        foreach ($checklists as $checklist) {
-                            if ($checklist['name'] === 'Special Requests') {
-                                $checklistId = $checklist['id'];
-                                break;
-                            }
-                        }
-
-                        if (!$checklistId) {
-                            $checklist = $this->trello_service->createChecklist($cardId, 'Special Requests');
-                            $checklistId = $checklist['id'] ?? null;
-                        }
-
-                        if ($checklistId) {
-                            $this->trello_service->createChecklistItem($checklistId, $taskDescription);
-                        }
-                    } else {
-                        Log::warning("No Trello card found for department: {$department}");
-                    }
-                }
-            } else {
-                Log::error('Departments list not found on Trello.');
-            }
-        } else {
-            Log::error('there is no special request');
+        if (isset($classificationResponse['error'])) {
+            throw new \Exception('Task Classification Error: ' . $classificationResponse['error']);
         }
 
-        SyncTrelloBoardToDB::dispatch($project);
+        $departmentsList = $this->trello_service->getBoardListByName($project->trello_board_id, 'Departments');
+
+        if ($departmentsList) {
+            Log::info('Project details list found.');
+
+            $departmentCards = $this->trello_service->getCardsByListId($departmentsList['id']);
+            $departmentCardMap = [];
+
+            foreach ($departmentCards as $card) {
+                $departmentCardMap[$card['name']] = $card['id'];
+            }
+
+            foreach ($classificationResponse['special_request'] as $task) {
+                list($department, $taskDescription) = $task;
+
+                if (isset($departmentCardMap[$department])) {
+                    $cardId = $departmentCardMap[$department];
+
+                    $checklists = $this->trello_service->getChecklistsByCardId($cardId);
+                    $checklistId = null;
+
+                    foreach ($checklists as $checklist) {
+                        if ($checklist['name'] === 'Special Requests') {
+                            $checklistId = $checklist['id'];
+                            break;
+                        }
+                    }
+
+                    if (!$checklistId) {
+                        $checklist = $this->trello_service->createChecklist($cardId, 'Special Requests');
+                        $checklistId = $checklist['id'] ?? null;
+                    }
+
+                    if ($checklistId) {
+                        $this->trello_service->createChecklistItem($checklistId, $taskDescription);
+                    }
+                } else {
+                    Log::warning("No Trello card found for department: {$department}");
+                }
+            }
+        } else {
+            Log::error('Departments list not found on Trello.');
+        }
     }
 
     public function syncTrelloToDatabase(Project $project)
@@ -233,9 +226,6 @@ class ProjectService
                 'event_date' => $project->end,
             ]
         );
-
-        TrelloBoardIsFinalEvent::dispatch($project);
-
         Log::info('Trello data saved to database', ['record_id' => $result->id]);
     }
 
@@ -304,8 +294,6 @@ class ProjectService
         } else {
             Log::error('Failed to create task schedules', ['response' => json_encode($taskSchedulesResponse)]);
         }
-
-        DueDateAssignedEvent::dispatch($project);
     }
 
     private function arrayChangeKeyCaseRecursive(array $arr)
