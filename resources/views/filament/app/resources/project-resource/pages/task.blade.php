@@ -87,8 +87,7 @@
 
                                                 <div class="flex justify-end space-x-3">
                                                     <x-filament::button color="primary" wire:click="createTask"
-                                                        x-on:click="if (await $wire.createTask()) { $dispatch('close-modal'); $wire.$refresh(); }">
-                                                        Add
+                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">                                                        Add
                                                     </x-filament::button>
                                                 </div>
                                             </x-filament::modal>
