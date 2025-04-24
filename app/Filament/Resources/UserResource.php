@@ -68,7 +68,9 @@ class UserResource extends Resource
                             ->email()
                             ->columnSpan(1)
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(fn($livewire) => $livewire instanceof Pages\EditUser)
+                            ->unique(User::class, 'email', ignoreRecord: true),
                         Forms\Components\TextInput::make('password')
                             ->default('password')
                             ->required()
