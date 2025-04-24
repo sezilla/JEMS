@@ -281,7 +281,7 @@ class Task extends Page
         $response = $trelloService->setCheckItemState(
             $this->currentTask['card_id'],
             $this->currentTask['item_id'],
-            'complete'
+            $this->currentTask['desired_state'] ?? 'complete' || 'incomplete'
         );
         $success = $response && isset($response['id']);
 

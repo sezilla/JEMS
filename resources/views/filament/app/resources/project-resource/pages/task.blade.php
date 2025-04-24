@@ -22,7 +22,7 @@
                                     </x-filament::input.wrapper>
                                     <div class="flex justify-end space-x-3">
                                         <x-filament::button color="primary" wire:click="setDepartmentDue"
-                                            x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                            x-on:click="if (await $wire.setDepartmentDue()) { $dispatch('close-modal', { id: 'set-card-due' }); $wire.$refresh(); }">
                                             Save
                                         </x-filament::button>
                                     </div>
@@ -87,7 +87,7 @@
 
                                                 <div class="flex justify-end space-x-3">
                                                     <x-filament::button color="primary" wire:click="createTask"
-                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                        x-on:click="if (await $wire.createTask()) { $dispatch('close-modal'); $wire.$refresh(); }">
                                                         Add
                                                     </x-filament::button>
                                                 </div>
@@ -337,21 +337,46 @@
                                             <x-filament::modal id="complete-task-modal-{{ $item['id'] }}"
                                                 wire:key="modal-complete-{{ $item['id'] }}">
                                                 <x-slot name="trigger">
-                                                    <x-filament::icon-button icon="heroicon-m-check"
-                                                        x-on:click="$wire.setCurrentTask({
-                                                            ...{{ json_encode($item) }},
-                                                            card_id: '{{ $card['id'] }}',
-                                                            checklist_id: '{{ $checklist['id'] }}',
-                                                            item_id: '{{ $item['id'] }}'
-                                                        })" />
+                                                    @if ($item['state'] === 'complete')
+                                                        {{-- Mark as incomplete --}}
+                                                        <x-filament::icon-button icon="heroicon-m-x-mark"
+                                                            x-on:click="$wire.setCurrentTask({
+                                                                ...{{ json_encode($item) }},
+                                                                card_id: '{{ $card['id'] }}',
+                                                                checklist_id: '{{ $checklist['id'] }}',
+                                                                item_id: '{{ $item['id'] }}',
+                                                                desired_state: 'incomplete'
+                                                            })"
+                                                            color="danger" label="Mark as Incomplete" />
+                                                    @else
+                                                        {{-- Mark as complete --}}
+                                                        <x-filament::icon-button icon="heroicon-m-check"
+                                                            x-on:click="$wire.setCurrentTask({
+                                                                ...{{ json_encode($item) }},
+                                                                card_id: '{{ $card['id'] }}',
+                                                                checklist_id: '{{ $checklist['id'] }}',
+                                                                item_id: '{{ $item['id'] }}',
+                                                                desired_state: 'complete'
+                                                            })"
+                                                            color="primary" label="Mark as Complete" />
+                                                    @endif
+
                                                 </x-slot>
+
                                                 <p class="text-gray-800 dark:text-gray-200">
-                                                    Are you sure you want to mark this task as complete?
+                                                    @if ($item['state'] === 'complete')
+                                                        Are you sure you want to mark this task as
+                                                        <strong>incomplete</strong>?
+                                                    @else
+                                                        Are you sure you want to mark this task as
+                                                        <strong>complete</strong>?
+                                                    @endif
                                                 </p>
+
                                                 <div class="flex justify-end space-x-3">
                                                     <x-filament::button color="primary"
                                                         wire:click="updateCheckItemState"
-                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                        x-on:click="if (await $wire.updateCheckItemState()) { $dispatch('close-modal', { id: 'complete-task-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
                                                         Submit
                                                     </x-filament::button>
                                                 </div>
