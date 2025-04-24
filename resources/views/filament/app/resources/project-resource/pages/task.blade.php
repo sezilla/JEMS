@@ -154,7 +154,7 @@
                                                                         <div class="flex justify-end space-x-3">
                                                                             <x-filament::button color="danger"
                                                                                 wire:click="deleteTask"
-                                                                                x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                                x-on:click="if (await $wire.deleteTask()) { $dispatch('close-modal', { id: 'delete-task-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
                                                                                 Delete
                                                                             </x-filament::button>
                                                                         </div>
@@ -205,7 +205,7 @@
                                                                 <x-filament::button color="primary"
                                                                     wire:click="saveEditTask"
                                                                     wire:loading.attr="disabled"
-                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                    x-on:click="if (await $wire.saveEditTask()) { $dispatch('close-modal'); $wire.$refresh(); }">
                                                                     Save
                                                                 </x-filament::button>
                                                             </div>
@@ -240,7 +240,7 @@
                                                             @if (auth()->user()->hasRole('Coordinator'))
                                                                 <x-filament::button color="primary"
                                                                     wire:click="saveDueDate"
-                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                    x-on:click="if (await $wire.saveDueDate()) { $dispatch('close-modal', { id: 'set-due-date-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
                                                                     Save
                                                                 </x-filament::button>
                                                             @endif
@@ -299,7 +299,7 @@
                                                             @if (auth()->user()->hasAnyRole(['Coordinator', 'Team Leader']))
                                                                 <x-filament::button color="primary"
                                                                     wire:click="assignUserToCheckItem"
-                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
+                                                                    x-on:click="if (await $wire.assignUserToCheckItem()) { $dispatch('close-modal', { id: 'set-user-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
                                                                     Save
                                                                 </x-filament::button>
                                                             @endif
