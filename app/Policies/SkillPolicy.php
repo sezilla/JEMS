@@ -63,7 +63,7 @@ class SkillPolicy
      */
     public function forceDelete(User $user, Skill $skill): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_skill');
     }
 
     /**
@@ -79,7 +79,7 @@ class SkillPolicy
      */
     public function restore(User $user, Skill $skill): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_skill');
     }
 
     /**

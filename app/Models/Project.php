@@ -48,6 +48,8 @@ class Project extends Model
 
         'start',
         'end',
+
+        'status',
     ];
 
     protected $casts = [
@@ -108,9 +110,6 @@ class Project extends Model
                 $project->teams()->sync($allocatedTeams);
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
-                // make python api request to allocate users to task
-
-
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -118,6 +117,18 @@ class Project extends Model
             }
 
             event(new ProjectCreatedEvent($project));
+        });
+
+        static::deleted(function ($project) {
+            Log::info("Project deleted: {$project->name}");
+            $project->status = config('project.project_status.archived');
+            $project->save();
+        });
+
+        static::restored(function ($project) {
+            Log::info("Project restored: {$project->name}");
+            $project->status = config('project.project_status.active');
+            $project->save();
         });
     }
 

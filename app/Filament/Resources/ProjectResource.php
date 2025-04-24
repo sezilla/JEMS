@@ -2,34 +2,41 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProjectResource\Pages;
-use App\Filament\Resources\ProjectResource\RelationManagers;
-use App\Models\Project;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Carbon\Carbon;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
-use App\Models\Package;
+use Filament\Forms;
 use App\Models\User;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Tables;
+use App\Models\Package;
+use App\Models\Project;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Date;
+use Filament\Forms\Components\Select;
+
+use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\ColorPicker;
+use Filament\Support\Enums\FontFamily;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
-use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\FontFamily;
-use Illuminate\Support\Facades\Date;
-use Filament\Support\Enums\Alignment;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Support\Enums\VerticalAlignment;
-use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Actions\ForceDeleteAction;
+use App\Filament\Resources\ProjectResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
+use App\Filament\Resources\ProjectResource\RelationManagers;
 
 
 
@@ -411,8 +418,21 @@ class ProjectResource extends Resource
                 'sm' => 1,
             ])
             ->paginated([12, 24, 48, 96, 'all'])
-            ->filters([])
+            ->filters([
+                Tables\Filters\Filter::make('completed')
+                    ->label('Completed')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.completed'))),
+                Tables\Filters\Filter::make('canceled')
+                    ->label('Canceled')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.canceled'))),
+                Tables\Filters\Filter::make('on_hold')
+                    ->label('On Hold')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
+                Tables\Filters\TrashedFilter::make()
+                    ->label('Deleted')
+            ])
             ->actions([
+                // ForceDeleteAction::make()
                 // Tables\Actions\EditAction::make(),
                 // Tables\Actions\ViewAction::make()
             ])
