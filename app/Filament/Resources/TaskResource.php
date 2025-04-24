@@ -116,7 +116,7 @@ class TaskResource extends Resource
                                 })
                                 ->html(),
                             Tables\Columns\TextColumn::make('department.name')
-                                ->searchable()
+                                // ->searchable()
                                 ->limit(25)
                                 ->badge()
                                 ->alignment(Alignment::End)
@@ -144,7 +144,7 @@ class TaskResource extends Resource
                             })
                             ->html(),
                         Tables\Columns\TextColumn::make('packages.name')
-                            ->searchable()
+                            // ->searchable()
                             // ->limit(25)
                             ->badge()
                             ->width('10%')
@@ -172,7 +172,7 @@ class TaskResource extends Resource
                                 })
                                 ->html(),
                             Tables\Columns\TextColumn::make('category.name')
-                                ->searchable()
+                                // ->searchable()
                                 ->limit(30),
                         ])
                     ]),
