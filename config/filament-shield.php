@@ -57,13 +57,13 @@ return [
             'view_any',
             'create',
             'update',
-            // 'restore',
+            'restore',
             // 'restore_any',
             // 'replicate',
             // 'reorder',
             'delete',
             'delete_any',
-            // 'force_delete',
+            'force_delete',
             // 'force_delete_any',
         ],
 
@@ -92,7 +92,8 @@ return [
         ],
 
         'widgets' => [
-            'AccountWidget', 'FilamentInfoWidget',
+            'AccountWidget',
+            'FilamentInfoWidget',
         ],
 
         'resources' => [],

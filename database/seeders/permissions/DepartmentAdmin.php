@@ -37,6 +37,7 @@ class DepartmentAdmin extends Seeder
             'create_project',
             'update_project',
             'delete_project',
+            'force_delete_project',
             'restore_project',
 
             'view_skill',
@@ -65,14 +66,14 @@ class DepartmentAdmin extends Seeder
 
             'view_user',
             'view_any_user',
-            
+
             'page_Calendar',
             'page_Chat',
             'page_EditProfilePage',
             'widget_ProjectCalendar',
             'widget_StatsOverview',
             'widget_UsersLineChart'
-            ];
+        ];
 
         foreach ($permissions as $permissionName) {
             $permission = Permission::firstOrCreate(['name' => $permissionName]);

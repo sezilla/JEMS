@@ -63,7 +63,7 @@ class DepartmentPolicy
      */
     public function forceDelete(User $user, Department $department): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_department');
     }
 
     /**
@@ -79,7 +79,7 @@ class DepartmentPolicy
      */
     public function restore(User $user, Department $department): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_department');
     }
 
     /**

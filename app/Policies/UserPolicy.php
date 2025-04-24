@@ -84,7 +84,7 @@ class UserPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_user');
     }
 
     /**
@@ -106,7 +106,7 @@ class UserPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_user');
     }
 
     /**

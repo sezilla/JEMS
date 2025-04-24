@@ -63,7 +63,7 @@ class TaskPolicy
      */
     public function forceDelete(User $user, Task $task): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_task');
     }
 
     /**
@@ -79,7 +79,7 @@ class TaskPolicy
      */
     public function restore(User $user, Task $task): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_task');
     }
 
     /**

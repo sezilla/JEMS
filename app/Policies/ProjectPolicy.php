@@ -63,7 +63,7 @@ class ProjectPolicy
      */
     public function forceDelete(User $user, Project $project): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_project');
     }
 
     /**
@@ -79,7 +79,7 @@ class ProjectPolicy
      */
     public function restore(User $user, Project $project): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_project');
     }
 
     /**

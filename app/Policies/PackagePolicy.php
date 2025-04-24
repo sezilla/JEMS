@@ -63,7 +63,7 @@ class PackagePolicy
      */
     public function forceDelete(User $user, Package $package): bool
     {
-        return $user->can('{{ ForceDelete }}');
+        return $user->can('force_delete_package');
     }
 
     /**
@@ -79,7 +79,7 @@ class PackagePolicy
      */
     public function restore(User $user, Package $package): bool
     {
-        return $user->can('{{ Restore }}');
+        return $user->can('restore_package');
     }
 
     /**
