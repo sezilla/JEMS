@@ -22,11 +22,28 @@ class ChecklistUser extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function getUserChecklistAttribute($value)
     {
         return json_decode($value, true);
+    }
+
+    public function countUserTasks($userId)
+    {
+        $count = 0;
+
+        $checklistsData = json_decode($this->user_checklist, true);
+
+        foreach ($checklistsData as $checklist) {
+            foreach ($checklist as $item) {
+                if ($item['user_id'] == $userId) {
+                    $count++;
+                }
+            }
+        }
+
+        return $count;
     }
 }

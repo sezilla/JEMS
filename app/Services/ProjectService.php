@@ -411,4 +411,13 @@ class ProjectService
         Log::info('User assigned to tasks for project: ' . $project->id);
         return ['success' => true, 'message' => 'User allocation completed'];
     }
+
+    public function markAsDone(Project $project)
+    {
+        Log::info('Marking project as done: ' . $project->name);
+
+        Log::info('Project marked as done: ' . $project->name);
+        $this->trello_service->closeBoard($project->trello_board_id);
+        Log::info('Trello board closed for project: ' . $project->name);
+    }
 }

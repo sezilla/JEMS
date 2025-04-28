@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\ProjectResource\Pages;
 
 use Filament\Actions;
+use App\Models\Project;
+use App\Services\ProjectService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\ProjectResource;
-use App\Models\Project;
 
 class ViewProject extends ViewRecord
 {
@@ -23,7 +24,9 @@ class ViewProject extends ViewRecord
                     $record->update([
                         'status' => config('project.project_status.completed'),
                     ]);
-
+                    // if ($record->trello_board_id) {
+                    //     app(ProjectService::class)->markAsDone($record->trello_board_id);
+                    // }
                     Notification::make()
                         ->title('Project marked as done')
                         ->success()
