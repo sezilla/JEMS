@@ -2,16 +2,20 @@
 
 namespace App\Filament\App\Widgets;
 
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use App\Services\DashboardService;
+use Illuminate\Support\Facades\Auth;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
+        $user = Auth::user();
+
         return [
-            Stat::make('Projects', 10) // Static value
-                ->description('Total number of Projects')
+            Stat::make('Projects', app(DashboardService::class)->getProjectCount($user) ?? 0)
+                ->description('Total number of Projects assigned to your team')
                 ->descriptionIcon('heroicon-o-clipboard-document-check')
                 ->color('info'),
 
