@@ -75,8 +75,6 @@ class TrelloService
         }
     }
 
-
-
     public function createList($boardId, $name)
     {
         try {
@@ -456,5 +454,21 @@ class TrelloService
             }
         }
         return null;
+    }
+
+    public function closeBoard($boardId)
+    {
+        try {
+            $response = $this->client->put("boards/{$boardId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'closed' => 'true',
+                ]),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to close Trello board: ' . $e->getMessage());
+            return null;
+        }
     }
 }
