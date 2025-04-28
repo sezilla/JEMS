@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\Department;
 use App\Services\TrelloTask;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,18 @@ class Task extends Page
     public $item_id;
     public $project;
     public $users = [];
+
+    public function getTitle(): string
+    {
+        return $this->project->name ?? 'Project';
+    }
+
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         EditAction::make(),
+    //     ];
+    // }
 
     public function mount($record)
     {
