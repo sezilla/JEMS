@@ -11,16 +11,15 @@ class TaskDeptRadarChart extends ChartWidget
 
     protected function getData(): array
     {
-        // 🔁 Fetch latest 6 projects (or whatever logic you prefer)
+
         $projects = Project::latest()->take(6)->get();
 
         $datasets = [];
 
         foreach ($projects as $project) {
-            // You’ll need to define how to get these 6 department values from your project
-            // For now, here's a placeholder. Replace with actual logic (see notes below)
+
             $datasets[] = [
-                'label' => $project->name, // This replaces "Project 1", etc.
+                'label' => $project->name,
                 'data' => [
                     rand(70, 100), // Coordination
                     rand(70, 100), // Catering
