@@ -66,6 +66,25 @@ class OverallReports extends BaseWidget
                     ->label('Groom Coordinator'),
                 TextColumn::make('brideCoordinator.name')
                     ->label('Bride Coordinator'),
+                TextColumn::make('status')
+                    ->label('Status')
+                    ->getStateUsing(function ($record): string {
+                        $statuses = [
+                            10  => 'Active',
+                            200 => 'Completed',
+                            100 => 'Archived',
+                            0   => 'Canceled',
+                            50  => 'On Hold',
+                        ];
+                        return $statuses[$record->status] ?? 'Unknown';
+                    })
+                    ->colors([
+                        'primary'   => 'Active',
+                        'success'   => 'Completed',
+                        'secondary' => 'Archived',
+                        'danger'    => 'Canceled',
+                        'warning'   => 'On Hold',
+                    ]),
                 
 
                     
