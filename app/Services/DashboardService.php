@@ -3,19 +3,25 @@
 namespace App\Services;
 
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Project;
+use App\Models\UserTask;
 use App\Models\ChecklistUser;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 
 class DashboardService
 {
     protected $project;
+    protected $userTask;
 
     public function __construct(
-        Project $project
+        Project $project,
+        UserTask $userTask
     ) {
         $this->project = $project;
+        $this->userTask = $userTask;
     }
 
     public function getProjectCount()
@@ -25,30 +31,19 @@ class DashboardService
         });
     }
 
-    public function getAssignedTasksCount($userId)
+    public function getAssignedTasksCount()
     {
-        $count = 0;
-
-        $checklists = ChecklistUser::whereHas('user', function ($query) use ($userId) {
-            $query->where('id', $userId);
-        })->get();
-
-        foreach ($checklists as $checklist) {
-            $count += $checklist->countUserTasks($userId);
-        }
-
-        return $count;
+        return Auth::user()->tasks->count();
     }
 
+    public function getOngoingTasksCount()
+    {
+        return Auth::user()->tasks->where('status', 'incomplete')->count();
+    }
 
+    public function getFinishedTasksCount()
+    {
+        return Auth::user()->tasks->where('status', 'complete')->count();
+    }
 
-    // public function getOngoingTasksCount($userId)
-    // {
-    //     return Task::where('assigned_user_id', $userId)->where('status', 'ongoing')->count();
-    // }
-
-    // public function getFinishedTasksCount($userId)
-    // {
-    //     return Task::where('assigned_user_id', $userId)->where('status', 'finished')->count();
-    // }
 }
