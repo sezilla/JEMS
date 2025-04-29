@@ -15,13 +15,16 @@ class DashboardService
 {
     protected $project;
     protected $userTask;
+    protected $trelloService;
 
     public function __construct(
         Project $project,
-        UserTask $userTask
+        UserTask $userTask,
+        TrelloService $TrelloService
     ) {
         $this->project = $project;
         $this->userTask = $userTask;
+        $this->trelloService = $TrelloService;
     }
 
     public function getProjectCount()
@@ -46,4 +49,11 @@ class DashboardService
         return Auth::user()->tasks->where('status', 'complete')->count();
     }
 
+    public function getProjectTasksCount($projectId)
+    {
+        $project = $this->project->find($projectId);
+        $response = $this->trelloService->getCheckItemCount($project->trello_board_id);
+
+        return $response['checkItemCount'] ?? 0;
+    }
 }
