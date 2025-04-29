@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Exception;
 use App\Models\Project;
+use App\Models\UserTask;
 use App\Models\ChecklistUser;
 use App\Services\PythonService;
 use App\Services\TrelloService;
@@ -402,12 +403,26 @@ class ProjectService
                 ['project_id' => $project->id],
                 ['user_checklist' => $allocation]
             );
-
+        
+            foreach ($allocation as $checklistId => $tasks) {
+                foreach ($tasks as $task) {
+                    UserTask::updateOrCreate(
+                        [
+                            'user_id' => $task['user_id'], 
+                            'check_item_id' => $task['check_item_id'],
+                        ],
+                        [
+                            'status' => 'incomplete',
+                        ]
+                    );
+                }
+            }                     
+        
             Log::info('Checklist saved successfully.', ['checklist' => $allocation]);
         } else {
             Log::warning('No allocation data found in the response.', ['response_keys' => array_keys($response)]);
         }
-
+        
         Log::info('User assigned to tasks for project: ' . $project->id);
         return ['success' => true, 'message' => 'User allocation completed'];
     }
