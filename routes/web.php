@@ -35,6 +35,8 @@ Route::post('/tasks/mark-as-done', [TaskController::class, 'markAsDone'])->name(
 
 // Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login');
 
+Route::get('/projects/{id}/export-pdf', [App\Http\Controllers\ProjectController::class, 'exportPdf'])->name('projects.exportPdf');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', function () {

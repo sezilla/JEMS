@@ -128,7 +128,7 @@ class OverallReports extends BaseWidget
                         }
                         return $query;
                     }),
-            ]);
+                    ]);
             
     }
 }
