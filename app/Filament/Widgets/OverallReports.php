@@ -11,6 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Components\DatePicker;
 use App\Filament\App\Resources\ProjectResource;
+use Dom\Text;
 use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -85,7 +86,19 @@ class OverallReports extends BaseWidget
                         'danger'    => 'Canceled',
                         'warning'   => 'On Hold',
                     ]),
-                
+                    TextColumn::make('teams.name')
+                        ->label('Teams Assigned to Event')
+                        ->getStateUsing(function ($record) {
+                            $teams = $record->teams->pluck('name')->toArray();
+                            // If the package is Ruby, remove the Photo&Video team.
+                            if ($record->package->name === 'Ruby') {
+                                $teams = array_filter($teams, function ($team) {
+                                    return $team !== 'Photo&Video';
+                                });
+                            }
+                            return implode("<br>", $teams);
+                        })
+                        ->html()
 
                     
             ])

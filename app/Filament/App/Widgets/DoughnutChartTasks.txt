@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Filament\App\Widgets;
+
+use Filament\Widgets\ChartWidget;
+use App\Services\DashboardService;
+use App\Models\Project;
+use Filament\Forms\Components\Select;
+
+class DoughnutChartTasks extends ChartWidget
+{
+    protected static ?string $heading = 'Task Progress';
+
+    public ?string $projectId = null;
+
+    protected function getData(): array
+    {
+        // $data = app(DashboardService::class)->getTaskStatusBreakdown($this->projectId);
+
+        return [
+            'datasets' => [
+                [
+                    'label' => 'Tasks',
+                    // 'data' => [$data['assigned'], $data['ongoing'], $data['finished']],
+                    // 'backgroundColor' => ['#38bdf8', '#facc15', '#4ade80'],
+                ],
+            ],
+            'labels' => ['Assigned to Me', 'Ongoing', 'Finished'],
+        ];
+    }
+
+    protected function getType(): string
+    {
+        return 'doughnut';
+    }
+
+    protected function getFormSchema(): array
+    {
+        return [
+            Select::make('projectId')
+                ->label('Select Project')
+                ->options(Project::all()->pluck('name', 'id'))
+                ->searchable()
+                ->reactive(), // triggers re-render on change
+        ];
+    }
+}

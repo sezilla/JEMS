@@ -56,4 +56,31 @@ class DashboardService
 
         return $response['checkItemCount'] ?? 0;
     }
+
+//     public function getTaskStatusBreakdown($projectId = null)
+// {
+//     $query = Auth::user()->tasks(); // returns query builder
+
+//     if ($projectId) {
+//         $query->where('project_id', $projectId);
+//     }
+
+//     $tasks = $query->get();
+
+//     $ongoing = $tasks->where('status', 'incomplete')->count();
+//     $finished = $tasks->where('status', 'complete')->count();
+
+//     // Optional: Count assigned tasks (ongoing only)
+//     $assignedOngoing = $tasks->where('status', 'incomplete')->where('assigned_to', Auth::id())->count();
+
+//     return [
+//         'ongoing' => $ongoing,
+//         'finished' => $finished,
+//         'assigned' => $assignedOngoing,
+//         'total' => $ongoing + $finished,
+//     ];
+// }
+
+    
+    
 }
