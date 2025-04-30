@@ -124,7 +124,7 @@ class PackageResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Project Management';
+        return 'Event Management';
     }
     public static function getNavigationBadge(): ?string
     {

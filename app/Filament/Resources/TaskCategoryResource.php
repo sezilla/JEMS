@@ -81,6 +81,11 @@ class TaskCategoryResource extends Resource
             ]);
     }
 
+    protected function getTitle(): string
+    {
+        return 'Task Duration'; // Your custom title here
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -90,7 +95,7 @@ class TaskCategoryResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Project Management';
+        return 'Event Management';
     }
 
     public static function getPages(): array

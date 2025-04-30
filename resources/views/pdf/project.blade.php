@@ -3,6 +3,23 @@
 <head>
     <title>{{ $project->name }} - Wedding Project PDF</title>
     <style>
+        @media print {
+            .print-columns {
+                column-count: 2;
+                column-gap: 40px;
+            }
+
+            .section {
+                break-inside: avoid; /* prevents breaking inside sections */
+                page-break-inside: avoid;
+            }
+
+            h1 {
+                column-span: all;
+            }
+        }
+
+
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
@@ -67,7 +84,7 @@
     </style>
 </head>
 <body>
-
+<div class="print-columns">
     <h1>{{ $project->name }}</h1>
 
     {{-- Project Details --}}
@@ -138,6 +155,6 @@
         </div>
     </div>
 
-
+    </div>
 </body>
 </html>

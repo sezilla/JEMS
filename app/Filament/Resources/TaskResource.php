@@ -28,7 +28,7 @@ class TaskResource extends Resource
 {
     protected static ?string $model = Task::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-document-check';
 
     public static function form(Form $form): Form
     {
@@ -240,7 +240,7 @@ class TaskResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Project Management';
+        return 'Event Management';
     }
 
     public static function getPages(): array
