@@ -6,6 +6,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\ProjectReportController;
 
 Route::get('/', function () {
     return view('landing2');
@@ -36,6 +37,9 @@ Route::post('/tasks/mark-as-done', [TaskController::class, 'markAsDone'])->name(
 // Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login');
 
 Route::get('/projects/{id}/export-pdf', [App\Http\Controllers\ProjectController::class, 'exportPdf'])->name('projects.exportPdf');
+
+
+Route::get('/projects/report/download', [ProjectReportController::class, 'download'])->name('projects.report.download');
 
 
 Route::middleware('auth')->group(function () {

@@ -13,6 +13,7 @@ use Filament\Forms\Components\DatePicker;
 use App\Filament\App\Resources\ProjectResource;
 use Dom\Text;
 use Filament\Widgets\TableWidget as BaseWidget;
+use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -25,6 +26,12 @@ class OverallReports extends BaseWidget
     protected int | string | array $columnSpan = 'full';
 
     protected static ?string $heading = 'Overall Reports of Projects';
+public function render(): \Illuminate\View\View
+{
+    return view('filament.widgets.overall-reports-widget');
+}
+
+
     public function table(Table $table): Table
     {
         return $table
@@ -131,4 +138,5 @@ class OverallReports extends BaseWidget
                     ]);
             
     }
+    
 }
