@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
 use Namu\WireChat\Models\Conversation;
+use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Namu\WireChat\Enums\ParticipantRole;
 use Namu\WireChat\Enums\ConversationType;
@@ -37,13 +38,27 @@ class CreateGroupChatListener implements ShouldQueue
         $project = $event->project;
 
         $coordinatorIds = collect([
+            $project->head_coordinator,
             $project->groom_coordinator,
             $project->bride_coordinator,
-            $project->head_coordinator,
             $project->groom_coor_assistant,
             $project->bride_coor_assistant,
-            $project->head_coor_assistant
-        ])->filter()->unique();
+            $project->head_coor_assistant,
+        ]);
+
+        $coordinationTeams = $project->coordinationTeam()->get();
+
+        $coordinationUserIds = $coordinationTeams
+            ->flatMap(function ($team) {
+                return $team->users->pluck('id');
+            });
+
+        $coordinatorIds = $coordinatorIds
+            ->merge($coordinationUserIds)
+            ->filter()
+            ->unique()
+            ->values();
+
 
         Log::info('Filtered coordinator IDs', ['ids' => $coordinatorIds->toArray()]);
 
@@ -98,6 +113,14 @@ class CreateGroupChatListener implements ShouldQueue
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+
+                $users = User::whereIn('id', $coordinatorIds)->get();
+
+                Notification::make()
+                    ->success()
+                    ->title('Group chat Created')
+                    ->body('You have been assigned as Coordinator for: ' . $project->name)
+                    ->sendToDatabase($users);
 
                 Log::info('Project coordinator group conversation created', [
                     'project_id' => $project->id,
