@@ -4,30 +4,35 @@ namespace App\Providers\Filament;
 
 use Filament\Pages;
 use Filament\Panel;
+use App\Models\User;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Enums\ThemeMode;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\Auth\LoginForm;
 use App\Http\Middleware\managepackage;
+use App\Filament\Widgets\StatsOverview;
 use App\Filament\pages\Auth\CustomLogin;
+
+use App\Filament\Widgets\UsersLineChart;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
+
 use Illuminate\Session\Middleware\StartSession;
-
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+// use Filament\Navigation\NavigationItem;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Illuminate\Session\Middleware\AuthenticateSession;
 
+use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-// use Filament\Navigation\NavigationItem;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
@@ -35,8 +40,12 @@ use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
+
+
     public function panel(Panel $panel): Panel
     {
+        $user = Auth::user();
+
         return $panel
             // ->brandLogo(asset('storage/images/logo.svg'))
             // ->defaultThemeMode(ThemeMode::Light)
@@ -78,7 +87,7 @@ class AdminPanelProvider extends PanelProvider
                     ->url('/app')
                     ->icon('heroicon-o-cog-8-tooth'),
                 'profile' => MenuItem::make()
-                    ->label(fn() => auth()->user()->name)
+                    ->label(fn() => Auth::user()->name)
                     ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
             ])
@@ -89,9 +98,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                \App\Filament\Widgets\StatsOverview::class,
-                \App\Filament\Widgets\UsersLineChart::class,
-
+                StatsOverview::class,
+                UsersLineChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -103,7 +111,6 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-
                 managepackage::class,
             ])
             //wirechat
@@ -134,7 +141,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('2s')
             ->plugins([
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make(),
 
                 FilamentEditProfilePlugin::make()
                     // ->slug('profile')
@@ -147,7 +154,7 @@ class AdminPanelProvider extends PanelProvider
                         rules: 'mimes:jpeg,png|max:1024'
                     )
                     ->shouldShowDeleteAccountForm(false)
-                    ->shouldRegisterNavigation(fn() => auth()->user()->can('view-edit-profile-page'))
+                    // ->shouldRegisterNavigation(fn() => $user->can('view-edit-profile-page'))
                     ->customProfileComponents([
                         \App\Livewire\AddSkills::class,
                     ]),

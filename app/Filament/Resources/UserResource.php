@@ -95,7 +95,7 @@ class UserResource extends Resource
                         FileUpload::make('avatar_url')
                             ->label('Avatar')
                             ->image()
-                            ->visible(fn($livewire) => $livewire instanceof Pages\EditUser),
+                            ->visible(fn($livewire) => in_array(get_class($livewire), [Pages\EditUser::class, Pages\ViewUser::class])),
                         Select::make('departments')
                             ->relationship('departments', 'name', function ($query, $get) {
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
@@ -290,7 +290,7 @@ class UserResource extends Resource
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
-            // 'view' => Pages\ViewUser::route('/{record}/view'),
+            'view' => Pages\ViewUser::route('/{record}'),
         ];
     }
 
