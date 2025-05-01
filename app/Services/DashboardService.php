@@ -59,29 +59,29 @@ class DashboardService
         return $response['checkItemCount'] ?? 0;
     }
 
-//     public function getTaskStatusBreakdown($projectId = null)
-// {
-//     $query = Auth::user()->tasks(); // returns query builder
+    //     public function getTaskStatusBreakdown($projectId = null)
+    // {
+    //     $query = Auth::user()->tasks(); // returns query builder
 
-//     if ($projectId) {
-//         $query->where('project_id', $projectId);
-//     }
+    //     if ($projectId) {
+    //         $query->where('project_id', $projectId);
+    //     }
 
-//     $tasks = $query->get();
+    //     $tasks = $query->get();
 
-//     $ongoing = $tasks->where('status', 'incomplete')->count();
-//     $finished = $tasks->where('status', 'complete')->count();
+    //     $ongoing = $tasks->where('status', 'incomplete')->count();
+    //     $finished = $tasks->where('status', 'complete')->count();
 
-//     // Optional: Count assigned tasks (ongoing only)
-//     $assignedOngoing = $tasks->where('status', 'incomplete')->where('assigned_to', Auth::id())->count();
+    //     // Optional: Count assigned tasks (ongoing only)
+    //     $assignedOngoing = $tasks->where('status', 'incomplete')->where('assigned_to', Auth::id())->count();
 
-//     return [
-//         'ongoing' => $ongoing,
-//         'finished' => $finished,
-//         'assigned' => $assignedOngoing,
-//         'total' => $ongoing + $finished,
-//     ];
-// }
+    //     return [
+    //         'ongoing' => $ongoing,
+    //         'finished' => $finished,
+    //         'assigned' => $assignedOngoing,
+    //         'total' => $ongoing + $finished,
+    //     ];
+    // }
 
 
 
@@ -136,7 +136,7 @@ class DashboardService
             0   => 'Canceled',
             50  => 'On Hold',
         ];
-        
+
         return $statuses[$statusCode] ?? 'Unknown';
     }
 }
