@@ -8,6 +8,8 @@ use App\Services\ProjectService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\Resources\ProjectResource;
+use Filament\Actions\Action;
+use Illuminate\Support\Facades\URL;
 
 class ViewProject extends ViewRecord
 {
@@ -40,13 +42,21 @@ class ViewProject extends ViewRecord
             Actions\EditAction::make()
                 ->visible(fn($record) => $record->trashed() === false),
 
-            Actions\RestoreAction::make()
-
-
+            Actions\RestoreAction::make(),
+            
+            Action::make('downloadPdf')
+            ->label('Download PDF')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->url(fn($record) => route('projects.exportPdf', $record->id))
+            ->openUrlInNewTab()
+            ->color('secondary'),
+  
         ];
     }
     protected function resolveRecord($key): \Illuminate\Database\Eloquent\Model
     {
         return Project::withTrashed()->findOrFail($key);
     }
+
+    
 }

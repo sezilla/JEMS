@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PythonService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Project;
 
 class ProjectController extends Controller
 {
@@ -85,4 +87,13 @@ class ProjectController extends Controller
     {
 
     }
+
+    public function exportPdf($id)
+{
+    $project = Project::with('user', 'teams')->findOrFail($id);
+
+    $pdf = Pdf::loadView('pdf.project', compact('project'));
+
+    return $pdf->download("Project_{$project->id}.pdf");
+}
 }

@@ -14,22 +14,22 @@ class StatsOverview extends BaseWidget
         $user = Auth::user();
 
         return [
-            Stat::make('Projects', app(DashboardService::class)->getProjectCount($user) ?? 0)
+            Stat::make('Projects', app(DashboardService::class)->getProjectCount() ?? 0)
                 ->description('Total number of Projects assigned to your team')
                 ->descriptionIcon('heroicon-o-clipboard-document-check')
                 ->color('info'),
 
-            Stat::make('Assigned Tasks', 5) // Static value
+            Stat::make('Assigned Tasks', app(DashboardService::class)->getAssignedTasksCount() ?? 0)
                 ->description('Tasks that are assigned')
                 ->descriptionIcon('heroicon-o-user-circle')
                 ->color('primary'),
 
-            Stat::make('Ongoing Tasks', 3) // Static value
+            Stat::make('Ongoing Tasks', app(DashboardService::class)->getOngoingTasksCount() ?? 0)
                 ->description('Tasks that are ongoing')
                 ->descriptionIcon('heroicon-o-arrow-path')
                 ->color('warning'),
 
-            Stat::make('Finished Tasks', 7) // Static value
+            Stat::make('Finished Tasks', app(DashboardService::class)->getFinishedTasksCount() ?? 0)
                 ->description('Tasks that are finished')
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),

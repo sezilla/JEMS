@@ -4,8 +4,10 @@ namespace App\Filament\App\Resources\ProjectResource\Pages;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\UserTask;
 use App\Models\Department;
 use App\Services\TrelloTask;
+use App\Models\ChecklistUser;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Log;
@@ -305,6 +307,13 @@ class Task extends Page
             'task' => $this->currentTask,
         ]);
 
+        if ($success) {
+            UserTask::where('check_item_id', $this->currentTask['item_id'])
+                ->update(['status' => $this->currentTask['desired_state'] ?? 'complete']);
+        }
+
+
+
         return $this->showNotification(
             $success,
             'Checklist Item Completed',
@@ -350,7 +359,7 @@ class Task extends Page
 
             $checklistUser = $this->project->checklist;
             if (!$checklistUser) {
-                $checklistUser = new \App\Models\ChecklistUser([
+                $checklistUser = new ChecklistUser([
                     'project_id' => $this->project->id,
                     'user_checklist' => [],
                 ]);
@@ -363,6 +372,11 @@ class Task extends Page
                 $userChecklist[$checklistId] = [];
             }
 
+            $userChecklist[$checklistId] = array_filter(
+                $userChecklist[$checklistId],
+                fn($entry) => $entry['check_item_id'] !== $itemId
+            );
+
             $userChecklist[$checklistId][] = [
                 'user_id' => $userId,
                 'check_item_id' => $itemId,
@@ -371,25 +385,31 @@ class Task extends Page
             $checklistUser->user_checklist = $userChecklist;
             $checklistUser->save();
 
+            UserTask::where('check_item_id', $itemId)->delete();
+
+            UserTask::updateOrCreate([
+                'user_id' => $userId,
+                'check_item_id' => $itemId,
+            ]);
+
             $this->userCheckItem = $userChecklist;
 
-            Log::info('User assignment updated in database', [
+            Log::info('User assignment updated', [
                 'checklist_id' => $checklistId,
                 'item_id'      => $itemId,
                 'user_id'      => $userId,
-                'project_id'   => $this->project->id
+                'project_id'   => $this->project->id,
             ]);
         }
 
         $this->refreshData();
 
         Log::info('Task edit attempt', [
-            'task'    => $this->currentTask,
+            'task' => $this->currentTask,
         ]);
 
-        $success = true;
         return $this->showNotification(
-            $success,
+            true,
             'Task Updated',
             'Task updated successfully.',
             'Update Failed',
@@ -461,6 +481,15 @@ class Task extends Page
 
             $checklistUser->user_checklist = $userChecklist;
             $checklistUser->save();
+
+            UserTask::where('check_item_id', $itemId)->delete();
+
+            UserTask::updateOrCreate([
+                'user_id' => $userId,
+                'check_item_id' => $itemId,
+            ], [
+                'status' => $state,
+            ]);
 
             $this->userCheckItem = $userChecklist;
 
@@ -563,6 +592,13 @@ class Task extends Page
 
             $checklistUser->user_checklist = $userChecklist;
             $checklistUser->save();
+
+            UserTask::where('check_item_id', $itemId)->delete();
+
+            UserTask::updateOrCreate([
+                'user_id' => $userId,
+                'check_item_id' => $itemId,
+            ]);
 
             $this->userCheckItem = $userChecklist;
 

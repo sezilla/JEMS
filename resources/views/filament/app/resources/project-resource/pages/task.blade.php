@@ -460,8 +460,7 @@
                                                             @if (auth()->user()->hasAnyRole(['Coordinator', 'Team Leader']))
                                                                 <x-filament::button color="primary"
                                                                     wire:click="assignUserToCheckItem"
-                                                                    x-on:click="if (await $wire.assignUserToCheckItem()) { $dispatch('close-modal', { id: 'set-user-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
-                                                                    Save
+                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">                                                                    Save
                                                                 </x-filament::button>
                                                             @endif
                                                         </div>

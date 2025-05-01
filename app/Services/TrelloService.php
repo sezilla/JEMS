@@ -471,4 +471,38 @@ class TrelloService
             return null;
         }
     }
+
+    public function getCheckItemCount($boardId)
+    {
+        $listId = $this->getDepartmentsListId($boardId);
+
+        if (!$listId) {
+            Log::error("Departments list not found on board ID: {$boardId}");
+            return 0;
+        }
+
+        $cards = $this->getListCards($listId);
+
+        if (!$cards) {
+            Log::error("No cards found in Departments list on board ID: {$boardId}");
+            return 0;
+        }
+
+        $totalCheckItems = 0;
+
+        foreach ($cards as $card) {
+            try {
+            $response = $this->client->get("cards/{$card['id']}/checkItemStates", [
+                'query' => $this->getAuthParams(),
+            ]);
+
+            $checkItemStates = json_decode($response->getBody()->getContents(), true);
+            $totalCheckItems += count($checkItemStates);
+            } catch (RequestException $e) {
+            Log::error("Failed to fetch check item states for card ID: {$card['id']}. Error: " . $e->getMessage());
+            }
+        }
+
+        return $totalCheckItems;
+    }
 }
