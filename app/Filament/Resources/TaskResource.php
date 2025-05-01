@@ -58,7 +58,7 @@ class TaskResource extends Resource
                             ->columnSpan(1),
 
                         Forms\Components\Select::make('task_category_id')
-                            ->label('Category')
+                            ->label('Duration')
                             ->relationship('category', 'name')
                             ->required()
                             ->preload()
@@ -218,7 +218,7 @@ class TaskResource extends Resource
                     ->options(function () {
                         return TaskCategory::pluck('name', 'id');
                     })
-                    ->label('Category')
+                    ->label('Duration')
                     ->relationship('category', 'name'),
             ])
             ->actions([
