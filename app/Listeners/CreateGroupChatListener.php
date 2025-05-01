@@ -5,6 +5,7 @@ namespace App\Listeners;
 use Exception;
 use App\Models\User;
 use App\Services\ProjectService;
+use Namu\WireChat\Models\Message;
 use Illuminate\Support\Facades\DB;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
@@ -86,6 +87,17 @@ class CreateGroupChatListener implements ShouldQueue
                     }
                 });
                 DB::commit();
+
+                Message::create([
+                    'conversation_id' => $conversation->id,
+                    'sender_id' => $headCoordinator,
+                    'sendable_type' => User::class,
+                    'sendable_id' => $headCoordinator,
+                    'body' => "Welcome to the {$group->name} group!",
+                    'type' => 'text',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
 
                 Log::info('Project coordinator group conversation created', [
                     'project_id' => $project->id,

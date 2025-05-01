@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\UserTask;
 use App\Models\Department;
 use App\Services\TrelloTask;
+use App\Models\ChecklistUser;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\Page;
 use Illuminate\Support\Facades\Log;
@@ -311,6 +312,8 @@ class Task extends Page
                 ->update(['status' => $this->currentTask['desired_state'] ?? 'complete']);
         }
 
+
+
         return $this->showNotification(
             $success,
             'Checklist Item Completed',
@@ -356,7 +359,7 @@ class Task extends Page
 
             $checklistUser = $this->project->checklist;
             if (!$checklistUser) {
-                $checklistUser = new \App\Models\ChecklistUser([
+                $checklistUser = new ChecklistUser([
                     'project_id' => $this->project->id,
                     'user_checklist' => [],
                 ]);
