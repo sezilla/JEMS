@@ -22,7 +22,7 @@ return [
         'description' => 'Tasks to be completed between 1 month and 4 months before the wedding.',
     ],
     '3months_to_1month' => [
-        'name' => '1 Month to 2 Months before',
+        'name' => '1 Month to 3 Months before',
         'id' => 5,
         'description' => 'Tasks to be completed between 1 month and 3 months before the wedding.',
     ],
