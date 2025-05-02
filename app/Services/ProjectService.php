@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use App\Models\User;
 use App\Models\Project;
 use App\Models\UserTask;
 use App\Models\ChecklistUser;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardCreatedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
+use Filament\Notifications\Notification;
 
 
 class ProjectService
@@ -403,26 +405,38 @@ class ProjectService
                 ['project_id' => $project->id],
                 ['user_checklist' => $allocation]
             );
-        
+
             foreach ($allocation as $checklistId => $tasks) {
                 foreach ($tasks as $task) {
                     UserTask::updateOrCreate(
                         [
-                            'user_id' => $task['user_id'], 
+                            'user_id' => $task['user_id'],
                             'check_item_id' => $task['check_item_id'],
                         ],
                         [
                             'status' => 'incomplete',
+                            'task_name' => $task['check_item_name'],
+                            'card_id' => $task['card_id'],
                         ]
                     );
+
+                    $user = User::find($task['user_id']);
+
+                    if ($user) {
+                        Notification::make()
+                            ->info()
+                            ->title('New Task Assigned for Project: ' . $project->name)
+                            ->body('You have been assigned a new task: ' . $task['check_item_name'])
+                            ->sendToDatabase($user);
+                    }
                 }
-            }                     
-        
+            }
+
             Log::info('Checklist saved successfully.', ['checklist' => $allocation]);
         } else {
             Log::warning('No allocation data found in the response.', ['response_keys' => array_keys($response)]);
         }
-        
+
         Log::info('User assigned to tasks for project: ' . $project->id);
         return ['success' => true, 'message' => 'User allocation completed'];
     }

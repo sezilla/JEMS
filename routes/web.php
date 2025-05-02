@@ -1,12 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProjectController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\AdminAuthController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\TaskActionController;
 use App\Http\Controllers\ProjectReportController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/', function () {
     return view('landing2');
@@ -40,6 +41,8 @@ Route::get('/projects/{id}/export-pdf', [App\Http\Controllers\ProjectController:
 Route::get('/projects/report/download', [ProjectReportController::class, 'download'])->name('projects.report.download')->middleware(['auth']);
 Route::get('/projects/report/download-reports', [ProjectReportController::class, 'downloadReports'])->name('projects.report.downloadReports')->middleware(['auth']);
 
+Route::get('/task/approve/{taskId}', [TaskActionController::class, 'approveTask'])->name('task.approve');
+Route::get('/task/reject/{taskId}', [TaskActionController::class, 'rejectTask'])->name('task.reject');
 
 
 Route::middleware('auth')->group(function () {

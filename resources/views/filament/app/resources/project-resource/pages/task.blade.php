@@ -366,7 +366,7 @@
                                                                 <x-filament::button color="primary"
                                                                     wire:click="saveEditTask"
                                                                     wire:loading.attr="disabled"
-                                                                    x-on:click="if (await $wire.saveEditTask()) { $dispatch('close-modal'); $wire.$refresh(); }">
+                                                                    x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                                     Save
                                                                 </x-filament::button>
                                                             </div>
@@ -536,7 +536,7 @@
                                                 <div class="flex justify-end space-x-3">
                                                     <x-filament::button color="primary"
                                                         wire:click="updateCheckItemState"
-                                                        x-on:click="if (await $wire.updateCheckItemState()) { $dispatch('close-modal', { id: 'complete-task-modal-{{ $item['id'] }}' }); $wire.$refresh(); }">
+                                                        x-on:click="$dispatch('close-modal'); $wire.$refresh()">
                                                         Submit
                                                     </x-filament::button>
                                                 </div>

@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Actions\Action;
+// use Filament\Forms\Components\Actions\Action;
 use App\Filament\App\Resources\ProjectResource;
+use Filament\Notifications\Actions\Action;
 
 class Task extends Page
 {
@@ -42,13 +43,6 @@ class Task extends Page
     {
         return $this->project->name ?? 'Project';
     }
-
-    // protected function getHeaderActions(): array
-    // {
-    //     return [
-    //         EditAction::make(),
-    //     ];
-    // }
 
     public function mount($record)
     {
@@ -292,11 +286,13 @@ class Task extends Page
             );
         }
 
+        $desiredState = $this->currentTask['desired_state'] ?? 'incomplete';
+
         $trelloService = app(TrelloTask::class);
         $response = $trelloService->setCheckItemState(
             $this->currentTask['card_id'],
             $this->currentTask['item_id'],
-            $this->currentTask['desired_state'] ?? 'complete' || 'incomplete'
+            $desiredState
         );
         $success = $response && isset($response['id']);
 
@@ -308,11 +304,37 @@ class Task extends Page
         ]);
 
         if ($success) {
+            $trelloService = app(TrelloTask::class);
+
             UserTask::where('check_item_id', $this->currentTask['item_id'])
                 ->update(['status' => $this->currentTask['desired_state'] ?? 'complete']);
+
+            $userTask = UserTask::where('check_item_id', $this->currentTask['item_id'])->first();
+            $headCoordinator = User::find($this->project->head_coordinator);
+            $projectName = $this->project->name;
+
+            if ($userTask && $headCoordinator) {
+                Notification::make()
+                    ->success()
+                    ->title('A task is completed on event: ' . $projectName)
+                    ->body('Task "' . $userTask->task_name . '" was marked as complete.')
+                    ->actions([
+                        Action::make('approve')
+                            ->label('Approve')
+                            ->markAsRead()
+                            ->button()
+                            ->url(route('task.approve', $userTask->id)),
+
+                        Action::make('reject')
+                            ->label('Reject')
+                            ->markAsRead()
+                            ->color('danger')
+                            ->button()
+                            ->url(route('task.reject', $userTask->id)),
+                    ])
+                    ->sendToDatabase($headCoordinator);
+            }
         }
-
-
 
         return $this->showNotification(
             $success,
@@ -389,8 +411,16 @@ class Task extends Page
 
             UserTask::updateOrCreate([
                 'user_id' => $userId,
-                'check_item_id' => $itemId,
+                'check_item_id' => $this->currentTask['item_id'],
+                'card_id' => $this->currentTask['card_id'],
+                'task_name' => $this->currentTask['name'] ?? null,
             ]);
+
+            Notification::make()
+                ->info()
+                ->title('Task Assigned')
+                ->body('Task "' . $this->currentTask['name'] . '" has been assigned to you. For Event: ' . $this->project->name)
+                ->sendToDatabase(User::find($userId));
 
             $this->userCheckItem = $userChecklist;
 
@@ -419,7 +449,7 @@ class Task extends Page
 
     public function saveEditTask()
     {
-        if (!isset($this->currentTask['checklist_id'], $this->currentTask['item_id'], $this->currentTask['card_id'])) {
+        if (!isset($this->currentTask['checklist_id'], $this->currentTask['item_id'])) {
             return $this->showNotification(
                 false,
                 '',
@@ -429,23 +459,15 @@ class Task extends Page
             );
         }
 
-        Log::info('Pre-save values', [
-            'user_id_property' => $this->user_id,
-            'currentTask_user_id' => $this->currentTask['user_id'] ?? null
-        ]);
-
-        $state = ($this->currentTask['state'] === true || $this->currentTask['state'] === 1 ||
-            $this->currentTask['state'] === '1') ? 'complete' : 'incomplete';
-
-        $trelloService = app(TrelloTask::class);
-        $response = $trelloService->updateCheckItemDetails(
-            $this->currentTask['card_id'],
-            $this->currentTask['item_id'],
-            $this->currentTask['name'] ?? null,
-            $this->currentTask['due_date'] ?? null,
-            $state
-        );
-        $success = $response && isset($response['id']);
+        if (!$this->project) {
+            return $this->showNotification(
+                false,
+                '',
+                '',
+                'Project Not Found',
+                'The specified project could not be found.'
+            );
+        }
 
         $userId = null;
         if (isset($this->currentTask['user_id']) && !empty($this->currentTask['user_id'])) {
@@ -455,7 +477,7 @@ class Task extends Page
             $this->currentTask['user_id'] = $userId;
         }
 
-        if ($success && $userId && $this->project) {
+        if ($userId && $this->project) {
             $checklistId = $this->currentTask['checklist_id'];
             $itemId = $this->currentTask['item_id'];
 
@@ -474,6 +496,11 @@ class Task extends Page
                 $userChecklist[$checklistId] = [];
             }
 
+            $userChecklist[$checklistId] = array_filter(
+                $userChecklist[$checklistId],
+                fn($entry) => $entry['check_item_id'] !== $itemId
+            );
+
             $userChecklist[$checklistId][] = [
                 'user_id' => $userId,
                 'check_item_id' => $itemId,
@@ -487,35 +514,43 @@ class Task extends Page
             UserTask::updateOrCreate([
                 'user_id' => $userId,
                 'check_item_id' => $itemId,
+                'card_id' => $this->currentTask['card_id'],
+                'task_name' => $this->currentTask['name'] ?? null,
             ], [
-                'status' => $state,
+                'status' => $this->currentTask['state'] ?? 'incomplete',
             ]);
+
+            Notification::make()
+                ->info()
+                ->title('Task Assigned')
+                ->body('Task "' . $this->currentTask['name'] . '" has been edited and assigned to you. For Event: ' . $this->project->name)
+                ->sendToDatabase(User::find($userId));
 
             $this->userCheckItem = $userChecklist;
 
-            Log::info('User assignment updated in database', [
+            Log::info('User assignment updated', [
                 'checklist_id' => $checklistId,
                 'item_id'      => $itemId,
                 'user_id'      => $userId,
-                'project_id'   => $this->project->id
+                'project_id'   => $this->project->id,
             ]);
         }
 
         $this->refreshData();
 
         Log::info('Task edit attempt', [
-            'success' => $success,
-            'task'    => $this->currentTask,
+            'task' => $this->currentTask,
         ]);
 
         return $this->showNotification(
-            $success,
+            true,
             'Task Updated',
             'Task updated successfully.',
             'Update Failed',
             'An error occurred while updating the task.'
         );
     }
+
 
     public function updatedUserId($value)
     {
@@ -598,7 +633,15 @@ class Task extends Page
             UserTask::updateOrCreate([
                 'user_id' => $userId,
                 'check_item_id' => $itemId,
+                'task_name' => $this->currentTask['name'] ?? null,
+                'card_id' => $this->currentTask['card_id'],
             ]);
+
+            Notification::make()
+                ->info()
+                ->title('Task Assigned')
+                ->body('Task "' . $this->currentTask['name'] . '" has been created and assigned to you. For Event: ' . $this->project->name)
+                ->sendToDatabase(User::find($userId));
 
             $this->userCheckItem = $userChecklist;
 
