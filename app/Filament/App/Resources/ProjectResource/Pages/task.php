@@ -42,6 +42,8 @@ class Task extends Page
     public $project;
     public $users = [];
     public array $progress = [];
+    public bool $showFullDescription = false;
+    public bool $showFullSpecialRequest = false;
 
     public function getTitle(): string
     {

@@ -111,16 +111,54 @@
         <!-- Cards Section -->
         <div class="flex flex-col gap-4">
             <!-- Project Description -->
-            <x-filament::card>
-                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
-                <p class="text-gray-700 dark:text-gray-300">{{ $project->description }}</p>
-            </x-filament::card>
+            @if($project->description)
+                <x-filament::card>
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
+                        <div class="relative">
+                            <div class="text-gray-700 dark:text-gray-300 {{ !$showFullDescription ? 'line-clamp-3' : '' }}">
+                                {{ $project->description }}
+                            </div>
+                            @if(str_word_count($project->description) > 30)
+                                <div class="mt-2">
+                                    <x-filament::button
+                                        wire:click="$set('showFullDescription', {{ !$showFullDescription ? 'true' : 'false' }})"
+                                        color="gray"
+                                        size="sm"
+                                        class="text-sm"
+                                    >
+                                        {{ $showFullDescription ? 'Show Less' : 'See More...' }}
+                                    </x-filament::button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </x-filament::card>
+            @endif
 
             <!-- Special Request -->
             @if($project->special_request)
                 <x-filament::card>
-                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Special Request</h3>
-                    <p class="text-gray-700 dark:text-gray-300">{{ $project->special_request }}</p>
+                    <div class="space-y-2">
+                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Special Request</h3>
+                        <div class="relative">
+                            <div class="text-gray-700 dark:text-gray-300 {{ !$showFullSpecialRequest ? 'line-clamp-3' : '' }}">
+                                {{ $project->special_request }}
+                            </div>
+                            @if(str_word_count($project->special_request) > 30)
+                                <div class="mt-2">
+                                    <x-filament::button
+                                        wire:click="$set('showFullSpecialRequest', {{ !$showFullSpecialRequest ? 'true' : 'false' }})"
+                                        color="gray"
+                                        size="sm"
+                                        class="text-sm"
+                                    >
+                                        {{ $showFullSpecialRequest ? 'Show Less' : 'See More...' }}
+                                    </x-filament::button>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </x-filament::card>
             @endif
 
@@ -184,36 +222,26 @@
         </div>
     </x-filament::section>
 
-    <!-- Project Progress Widget -->
-    {{-- <x-filament::section>
-        <x-filament-widgets::widget class="\App\Filament\App\Resources\ProjectResource\Widgets\ProjectProgress">
-            <x-slot name="record">
-                {{ $project }}
-            </x-slot>
-        </x-filament-widgets::widget>
-    </x-filament::section> --}}
-
-    <!-- Project Progress Section -->
-    <x-filament::section>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Project Progress Cards -->
+    @if (auth()->user()->hasRole('Coordinator'))
+        <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4">
             @forelse($progress as $cardName => $percentage)
-                <x-filament::card>
-                    <div class="flex flex-col items-center space-y-4 p-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
+                <x-filament::card class="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg rounded-xl transition-transform transform hover:scale-105 duration-200">
+                    <div class="grid grid-rows-3">
+                        <h3 class="text-xl font-extrabold text-white text-center tracking-wide drop-shadow">
                             {{ $cardName }}
                         </h3>
-                        
-                        <div class="relative w-32 h-32">
-                            <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <div class="w-5/6 mx-auto h-1 rounded-full bg-white opacity-70"></div>
+                        <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+                            <svg class="w-full h-full drop-shadow-lg" viewBox="0 0 36 36">
                                 <!-- Background circle -->
                                 <path
                                     d="M18 2.0845
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                                     fill="none"
-                                    stroke="#e5e7eb"
-                                    stroke-width="3"
-                                    class="dark:stroke-gray-700"
+                                    stroke="#374151"
+                                    stroke-width="3.5"
                                 />
                                 <!-- Progress circle -->
                                 <path
@@ -221,17 +249,21 @@
                                         a 15.9155 15.9155 0 0 1 0 31.831
                                         a 15.9155 15.9155 0 0 1 0 -31.831"
                                     fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="3"
+                                    stroke="url(#progressGradient)"
+                                    stroke-width="4"
                                     stroke-dasharray="{{ $percentage }}, 100"
-                                    class="text-primary-500"
+                                    style="transition: stroke-dasharray 0.6s cubic-bezier(.4,2,.6,1);"
                                 />
+                                <defs>
+                                    <linearGradient id="progressGradient" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#ec4899"/>
+                                        <stop offset="100%" stop-color="#3b82f6"/>
+                                    </linearGradient>
+                                </defs>
                             </svg>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                                    {{ $percentage }}%
-                                </span>
-                            </div>
+                            <span class="absolute text-xl font-bold text-white drop-shadow">
+                                {{ $percentage }}%
+                            </span>
                         </div>
                     </div>
                 </x-filament::card>
@@ -243,7 +275,7 @@
                 </div>
             @endforelse
         </div>
-    </x-filament::section>
+    @endif
 
     <div wire:poll.10s>
         @if (!empty($trelloCards))
