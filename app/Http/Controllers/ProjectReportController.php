@@ -30,7 +30,11 @@ class ProjectReportController extends Controller
         $status = $request->query('status');
     
         if ($status !== null) {
-            $query->where('status', $status);
+            $statusInt = config('project.project_status')[$status] ?? null;
+        
+            if ($statusInt !== null) {
+                $query->where('status', $statusInt);
+            }
         }
     
         if ($start) {

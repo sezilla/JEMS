@@ -169,8 +169,13 @@ class OverallReports extends BaseWidget
                         }
             
                         if (!empty($data['status'])) {
-                            $query->where('status', $data['status']);
+                            $statusInt = config('project.project_status')[$data['status']] ?? null;
+                        
+                            if ($statusInt !== null) {
+                                $query->where('status', $statusInt);
+                            }
                         }
+                        
             
                         return $query;
                     }),
