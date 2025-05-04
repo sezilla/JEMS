@@ -142,14 +142,20 @@ class OverallReports extends BaseWidget
                     ->label('Wedding Date Range')
                     ->form([
                         DatePicker::make('wedding_date_from')
-                            ->label('From (Day–Month–Year)')
+                            ->label('From Date')
+                            ->displayFormat('M d, Y')
                             ->native(false)
-                            ->displayFormat('F j, Y'),
+                            ->closeOnDateSelection()
+                            ->firstDayOfWeek(1)
+                            ->placeholder('Select start date'),
             
                         DatePicker::make('wedding_date_until')
-                            ->label('Until (Day–Month–Year)')
+                            ->label('Until Date')
+                            ->displayFormat('M d, Y')
                             ->native(false)
-                            ->displayFormat('F j, Y'),
+                            ->closeOnDateSelection()
+                            ->firstDayOfWeek(1)
+                            ->placeholder('Select end date'),
             
                         Select::make('status')
                             ->label('Status')
