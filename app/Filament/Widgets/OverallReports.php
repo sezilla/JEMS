@@ -16,6 +16,7 @@ use App\Filament\App\Resources\ProjectResource;
 use Filament\Widgets\TableWidget as BaseWidget;
 use App\Http\Controllers\ProjectReportController;
 
+
 class OverallReports extends BaseWidget
 {
     protected static ?int $sort = 5;
@@ -28,41 +29,45 @@ class OverallReports extends BaseWidget
     public function table(Table $table): Table
     {
         return $table
-            ->headerActions([
-                Action::make('report')
-                    ->label('Export Report')
-                    ->icon('heroicon-o-document-text')
-                    ->requiresConfirmation()
-                    ->action(function (array $data, OverallReports $livewire) {
-                        $filters = $livewire->getTableFiltersForm()->getState();
-
-                        $queryParams = [];
-
-                        if (!empty($filters['wedding_date_from'])) {
-                            $queryParams['start'] = Carbon::parse($filters['wedding_date_from'])
-                                ->format('Y-m');
-                        }
-
-                        if (!empty($filters['wedding_date_until'])) {
-                            $queryParams['end'] = Carbon::parse($filters['wedding_date_until'])
-                                ->format('Y-m');
-                        }
-
-                        if (!empty($filters['status'])) {
-                            $statusKey = $filters['status'];
-                            $statusValue = config('project.project_status')[$statusKey] ?? null;
-                            
-                            if (null !== $statusValue) {
-                                $queryParams['status'] = $statusValue;
-                            }
-                        }
-
-                        return redirect()->route('projects.report.download', $queryParams);
-                    })
-                    ->modalHeading('Export Project Report')
-                    ->modalDescription('Generate a PDF report of the projects based on current filters.')
-                    ->modalSubmitActionLabel('Export PDF'),
-            ])
+        ->headerActions([
+            Action::make('report')
+            ->label('Export Report')
+            ->icon('heroicon-o-document-text')
+            ->requiresConfirmation()
+            ->action(function (OverallReports $livewire) {
+                // 1) Grab the full filters state:
+                $filters = $livewire->getTableFiltersForm()->getState();
+        
+                // 2) Unpack the wedding_date_range array:
+                $range  = $filters['wedding_date_range'] ?? [];
+        
+                $from   = $range['wedding_date_from']  ?? null;
+                $until  = $range['wedding_date_until'] ?? null;
+                $status = $range['status']             ?? null;
+        
+                // 3) Build query params:
+                $queryParams = [];
+        
+                if ($from) {
+                    $queryParams['start'] = Carbon::parse($from)->format('Y-m-d');
+                }
+        
+                if ($until) {
+                    $queryParams['end']   = Carbon::parse($until)->format('Y-m-d');
+                }
+        
+                if ($status) {
+                    $queryParams['status'] = $status;
+                }
+        
+                // 4) Redirect to your PDF download route with the correct keys:
+                return redirect()->route('projects.report.download', $queryParams);
+            })
+            ->modalHeading('Export Project Report')
+            ->modalDescription('Generate a PDF report of exactly what you see.')
+            ->modalSubmitActionLabel('Export PDF'),
+        ])
+        
             ->query(Project::query())
             ->defaultPaginationPageOption(5)
             ->defaultSort('created_at', 'desc')
@@ -134,45 +139,43 @@ class OverallReports extends BaseWidget
             ])
             ->filters([
                 Filter::make('wedding_date_range')
-                ->label('Wedding Date Range')
-                ->form([
-                    DatePicker::make('wedding_date_from')
-                        ->label('From (Month–Year)')
-                        ->native(false)
-                        ->displayFormat('F Y'),
-                    DatePicker::make('wedding_date_until')
-                        ->label('Until (Month–Year)')
-                        ->native(false)
-                        ->displayFormat('F Y'),
-                    Select::make('status')
-                        ->label('Status')
-                        ->options(
-                            collect(config('project.project_status'))
-                                ->mapWithKeys(fn ($value, $key) => [$key => ucfirst(str_replace('_', ' ', $key))])
-                                ->toArray()
-                        )
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    if (!empty($data['wedding_date_from'])) {
-                        $from = Carbon::parse($data['wedding_date_from'])->startOfMonth();
-                        $query->whereDate('end', '>=', $from);
-                    }
-
-                    if (!empty($data['wedding_date_until'])) {
-                        $until = Carbon::parse($data['wedding_date_until'])->endOfMonth();
-                        $query->whereDate('end', '<=', $until);
-                    }
-
-                    if (!empty($data['status'])) {
-                        $statusInt = config('project.project_status')[$data['status']] ?? null;
-
-                        if ($statusInt !== null) {
-                            $query->where('status', $statusInt);
+                    ->label('Wedding Date Range')
+                    ->form([
+                        DatePicker::make('wedding_date_from')
+                            ->label('From (Day–Month–Year)')
+                            ->native(false)
+                            ->displayFormat('F j, Y'),
+            
+                        DatePicker::make('wedding_date_until')
+                            ->label('Until (Day–Month–Year)')
+                            ->native(false)
+                            ->displayFormat('F j, Y'),
+            
+                        Select::make('status')
+                            ->label('Status')
+                            ->options(
+                                collect(config('project.project_status'))
+                                    ->mapWithKeys(fn ($value, $key) => [$key => ucfirst(str_replace('_', ' ', $key))])
+                                    ->toArray()
+                            ),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['wedding_date_from'])) {
+                            $query->whereDate('end', '>=', Carbon::parse($data['wedding_date_from']));
                         }
-                    }
-
-                    return $query;
-                }),
-            ]);
+            
+                        if (!empty($data['wedding_date_until'])) {
+                            $query->whereDate('end', '<=', Carbon::parse($data['wedding_date_until']));
+                        }
+            
+                        if (!empty($data['status'])) {
+                            $query->where('status', $data['status']);
+                        }
+            
+                        return $query;
+                    }),
+                ]);
+            
+            
     }
 }

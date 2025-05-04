@@ -12,6 +12,19 @@
 <body>
     <h2>Overall Reports of Projects</h2>
 
+    <p><strong>Date Range:</strong>
+    {{ $start
+        ? \Carbon\Carbon::parse($start)->format('F j, Y')
+        : 'N/A'
+    }}
+    &mdash;
+    {{ $end
+        ? \Carbon\Carbon::parse($end)->format('F j, Y')
+        : 'N/A'
+    }}
+    </p>
+
+
     <table>
         <thead>
             <tr>

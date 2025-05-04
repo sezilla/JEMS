@@ -19,37 +19,37 @@ class ProjectReportController extends Controller
     
     public function download(Request $request)
     {
+
+        // dd($request->all());
         $query = Project::query()
-                ->with(['package', 'headCoordinator', 'groomCoordinator', 'brideCoordinator', 'teams']);
-        
-        $wedding_date_from = $request->query('wedding_date_from');
-        $wedding_date_until = $request->query('wedding_date_until');
+            ->with(['package','headCoordinator','groomCoordinator','brideCoordinator','teams']);
+    
+        // pull exactly what we sent in the route
+        $start  = $request->query('start');  // e.g. "2026-05-01"
+        $end    = $request->query('end');    // e.g. "2026-05-29"
         $status = $request->query('status');
-        
+    
         if ($status !== null) {
             $query->where('status', $status);
         }
-        
-        if ($wedding_date_from) {
-            $from = Carbon::createFromFormat('Y-m', $wedding_date_from)->startOfMonth();
-            $query->whereDate('end', '>=', $from);
+    
+        if ($start) {
+            // Carbon::parse can handle Y-m-d
+            $query->whereDate('end', '>=', Carbon::parse($start));
         }
-        
-        if ($wedding_date_until) {
-            $until = Carbon::createFromFormat('Y-m', $wedding_date_until)->endOfMonth();
-            $query->whereDate('end', '<=', $until);
+    
+        if ($end) {
+            $query->whereDate('end', '<=', Carbon::parse($end));
         }
-        
-        $projects = $query->get();
-        
-        foreach ($projects as $project) {
-            $project->statusText = $this->getStatusText($project->status);
-        }
-        
-        $pdf = Pdf::loadView('pdf.reports', compact('projects'));
-        
+    
+        $projects = $query->get()
+            ->each(fn($project) => $project->statusText = $this->getStatusText($project->status));
+    
+        $pdf = Pdf::loadView('pdf.reports', compact('projects', 'start', 'end', 'status'));
+    
         return $pdf->download('overall_project_report.pdf');
     }
+    
     
     private function getStatusText($statusCode)
     {
