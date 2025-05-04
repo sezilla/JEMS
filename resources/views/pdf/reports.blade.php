@@ -1,76 +1,112 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Project Report</title>
+    <meta charset="utf-8">
+    <title>Overall Reports of Projects</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
-        th { background-color: #f4f4f4; }
+        /* Reset & base */
+        body { margin: 0; padding: 0; font-family: sans-serif; font-size: 12px; color: #333; }
+        .container { padding: 20px; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header .title { font-size: 18px; font-weight: bold; }
+        .header img.logo { height: 40px; }
+
+        /* Summary section */
+        .summary { margin-bottom: 30px; }
+        .summary-table { width: 100%; border: none; margin-top: 5px; }
+        .summary-table td { padding: 4px 8px; }
+        .summary .label { font-weight: bold; }
+
+        /* Main data table */
+        table.main-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        table.main-table th,
+        table.main-table td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        table.main-table th { background-color: #f86b84; color: #fff; }
+
+        /* Footer */
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #ddd; padding: 5px 0; }
     </style>
 </head>
 <body>
-    <h2>Overall Reports of Projects</h2>
+    <div class="container">
+        <!-- Header with title + logo -->
+        <div class="header">
+            <div class="title">Project Reports</div>
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Project Name</th>
-                <th>Package</th>
-                <th>Price</th>
-                <th>Venue</th>
-                <th>Start</th>
-                <th>Wedding Date</th>
-                <th>Head Coord.</th>
-                <th>Groom Coord.</th>
-                <th>Bride Coord.</th>
-                <th>Status</th>
-                <th>Teams</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($projects as $project)
-                <tr>
-                    <td>{{ $project->name }}</td>
-                    <td>{{ $project->package->name ?? 'N/A' }}</td>
-                    <td>
-                        @php
-                            $prices = [
-                                'Ruby' => '130,000 Php',
-                                'Garnet' => '165,000 Php',
-                                'Emerald' => '190,000 Php',
-                                'Infinity' => '250,000 Php',
-                                'Sapphire' => '295,000 Php',
-                            ];
-                        @endphp
-                        {{ $prices[$project->package->name] ?? 'N/A' }}
-                    </td>
-                    <td>{{ $project->venue }}</td>
-                    <td>{{ \Carbon\Carbon::parse($project->start)->format('F j, Y') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($project->end)->format('F j, Y') }}</td>
-                    <td>{{ $project->headCoordinator->name ?? '-' }}</td>
-                    <td>{{ $project->groomCoordinator->name ?? '-' }}</td>
-                    <td>{{ $project->brideCoordinator->name ?? '-' }}</td>
-                    <td>
-                        @php
-                            $statuses = [
-                                10 => 'Active', 200 => 'Completed', 100 => 'Archived', 0 => 'Canceled', 50 => 'On Hold'
-                            ];
-                        @endphp
-                        {{ $statuses[$project->status] ?? 'Unknown' }}
-                    </td>
-                    <td>
-                        @php
-                            $teams = $project->teams->pluck('name')->toArray();
-                            if ($project->package->name === 'Ruby') {
-                                $teams = array_filter($teams, fn($team) => $team !== 'Photo&Video');
-                            }
-                        @endphp
-                        {{ implode(', ', $teams) }}
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+        <!-- Summary block: date range, filters, etc. -->
+        <div class="summary">
+            <p><strong>Date Range:</strong>
+                {{ $start ? \Carbon\Carbon::parse($start)->format('F j, Y') : 'N/A' }}
+                &mdash;
+                {{ $end ? \Carbon\Carbon::parse($end)->format('F j, Y') : 'N/A' }}
+            </p>
+            @if($status)
+                <p><strong>Status Filter:</strong> {{ ucfirst($status) }}</p>
+            @endif
+
+        </div>
+
+        <!-- Main data table -->
+        <table class="main-table">
+    <thead>
+        <tr>
+            <th>Project Name</th>
+            <th>Package Name</th>
+            <th>Location</th>
+            <th>Wedding Date</th>
+            <th>Head Coordinator</th>
+            <th>Status</th>
+            <th>Teams Assigned</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($projects as $project)
+        <tr>
+            <td>{{ $project->name }}</td>
+            <td>
+                {{ $project->package->name ?? 'N/A' }}<br>
+                <small>
+                    @php
+                        $prices = [
+                            'Ruby' => '130,000 Php',
+                            'Garnet' => '165,000 Php',
+                            'Emerald' => '190,000 Php',
+                            'Infinity' => '250,000 Php',
+                            'Sapphire' => '295,000 Php',
+                        ];
+                    @endphp
+                    {{ $prices[$project->package->name] ?? 'N/A' }}
+                </small>
+            </td>
+            <td>{{ $project->venue }}</td>
+            <td>
+                {{ \Carbon\Carbon::parse($project->end)->format('F j, Y') }}<br>
+                <small>started at {{ \Carbon\Carbon::parse($project->start)->format('F j, Y') }}</small><br>
+                
+            </td>
+            <td>
+                {{ $project->headCoordinator->name ?? '-' }}<br>
+                <small>{{ $project->groomCoordinator->name ?? '-' }} & {{ $project->brideCoordinator->name ?? '-' }}</small>
+            </td>
+            <td>{{ $project->statusText }}</td>
+            <td>
+                @foreach($project->teams as $team)
+                    {{ $team->name }}<br>
+                @endforeach
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
+
+    </div>
+
+    <!-- Fixed footer with page number and generated by -->
+    <div class="footer">
+        Report generated by {{ auth()->user()->name }} | {{ now()->format('F j, Y, H:i') }} | JEM <span class="page"></span>
+    </div>
 </body>
 </html>
