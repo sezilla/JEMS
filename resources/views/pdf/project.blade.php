@@ -117,7 +117,7 @@
                 <div class="row"><span class="label">Special Requests:</span> {{ $project->special_request }}</div>
             </div>
             <div class="column">
-                <div class="row"><span class="label">Theme Color:</span> <span class="color-box" style="--theme-color: {{ $project->theme_color ?? '#ffffff' }}"></span></div>
+                <div class="row"><span class="label">Theme Color:</span> <span class="color-box" style="background-color: {{ $project->theme_color }}"></span></div>
             </div>
         </div>
     </div>
