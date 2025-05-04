@@ -19,7 +19,7 @@ use App\Http\Controllers\ProjectReportController;
 
 class OverallReports extends BaseWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 1;
 
     protected static ?string $model = Project::class;
     protected int | string | array $columnSpan = 'full';
