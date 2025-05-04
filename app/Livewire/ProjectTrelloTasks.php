@@ -42,15 +42,13 @@ class ProjectTrelloTasks extends Component
                 return;
             }
 
-            $user = Auth::user();
+            $user = User::find(Auth::id());
             $userDepartment = Department::forUser($user)->first();
 
-            if (!Auth::user()->hasAnyRole(['Coordinator', 'Team Leader']) && $userDepartment) {
-                // Non-coordinator users only see their department's card
+            if (!$user->hasAnyRole(['Coordinator', 'Team Leader']) && $userDepartment) {
                 $card = $trelloService->getCardByName($departmentsListId, $userDepartment->name);
                 $cards = $card ? [$card] : [];
             } else {
-                // Coordinators see all cards
                 $cards = $trelloService->getListCards($departmentsListId);
             }
 
@@ -128,13 +126,11 @@ class ProjectTrelloTasks extends Component
             $userChecklist[$this->currentTask['checklist_id']] = [];
         }
 
-        // Remove any existing assignment for this item
         $userChecklist[$this->currentTask['checklist_id']] = array_filter(
             $userChecklist[$this->currentTask['checklist_id']],
             fn($entry) => $entry['check_item_id'] !== $this->currentTask['item_id']
         );
 
-        // Add new assignment
         $userChecklist[$this->currentTask['checklist_id']][] = [
             'user_id' => $this->currentTask['user_id'],
             'check_item_id' => $this->currentTask['item_id']
