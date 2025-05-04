@@ -43,20 +43,18 @@ class ViewProject extends ViewRecord
                 ->visible(fn($record) => $record->trashed() === false),
 
             Actions\RestoreAction::make(),
-            
+
             Action::make('downloadPdf')
-            ->label('Download PDF')
-            ->icon('heroicon-o-arrow-down-tray')
-            ->url(fn($record) => route('projects.exportPdf', $record->id))
-            ->openUrlInNewTab()
-            ->color('secondary'),
-  
+                ->label('Download PDF')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->url(fn($record) => route('projects.exportPdf', $record->id))
+                ->openUrlInNewTab()
+                ->color('secondary'),
         ];
     }
+
     protected function resolveRecord($key): \Illuminate\Database\Eloquent\Model
     {
         return Project::withTrashed()->findOrFail($key);
     }
-
-    
 }

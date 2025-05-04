@@ -449,4 +449,25 @@ class ProjectService
         $this->trello_service->closeBoard($project->trello_board_id);
         Log::info('Trello board closed for project: ' . $project->name);
     }
+
+    public function getProjectProgress(?Project $project)
+    {
+        if (!$project) {
+            Log::warning('Attempted to get project progress with null project');
+            return [];
+        }
+
+        Log::info('Getting project progress for project: ' . $project->name);
+
+        if (!$project->trello_board_id) {
+            Log::error('Trello board ID is null for the project: ' . $project->name);
+            return [];
+        }
+
+        $boardId = $project->trello_board_id;
+        $progress = $this->trello_service->getTrelloBoardProgress($boardId);
+
+        Log::info('Project progress retrieved', ['progress' => $progress]);
+        return $progress ?? [];
+    }
 }

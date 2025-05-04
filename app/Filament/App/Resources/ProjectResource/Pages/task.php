@@ -15,8 +15,11 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 // use Filament\Forms\Components\Actions\Action;
-use App\Filament\App\Resources\ProjectResource;
 use Filament\Notifications\Actions\Action;
+use App\Filament\App\Resources\ProjectResource;
+use App\Filament\App\Resources\ProjectResource\Widgets\ProjectDetails;
+use App\Filament\App\Resources\ProjectResource\Widgets\ProjectProgress;
+use App\Services\ProjectService;
 
 class Task extends Page
 {
@@ -38,6 +41,7 @@ class Task extends Page
     public $item_id;
     public $project;
     public $users = [];
+    public array $progress = [];
 
     public function getTitle(): string
     {
@@ -46,7 +50,9 @@ class Task extends Page
 
     public function mount($record)
     {
+        Log::info('Task page mount', ['record' => $record]);
         $this->project = Project::find($record);
+        Log::info('Task page project loaded', ['project' => $this->project?->id]);
 
         $teams = $this->project->teams()->with('users')->get();
         $this->users = $teams->pluck('users')->flatten()->unique('id');
@@ -70,7 +76,29 @@ class Task extends Page
         if ($this->project->trello_board_id) {
             $this->fetchTrelloCards($this->project->trello_board_id);
             $this->tableData = $this->setTableData();
+
+            // Get project progress
+            $projectService = app(ProjectService::class);
+            $this->progress = $projectService->getProjectProgress($this->project);
+            Log::info('Project progress loaded', ['progress' => $this->progress]);
         }
+    }
+
+    // protected function getHeaderWidgets(): array
+    // {
+    //     return [
+    //         ProjectProgress::class,
+    //     ];
+    // }
+
+    public function getColumnSpan(): int|string|array
+    {
+        return 'full';
+    }
+
+    public function getColumnStart(): int|string|array
+    {
+        return 1;
     }
 
     public function fetchTrelloCards($boardId)

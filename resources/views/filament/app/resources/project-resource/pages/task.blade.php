@@ -1,166 +1,250 @@
 <x-filament::page>
+    <!-- Project Details Section -->
     <x-filament::section>
-        <div class="flex items-center justify-between mb-4">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {{ $project->package->name ?? 'No package name specified' }}
-            </h1>
-            <div class="flex gap-2">
-                <div class="flex items-center gap-1">
-                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Event Date</p>
-                    <p class="text-gray-900 dark:text-gray-100">
-                        {{ $project->end ? $project->end->format('F d, Y') : 'Not specified' }}
+        <!-- Main Project Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Project Image -->
+            <div class="space-y-2">
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Thumbnail Image</h3>
+                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-sm">
+                    @if($project->thumbnail_path)
+                        <img src="{{ Storage::url($project->thumbnail_path) }}" 
+                             alt="{{ $project->name }}" 
+                             class="object-cover w-full h-full">
+                    @else
+                        <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                            <x-filament::icon icon="heroicon-o-photo" class="w-8 h-8 text-gray-400" />
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Project Basic Info -->
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Event Name</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ $project->name }}</p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Package</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ $project->package->name }}
                     </p>
                 </div>
-                <div class="flex justify-end">
-                    @php
-                        $statuses = array_flip(config('project.project_status'));
-                        $statusLabel = $statuses[$project->status] ?? 'unknown';
-                        $statusLabelFormatted = ucfirst(str_replace('_', ' ', $statusLabel));
 
-                        $icon = match ($statusLabel) {
-                            'active' => 'heroicon-o-bolt',
-                            'completed' => 'heroicon-o-check-circle',
-                            'archived' => 'heroicon-o-archive-box',
-                            'canceled' => 'heroicon-o-x-circle',
-                            'on_hold' => 'heroicon-o-pause',
-                            default => 'heroicon-o-question-mark-circle',
-                        };
-                    @endphp
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h3>
+                    <p class="text-lg font-semibold">
+                        @php
+                            $statusConfig = config('project.project_status');
+                            $statusKey = array_search($project->status, $statusConfig);
+                            
+                            $statusColor = match($statusKey) {
+                                'active' => 'success',
+                                'completed' => 'success',
+                                'archived' => 'gray',
+                                'canceled' => 'danger',
+                                'on_hold' => 'warning',
+                                default => 'gray'
+                            };
+                            
+                            $statusIcon = match($statusKey) {
+                                'active' => 'heroicon-o-play-circle',
+                                'completed' => 'heroicon-o-check-circle',
+                                'archived' => 'heroicon-o-archive-box',
+                                'canceled' => 'heroicon-o-x-circle',
+                                'on_hold' => 'heroicon-o-pause-circle',
+                                default => 'heroicon-o-question-mark-circle'
+                            };
+                            
+                            $statusText = match($statusKey) {
+                                'active' => 'Active',
+                                'completed' => 'Completed',
+                                'archived' => 'Archived',
+                                'canceled' => 'Canceled',
+                                'on_hold' => 'On Hold',
+                                default => 'Unknown'
+                            };
+                        @endphp
+                        <x-filament::badge color="{{ $statusColor }}" class="inline-flex flex-row items-center gap-2">
+                            <x-filament::icon :icon="$statusIcon" class="w-4 h-4" />
+                            <span>{{ $statusText }}</span>
+                        </x-filament::badge>
+                    </p>
+                </div>
+            </div>
 
-                    <x-filament::icon-button :icon="$icon" label="{{ $statusLabelFormatted }}" />
+            <!-- Project Dates -->
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Event Date</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ \Carbon\Carbon::parse($project->end_date)->format('F d, Y') }}
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Location</h3>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ $project->venue ?? 'Not specified' }}
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Teams</h3>
+                    <div class="space-y-1">
+                        @forelse($project->teams as $team)
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ $team->name }}
+                            </p>
+                        @empty
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                No teams assigned
+                            </p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="parent grid grid-cols-4 grid-rows-5 gap-2">
-            <div class="div1 col-span-1 row-span-5">
-                @if ($project->thumbnail_path)
-                    <img src="{{ Storage::disk('public')->url($project->thumbnail_path) }}"
-                        class="w-full h-full object-cover aspect-[2/3] rounded-lg shadow-lg" alt="Project Thumbnail" />
-                @else
-                    <div
-                        class="w-32 h-48 aspect-[2/3] rounded-md shadow-lg bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-500">No Thumbnail</span>
-                    </div>
-                @endif
-            </div>
 
-            <div class="div2 col-span-2 row-span-3">
-                <x-filament::card class="max-h-full">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Description</p>
-                        <p class="text-gray-900 dark:text-gray-100">
-                            {{ Str::limit($project->description ?? 'No description specified', 100) }}
-                        </p>
-                    </div>
-                    @if (!empty($project->special_request))
-                        <div class="mt-4">
-                            <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Special Request</p>
-                            <p class="text-gray-900 dark:text-gray-100">
-                                {{ Str::limit($project->special_request, 200) }}
+        <!-- Cards Section -->
+        <div class="flex flex-col gap-4">
+            <!-- Project Description -->
+            <x-filament::card>
+                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Description</h3>
+                <p class="text-gray-700 dark:text-gray-300">{{ $project->description }}</p>
+            </x-filament::card>
+
+            <!-- Special Request -->
+            @if($project->special_request)
+                <x-filament::card>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Special Request</h3>
+                    <p class="text-gray-700 dark:text-gray-300">{{ $project->special_request }}</p>
+                </x-filament::card>
+            @endif
+
+            <!-- Coordinators -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-filament::card>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Head Coordinator</h3>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ $project->headCoordinator->name ?? 'Not assigned' }}
                             </p>
                         </div>
-                    @endif
-                </x-filament::card>
-            </div>
-
-            <div class="div3 col-span-2 row-span-2 col-start-2 row-start-4">
-                <x-filament::card class="max-h-full">
-                    <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Teams</p>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach ($project->teams as $team)
-                            <x-filament::avatar :src="$team->image ? Storage::disk('public')->url($team->image) : null" alt="{{ $team->name }}" size="w-10 h-10"
-                                class="rounded-full shadow-lg" />
-                        @endforeach
-                    </div>
-                </x-filament::card>
-            </div>
-
-            {{-- Date div4 --}}
-            <div class="div4 col-start-4 col-span-1 row-start-1 row-span-2">
-                <x-filament::card class="max-h-full">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Location</p>
-                        <p class="text-gray-900 dark:text-gray-100">
-                            {{ $project->venue ?? 'No venue specified' }}
-                        </p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Theme Color</p>
-                        @if ($project->theme_color)
-                            <div class="w-8 h-8 rounded-full border"
-                                style="background-color: {{ $project->theme_color }}">
+                        @if($project->head_coor_assistant)
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $project->head_coor_assistant->name }}
+                                </p>
                             </div>
-                        @else
-                            <p class="text-gray-900 dark:text-gray-100">No theme color specified</p>
+                        @endif
+                    </div>
+                </x-filament::card>
+                <x-filament::card>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Bride Coordinator</h3>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ $project->brideCoordinator->name ?? 'Not assigned' }}
+                            </p>
+                        </div>
+                        @if($project->bride_coor_assistant)
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $project->bride_coor_assistant->name }}
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                </x-filament::card>
+                <x-filament::card>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Groom Coordinator</h3>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                {{ $project->groomCoordinator->name ?? 'Not assigned' }}
+                            </p>
+                        </div>
+                        @if($project->groom_coor_assistant)
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    {{ $project->groom_coor_assistant->name }}
+                                </p>
+                            </div>
                         @endif
                     </div>
                 </x-filament::card>
             </div>
+        </div>
+    </x-filament::section>
 
-            {{-- Description div5 --}}
-            <div class="div5 col-start-4 row-start-3 row-span-3">
-                <x-filament::card class="max-h-full">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Head Coordinator</p>
-                        <p class="text-gray-900 dark:text-gray-100">
-                            {{ $project->headCoordinator->name ?? 'No description specified' }}
-                        </p>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Groom's Coordinator</p>
-                        <p class="text-gray-900 dark:text-gray-100">
-                            {{ $project->groomCoordinator->name ?? 'No description specified' }}
-                        </p>
-                        <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Bride's Coordinator</p>
-                        <p class="text-gray-900 dark:text-gray-100">
-                            {{ $project->brideCoordinator->name ?? 'No description specified' }}
-                        </p>
+    <!-- Project Progress Widget -->
+    {{-- <x-filament::section>
+        <x-filament-widgets::widget class="\App\Filament\App\Resources\ProjectResource\Widgets\ProjectProgress">
+            <x-slot name="record">
+                {{ $project }}
+            </x-slot>
+        </x-filament-widgets::widget>
+    </x-filament::section> --}}
+
+    <!-- Project Progress Section -->
+    <x-filament::section>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @forelse($progress as $cardName => $percentage)
+                <x-filament::card>
+                    <div class="flex flex-col items-center space-y-4 p-4">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center">
+                            {{ $cardName }}
+                        </h3>
+                        
+                        <div class="relative w-32 h-32">
+                            <svg class="w-full h-full" viewBox="0 0 36 36">
+                                <!-- Background circle -->
+                                <path
+                                    d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="#e5e7eb"
+                                    stroke-width="3"
+                                    class="dark:stroke-gray-700"
+                                />
+                                <!-- Progress circle -->
+                                <path
+                                    d="M18 2.0845
+                                        a 15.9155 15.9155 0 0 1 0 31.831
+                                        a 15.9155 15.9155 0 0 1 0 -31.831"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $percentage }}, 100"
+                                    class="text-primary-500"
+                                />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {{ $percentage }}%
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </x-filament::card>
-            </div>
+            @empty
+                <div class="col-span-full">
+                    <p class="text-gray-500 dark:text-gray-400 text-center">
+                        No progress data available
+                    </p>
+                </div>
+            @endforelse
         </div>
-
-        <style>
-            .parent {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                grid-template-rows: repeat(5, 1fr);
-                gap: 8px;
-            }
-
-            .div1 {
-                grid-row: span 5 / span 5;
-            }
-
-            .div2 {
-                grid-column: span 2 / span 2;
-                grid-row: span 3 / span 3;
-            }
-
-            .div3 {
-                grid-column: span 2 / span 2;
-                grid-row: span 2 / span 2;
-                grid-column-start: 2;
-                grid-row-start: 4;
-            }
-
-            .div4 {
-                grid-row: span 2 / span 2;
-                grid-column-start: 4;
-                grid-row-start: 1;
-            }
-
-            .div5 {
-                grid-row: span 3 / span 3;
-                grid-column-start: 4;
-                grid-row-start: 3;
-            }
-
-            .max-h-full {
-                max-height: 100%;
-                overflow: hidden;
-            }
-        </style>
-
     </x-filament::section>
+
     <div wire:poll.10s>
         @if (!empty($trelloCards))
             @foreach ($trelloCards as $card)
