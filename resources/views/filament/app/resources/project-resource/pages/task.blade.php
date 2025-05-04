@@ -176,7 +176,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->head_coor_assistant->name }}
+                                    {{ $project->headAssistant->name }}
                                 </p>
                             </div>
                         @endif
@@ -194,7 +194,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->bride_coor_assistant->name }}
+                                    {{ $project->brideAssistant->name }}
                                 </p>
                             </div>
                         @endif
@@ -212,7 +212,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->groom_coor_assistant->name }}
+                                    {{ $project->groomAssistant->name }}
                                 </p>
                             </div>
                         @endif

@@ -187,6 +187,18 @@ class Project extends Model
     {
         return $this->belongsTo(User::class, 'head_coordinator');
     }
+    public function headAssistant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'head_coor_assistant');
+    }
+    public function groomAssistant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'groom_coor_assistant');
+    }
+    public function brideAssistant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'bride_coor_assistant');
+    }
 
     public function teams(): BelongsToMany
     {
