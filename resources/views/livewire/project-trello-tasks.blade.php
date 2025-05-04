@@ -1,4 +1,4 @@
-<div wire:init="loadTrelloCards">
+<div>
     @if($loading)
         <div class="flex flex-col items-center justify-center min-h-[400px] space-y-4">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
