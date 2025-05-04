@@ -39,16 +39,22 @@ class ProjectTrelloTasks extends Component
 
     public function mount($project)
     {
-        Log::info('Task page mount', ['project' => $project]);
         $this->project = $project;
-        Log::info('Task page project loaded', ['project' => $this->project?->id]);
+        $this->initializeData();
+    }
+
+    public function initializeData()
+    {
+        if (!$this->project) {
+            $this->loading = false;
+            return;
+        }
 
         $teams = $this->project->teams()->with('users')->get();
         $this->users = $teams->pluck('users')->flatten()->unique('id');
         foreach ($this->users as $user) {
             $user->load('teams');
         }
-        // $this->users = User::all();
 
         if ($this->project->checklist) {
             $rawCheckItem = $this->project->checklist->user_checklist;
@@ -65,13 +71,13 @@ class ProjectTrelloTasks extends Component
         if ($this->project->trello_board_id) {
             $this->fetchTrelloCards($this->project->trello_board_id);
             $this->tableData = $this->setTableData();
-            $this->loading = false;
 
             // Get project progress
             $projectService = app(ProjectService::class);
             $this->progress = $projectService->getProjectProgress($this->project);
-            Log::info('Project progress loaded', ['progress' => $this->progress]);
         }
+
+        $this->loading = false;
     }
 
     public function fetchTrelloCards($boardId)
@@ -238,6 +244,7 @@ class ProjectTrelloTasks extends Component
         $success = $response && isset($response['id']);
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Due date save attempt', [
             'success' => $success,
@@ -297,6 +304,7 @@ class ProjectTrelloTasks extends Component
         $success = $response && isset($response['id']);
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Checklist item state update attempt', [
             'success' => $success,
@@ -433,6 +441,7 @@ class ProjectTrelloTasks extends Component
         }
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Task edit attempt', [
             'task' => $this->currentTask,
@@ -546,6 +555,7 @@ class ProjectTrelloTasks extends Component
         }
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Task edit attempt', [
             'task' => $this->currentTask,
@@ -559,7 +569,6 @@ class ProjectTrelloTasks extends Component
             'An error occurred while updating the task.'
         );
     }
-
 
     public function updatedUserId($value)
     {
@@ -600,7 +609,6 @@ class ProjectTrelloTasks extends Component
         if ($success) {
             $this->currentTask['item_id'] = $response['id'];
         }
-
 
         $userId = null;
         if (isset($this->currentTask['user_id']) && !empty($this->currentTask['user_id'])) {
@@ -663,6 +671,7 @@ class ProjectTrelloTasks extends Component
         }
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Task creation attempt', [
             'success' => $success,
@@ -698,6 +707,7 @@ class ProjectTrelloTasks extends Component
         );
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Task deletion attempt', [
             'success' => $success,
@@ -734,6 +744,7 @@ class ProjectTrelloTasks extends Component
         $success = $response && isset($response['id']);
 
         $this->refreshData();
+        $this->dispatch('refresh');
 
         Log::info('Department due date save attempt', [
             'success'  => $success,

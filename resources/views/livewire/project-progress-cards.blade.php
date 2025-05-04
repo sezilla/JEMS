@@ -1,4 +1,4 @@
-<div wire:init="loadProgress">
+<div wire:poll.60s="loadProgress">
     @if($loading)
         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4">
             @for($i=0; $i<6; $i++)
