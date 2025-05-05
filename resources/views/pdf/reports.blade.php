@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Overall Reports of Projects</title>
+
     <style>
         /* Reset & base */
         body { margin: 0; padding: 0; font-family: sans-serif; font-size: 12px; color: #333; }
@@ -34,6 +35,7 @@
         <!-- Header with title + logo -->
         <div class="header">
             <div class="title">Project Reports</div>
+            <h1>Jhossa Events Management</h1>
         </div>
 
         <!-- Summary block: date range, filters, etc. -->
@@ -60,6 +62,8 @@
             <th>Head Coordinator</th>
             <th>Status</th>
             <th>Teams Assigned</th>
+            <th>Task Per Department Progress</th>
+            <th>Overall Progress</th>
         </tr>
     </thead>
     <tbody>
@@ -96,6 +100,71 @@
                 @foreach($project->teams as $team)
                     {{ $team->name }}<br>
                 @endforeach
+            </td>
+            <td>
+                @php
+                    $trelloService = app(\App\Services\TrelloTask::class);
+                    $listId = $trelloService->getBoardDepartmentsListId($project->trello_board_id);
+                    
+                    if ($listId) {
+                        $cards = $trelloService->getListCards($listId);
+                        $progress = [];
+                        
+                        foreach ($cards as $card) {
+                            $checklists = $trelloService->getCardChecklists($card['id']);
+                            $totalTasks = 0;
+                            $completedTasks = 0;
+                            
+                            foreach ($checklists as $checklist) {
+                                $items = $trelloService->getChecklistItems($checklist['id']);
+                                $totalTasks += count($items);
+                                $completedTasks += count(array_filter($items, fn($item) => ($item['state'] ?? 'incomplete') === 'complete'));
+                            }
+                            
+                            if ($totalTasks === 0) {
+                                $progress[] = $card['name'] . ': No tasks';
+                                continue;
+                            }
+                            
+                            $percentage = round(($completedTasks / $totalTasks) * 100);
+                            $color = $percentage >= 80 ? 'green' : ($percentage >= 50 ? 'orange' : 'red');
+                            $progress[] = "<span style='color: {$color}'>{$card['name']}: {$percentage}%</span>";
+                        }
+                        
+                        echo implode("<br>", $progress);
+                    } else {
+                        echo 'No Trello board found';
+                    }
+                @endphp
+            </td>
+            <td>
+                @php
+                    if ($listId) {
+                        $cards = $trelloService->getListCards($listId);
+                        $totalTasks = 0;
+                        $completedTasks = 0;
+                        
+                        foreach ($cards as $card) {
+                            $checklists = $trelloService->getCardChecklists($card['id']);
+                            
+                            foreach ($checklists as $checklist) {
+                                $items = $trelloService->getChecklistItems($checklist['id']);
+                                $totalTasks += count($items);
+                                $completedTasks += count(array_filter($items, fn($item) => ($item['state'] ?? 'incomplete') === 'complete'));
+                            }
+                        }
+                        
+                        if ($totalTasks === 0) {
+                            echo 'No tasks found';
+                        } else {
+                            $percentage = round(($completedTasks / $totalTasks) * 100);
+                            $color = $percentage >= 80 ? 'green' : ($percentage >= 50 ? 'orange' : 'red');
+                            echo "<span style='color: {$color}'>{$percentage}%</span>";
+                        }
+                    } else {
+                        echo 'No Trello board found';
+                    }
+                @endphp
             </td>
         </tr>
         @endforeach
