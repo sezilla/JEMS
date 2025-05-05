@@ -34,8 +34,8 @@
     <div class="container">
         <!-- Header with title + logo -->
         <div class="header">
-            <div class="title">Project Reports</div>
-            <h1>Jhossa Events Management</h1>
+            <h1>Project Reports<h1>
+            <h3>Jhossa Events Management</h3>
         </div>
 
         <!-- Summary block: date range, filters, etc. -->
@@ -63,7 +63,7 @@
             <th>Status</th>
             <th>Teams Assigned</th>
             <th>Task Per Department Progress</th>
-            <th>Overall Progress</th>
+            <th>Overall Progress Percentage</th>
         </tr>
     </thead>
     <tbody>
