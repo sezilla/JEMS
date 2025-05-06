@@ -6,10 +6,13 @@ use GuzzleHttp\Client;
 use App\Models\Package;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use App\Services\Traits\TrelloRateLimiter;
 use GuzzleHttp\Exception\RequestException;
 
 class TrelloService
 {
+    use TrelloRateLimiter;
+
     protected $client;
     protected $key;
     protected $token;
@@ -41,38 +44,40 @@ class TrelloService
 
     public function createBoardFromTemplate($name, $packageName)
     {
-        try {
-            Log::info('Creating Trello board with name: ' . $name);
+        return $this->makeRateLimitedRequest(function () use ($name, $packageName) {
+            try {
+                Log::info('Creating Trello board with name: ' . $name);
 
-            $templateBoardId = $this->templateBoardIds[$packageName] ?? null;
+                $templateBoardId = $this->templateBoardIds[$packageName] ?? null;
 
-            if (!$templateBoardId) {
-                Log::error('Invalid package name: ' . $packageName);
+                if (!$templateBoardId) {
+                    Log::error('Invalid package name: ' . $packageName);
+                    return null;
+                }
+
+                $response = $this->client->post("boards/", [
+                    'query' => array_merge($this->getAuthParams(), [
+                        'name' => $name,
+                        'idBoardSource' => $templateBoardId,
+                        'idOrganization' => $this->workspace,
+                        'prefs_permissionLevel' => 'public'
+                    ]),
+                ]);
+
+                $responseBody = $response->getBody()->getContents();
+                Log::info('Trello API Response: ' . $responseBody);
+
+                return json_decode($responseBody, true);
+            } catch (RequestException $e) {
+                Log::error('Failed to create Trello board: ' . $e->getMessage());
+                if ($e->hasResponse()) {
+                    $responseContent = $e->getResponse()->getBody()->getContents();
+                    Log::error('Response: ' . $responseContent);
+                    Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
+                }
                 return null;
             }
-
-            $response = $this->client->post("boards/", [
-                'query' => array_merge($this->getAuthParams(), [
-                    'name' => $name,
-                    'idBoardSource' => $templateBoardId,
-                    'idOrganization' => $this->workspace,
-                    'prefs_permissionLevel' => 'public'
-                ]),
-            ]);
-
-            $responseBody = $response->getBody()->getContents();
-            Log::info('Trello API Response: ' . $responseBody);
-
-            return json_decode($responseBody, true);
-        } catch (RequestException $e) {
-            Log::error('Failed to create Trello board: ' . $e->getMessage());
-            if ($e->hasResponse()) {
-                $responseContent = $e->getResponse()->getBody()->getContents();
-                Log::error('Response: ' . $responseContent);
-                Log::error('Response Status Code: ' . $e->getResponse()->getStatusCode());
-            }
-            return null;
-        }
+        });
     }
 
     public function createList($boardId, $name)
@@ -103,42 +108,46 @@ class TrelloService
 
     public function createChecklist($cardId, $name)
     {
-        try {
-            Log::info("Creating Trello checklist: {$name} in card ID: {$cardId}");
+        return $this->makeRateLimitedRequest(function () use ($cardId, $name) {
+            try {
+                Log::info("Creating Trello checklist: {$name} in card ID: {$cardId}");
 
-            $response = $this->client->post("checklists", [
-                'query' => $this->getAuthParams(),
-                'json' => [
-                    'idCard' => $cardId,
-                    'name' => $name,
-                ],
-            ]);
+                $response = $this->client->post("checklists", [
+                    'query' => $this->getAuthParams(),
+                    'json' => [
+                        'idCard' => $cardId,
+                        'name' => $name,
+                    ],
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error("Failed to create Trello checklist: " . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error("Failed to create Trello checklist: " . $e->getMessage());
+                return null;
+            }
+        });
     }
 
     public function createChecklistItem($checklistId, $name)
     {
-        try {
-            Log::info("Adding checklist item: {$name} to checklist ID: {$checklistId}");
+        return $this->makeRateLimitedRequest(function () use ($checklistId, $name) {
+            try {
+                Log::info("Adding checklist item: {$name} to checklist ID: {$checklistId}");
 
-            $response = $this->client->post("checklists/{$checklistId}/checkItems", [
-                'query' => $this->getAuthParams(),
-                'json' => [
-                    'name' => $name,
-                    'checked' => false,
-                ],
-            ]);
+                $response = $this->client->post("checklists/{$checklistId}/checkItems", [
+                    'query' => $this->getAuthParams(),
+                    'json' => [
+                        'name' => $name,
+                        'checked' => false,
+                    ],
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error("Failed to add checklist item: " . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error("Failed to add checklist item: " . $e->getMessage());
+                return null;
+            }
+        });
     }
 
     public function getBoards()
@@ -150,20 +159,22 @@ class TrelloService
         return json_decode($response->getBody()->getContents(), true);
     }
 
-
     public function getBoardLists($boardId)
     {
-        try {
-            $response = $this->client->get("boards/{$boardId}/lists", [
-                'query' => $this->getAuthParams(),
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($boardId) {
+            try {
+                $response = $this->client->get("boards/{$boardId}/lists", [
+                    'query' => $this->getAuthParams(),
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to get Trello board lists: ' . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to get Trello board lists: ' . $e->getMessage());
+                return null;
+            }
+        });
     }
+
     public function getBoardListByName($boardId, $listName)
     {
         $lists = $this->getBoardLists($boardId);
@@ -179,16 +190,18 @@ class TrelloService
 
     public function getListCards($listId)
     {
-        try {
-            $response = $this->client->get("lists/{$listId}/cards", [
-                'query' => $this->getAuthParams(),
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($listId) {
+            try {
+                $response = $this->client->get("lists/{$listId}/cards", [
+                    'query' => $this->getAuthParams(),
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to get Trello list cards: ' . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to get Trello list cards: ' . $e->getMessage());
+                return null;
+            }
+        });
     }
 
     public function getCardByName($listId, $cardName)
@@ -225,25 +238,27 @@ class TrelloService
 
     public function setChecklistItemDueDate($cardId, $checklistItemId, $dueDate)
     {
-        try {
-            $isoDueDate = \Carbon\Carbon::parse($dueDate)->toIso8601String();
+        return $this->makeRateLimitedRequest(function () use ($cardId, $checklistItemId, $dueDate) {
+            try {
+                $isoDueDate = \Carbon\Carbon::parse($dueDate)->toIso8601String();
 
-            $response = $this->client->put("cards/{$cardId}/checkItem/{$checklistItemId}", [
-                'query' => $this->getAuthParams(),
-                'json'  => [
-                    'due' => $isoDueDate,
-                ],
-            ]);
+                $response = $this->client->put("cards/{$cardId}/checkItem/{$checklistItemId}", [
+                    'query' => $this->getAuthParams(),
+                    'json'  => [
+                        'due' => $isoDueDate,
+                    ],
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to set checklist item due date: ' . $e->getMessage(), [
-                'card_id'         => $cardId,
-                'checklist_item_id' => $checklistItemId,
-                'due_date'        => $dueDate,
-            ]);
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to set checklist item due date: ' . $e->getMessage(), [
+                    'card_id'         => $cardId,
+                    'checklist_item_id' => $checklistItemId,
+                    'due_date'        => $dueDate,
+                ]);
+                return null;
+            }
+        });
     }
 
     public function getCardIdByName($listId, $cardName)
@@ -277,18 +292,20 @@ class TrelloService
 
     public function getChecklistsByCardId($cardId)
     {
-        try {
-            Log::info("Fetching checklists for card ID: {$cardId}");
+        return $this->makeRateLimitedRequest(function () use ($cardId) {
+            try {
+                Log::info("Fetching checklists for card ID: {$cardId}");
 
-            $response = $this->client->get("cards/{$cardId}/checklists", [
-                'query' => $this->getAuthParams(),
-            ]);
+                $response = $this->client->get("cards/{$cardId}/checklists", [
+                    'query' => $this->getAuthParams(),
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error("Failed to fetch checklists: " . $e->getMessage());
-            return [];
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error("Failed to fetch checklists: " . $e->getMessage());
+                return [];
+            }
+        });
     }
 
     public function getCardData($cardId)
@@ -316,50 +333,55 @@ class TrelloService
 
     public function getChecklistItems($checklistId)
     {
-        try {
-            $response = $this->client->get("checklists/{$checklistId}/checkItems", [
-                'query' => $this->getAuthParams(),
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($checklistId) {
+            try {
+                $response = $this->client->get("checklists/{$checklistId}/checkItems", [
+                    'query' => $this->getAuthParams(),
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error("Failed to get checklist items for checklist {$checklistId}: " . $e->getMessage());
-            return [];
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error("Failed to get checklist items for checklist {$checklistId}: " . $e->getMessage());
+                return [];
+            }
+        });
     }
 
     public function updateCard($cardId, $data)
     {
-        try {
-            $response = $this->client->put("cards/{$cardId}", [
-                'query' => $this->getAuthParams(),
-                'json' => $data,
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($cardId, $data) {
+            try {
+                $response = $this->client->put("cards/{$cardId}", [
+                    'query' => $this->getAuthParams(),
+                    'json' => $data,
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to update Trello card: ' . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to update Trello card: ' . $e->getMessage());
+                return null;
+            }
+        });
     }
 
     public function createCardInList($listId, $cardName)
     {
-        try {
-            $response = $this->client->post("lists/{$listId}/cards", [
-                'query' => $this->getAuthParams(),
-                'form_params' => [
-                    'name' => $cardName,
-                ],
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($listId, $cardName) {
+            try {
+                $response = $this->client->post("lists/{$listId}/cards", [
+                    'query' => $this->getAuthParams(),
+                    'form_params' => [
+                        'name' => $cardName,
+                    ],
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to create Trello card: ' . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to create Trello card: ' . $e->getMessage());
+                return null;
+            }
+        });
     }
-
 
     public function fetchTrelloCards($boardId, $listName = 'Departments')
     {
@@ -409,38 +431,39 @@ class TrelloService
 
     public function addAttachmentToCard($cardId, $filePath)
     {
-        $url = "https://api.trello.com/1/cards/{$cardId}/attachments";
-        $fileFullPath = storage_path("app/public/{$filePath}");
+        return $this->makeRateLimitedRequest(function () use ($cardId, $filePath) {
+            $url = "https://api.trello.com/1/cards/{$cardId}/attachments";
+            $fileFullPath = storage_path("app/public/{$filePath}");
 
-        // Ensure the file exists before proceeding
-        if (!file_exists($fileFullPath)) {
-            throw new \Exception("File not found at path: {$fileFullPath}");
-        }
+            if (!file_exists($fileFullPath)) {
+                throw new \Exception("File not found at path: {$fileFullPath}");
+            }
 
-        $params = [
-            'key' => env('TRELLO_API_KEY'),
-            'token' => env('TRELLO_API_TOKEN'),
-        ];
+            $params = [
+                'key' => env('TRELLO_API_KEY'),
+                'token' => env('TRELLO_API_TOKEN'),
+            ];
 
-        $response = $this->client->request('POST', $url, [
-            'multipart' => [
-                [
-                    'name' => 'file',
-                    'contents' => fopen($fileFullPath, 'r'),
-                    'filename' => basename($fileFullPath)
-                ],
-                [
-                    'name' => 'key',
-                    'contents' => $params['key'],
-                ],
-                [
-                    'name' => 'token',
-                    'contents' => $params['token'],
-                ],
-            ]
-        ]);
+            $response = $this->client->request('POST', $url, [
+                'multipart' => [
+                    [
+                        'name' => 'file',
+                        'contents' => fopen($fileFullPath, 'r'),
+                        'filename' => basename($fileFullPath)
+                    ],
+                    [
+                        'name' => 'key',
+                        'contents' => $params['key'],
+                    ],
+                    [
+                        'name' => 'token',
+                        'contents' => $params['token'],
+                    ],
+                ]
+            ]);
 
-        return json_decode($response->getBody(), true);
+            return json_decode($response->getBody(), true);
+        });
     }
 
     public function getDepartmentsListId($boardId)
@@ -458,18 +481,20 @@ class TrelloService
 
     public function closeBoard($boardId)
     {
-        try {
-            $response = $this->client->put("boards/{$boardId}", [
-                'query' => array_merge($this->getAuthParams(), [
-                    'closed' => 'true',
-                ]),
-            ]);
+        return $this->makeRateLimitedRequest(function () use ($boardId) {
+            try {
+                $response = $this->client->put("boards/{$boardId}", [
+                    'query' => array_merge($this->getAuthParams(), [
+                        'closed' => 'true',
+                    ]),
+                ]);
 
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (RequestException $e) {
-            Log::error('Failed to close Trello board: ' . $e->getMessage());
-            return null;
-        }
+                return json_decode($response->getBody()->getContents(), true);
+            } catch (RequestException $e) {
+                Log::error('Failed to close Trello board: ' . $e->getMessage());
+                return null;
+            }
+        });
     }
 
     public function getCheckItemCount($boardId)
