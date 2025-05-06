@@ -26,7 +26,7 @@
             color: #333;
         }
         h1 { text-align: center; font-size: 18px; margin-bottom: 30px; }
-        h2 { color: #1f4e79; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-top: 30px; }
+        h2 { color: #f86b84; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-top: 30px; }
         .section { margin-bottom: 20px; }
 
         .two-column {
@@ -85,77 +85,65 @@
     </style>
 </head>
 <body>
-<div class="print-columns">
-    <h1>{{ $project->name }}</h1>
-
-    {{-- Project Details --}}
-    <div class="section">
-        <h2>Project Details</h2>
-        <div class="two-column">
-            <div class="column">
-                <div class="row"><span class="label">Package:</span> {{ $project->package->name ?? '-' }}</div>
-                <div class="row"><span class="label">Start Date:</span> {{ $project->start->format('d/m/Y') }}</div>
-                <div class="row"><span class="label">Event Date:</span> {{ $project->end->format('d/m/Y') }}</div>
-                <div class="row"><span class="label">Venue:</span> {{ $project->venue }}</div>
-                <div class="row"><span class="label">Description:</span> {{ $project->description }}</div>
+    <div class="container">
+        <!-- Project Photo at Top -->
+        @if($project->thumbnail_path)
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="{{ public_path('storage/' . $project->thumbnail_path) }}" alt="Thumbnail" style="width: 140px; height: 140px; object-fit: cover; border: 1px solid #ccc; border-radius: 8px;">
             </div>
-            <div class="column photo">
-                @if($project->thumbnail_path)
-                    <img src="{{ public_path('storage/' . $project->thumbnail_path) }}" alt="Thumbnail">
-                @endif
+        @endif
+
+        <!-- Two Column Details -->
+        <div style="display: flex; gap: 40px; margin-bottom: 30px;">
+            <!-- Left Column: Project Meta -->
+            <div style="flex: 1; min-width: 220px;">
+                <h1 style="font-family: 'Georgia', serif; font-size: 28px; margin: 0 0 16px 0; font-weight: bold; letter-spacing: 1px;">EVENT DETAILS</h1>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="font-weight: bold; width: 110px; padding: 6px 8px;">Project Name:</td><td style="padding: 6px 8px;">{{ $project->name }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Date:</td><td style="padding: 6px 8px;">{{ $project->end->format('F j, Y') }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Time:</td><td style="padding: 6px 8px;">{{ $project->start->format('H:i') }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Location:</td><td style="padding: 6px 8px;">{{ $project->venue }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Package:</td><td style="padding: 6px 8px;">{{ $project->package->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Description:</td><td style="padding: 6px 8px;">{{ $project->description }}</td></tr>
+                </table>
+            </div>
+            <!-- Right Column: Couple & Coordinators -->
+            <div style="flex: 1; min-width: 220px;">
+                <h2 style="font-size: 18px; color: #1f4e79; margin-bottom: 10px;">Couple Details</h2>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                    <tr><td style="font-weight: bold; width: 110px; padding: 6px 8px;">Groom:</td><td style="padding: 6px 8px;">{{ $project->groom_name }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Bride:</td><td style="padding: 6px 8px;">{{ $project->bride_name }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Special Requests:</td><td style="padding: 6px 8px;">{{ $project->special_request }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Theme Color:</td><td style="padding: 6px 8px;"><span class="color-box" style="background-color: {{ $project->theme_color }}"></span></td></tr>
+                </table>
+                <h2 style="font-size: 18px; color: #1f4e79; margin-bottom: 10px;">Coordinators</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr><td style="font-weight: bold; width: 110px; padding: 6px 8px;">Groom Coordinator:</td><td style="padding: 6px 8px;">{{ $project->groomCoordinator->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Bride Coordinator:</td><td style="padding: 6px 8px;">{{ $project->brideCoordinator->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Head Coordinator:</td><td style="padding: 6px 8px;">{{ $project->headCoordinator->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Groom Assistant:</td><td style="padding: 6px 8px;">{{ optional($project->groom_coor_assistant)->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Bride Assistant:</td><td style="padding: 6px 8px;">{{ optional($project->bride_coor_assistant)->name ?? '-' }}</td></tr>
+                    <tr><td style="font-weight: bold; padding: 6px 8px;">Head Assistant:</td><td style="padding: 6px 8px;">{{ optional($project->head_coor_assistant)->name ?? '-' }}</td></tr>
+                </table>
             </div>
         </div>
-    </div>
 
-    {{-- Couple Details --}}
-    <div class="section">
-        <h2>Couple Details</h2>
-        <div class="two-column">
-            <div class="column">
-                <div class="row"><span class="label">Groom:</span> {{ $project->groom_name }}</div>
-                <div class="row"><span class="label">Bride:</span> {{ $project->bride_name }}</div>
-                <div class="row"><span class="label">Special Requests:</span> {{ $project->special_request }}</div>
-            </div>
-            <div class="column">
-                <div class="row"><span class="label">Theme Color:</span> <span class="color-box" style="background-color: {{ $project->theme_color }}"></span></div>
+        <!-- Teams Section (unchanged) -->
+        <div class="section">
+            <h2>Teams</h2>
+            <div class="two-column">
+                <div class="column">
+                    <div class="row"><span class="label">Catering:</span> {{ optional($project->cateringTeam->first())->name ?? '-' }}</div>
+                    <div class="row"><span class="label">Hair and Makeup:</span> {{ optional($project->hairAndMakeupTeam->first())->name ?? '-' }}</div>
+                    <div class="row"><span class="label">Photo and Video:</span> {{ optional($project->photoAndVideoTeam->first())->name ?? '-' }}</div>
+                </div>
+                <div class="column">
+                    <div class="row"><span class="label">Designing:</span> {{ optional($project->designingTeam->first())->name ?? '-' }}</div>
+                    <div class="row"><span class="label">Entertainment:</span> {{ optional($project->entertainmentTeam->first())->name ?? '-' }}</div>
+                    <div class="row"><span class="label">Coordination:</span> {{ optional($project->coordinationTeam->first())->name ?? '-' }}</div>
+                </div>
             </div>
         </div>
-    </div>
-
-    {{-- Coordinators --}}
-    <div class="section">
-        <h2>Coordinators</h2>
-        <div class="two-column">
-            <div class="column">
-                <div class="row"><span class="label">Groom Coordinator:</span> {{ $project->groomCoordinator->name ?? '-' }}</div>
-                <div class="row"><span class="label">Bride Coordinator:</span> {{ $project->brideCoordinator->name ?? '-' }}</div>
-                <div class="row"><span class="label">Head Coordinator:</span> {{ $project->headCoordinator->name ?? '-' }}</div>
-            </div>
-            <div class="column">
-                <div class="row"><span class="label">Groom Assistant:</span> {{ optional($project->groom_coor_assistant)->name ?? '-' }}</div>
-                <div class="row"><span class="label">Bride Assistant:</span> {{ optional($project->bride_coor_assistant)->name ?? '-' }}</div>
-                <div class="row"><span class="label">Head Assistant:</span> {{ optional($project->head_coor_assistant)->name ?? '-' }}</div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Teams --}}
-    <div class="section">
-        <h2>Teams</h2>
-        <div class="two-column">
-            <div class="column">
-                <div class="row"><span class="label">Catering:</span> {{ optional($project->cateringTeam->first())->name ?? '-' }}</div>
-                <div class="row"><span class="label">Hair and Makeup:</span> {{ optional($project->hairAndMakeupTeam->first())->name ?? '-' }}</div>
-                <div class="row"><span class="label">Photo and Video:</span> {{ optional($project->photoAndVideoTeam->first())->name ?? '-' }}</div>
-            </div>
-            <div class="column">
-                <div class="row"><span class="label">Designing:</span> {{ optional($project->designingTeam->first())->name ?? '-' }}</div>
-                <div class="row"><span class="label">Entertainment:</span> {{ optional($project->entertainmentTeam->first())->name ?? '-' }}</div>
-                <div class="row"><span class="label">Coordination:</span> {{ optional($project->coordinationTeam->first())->name ?? '-' }}</div>
-            </div>
-        </div>
-    </div>
-
     </div>
 </body>
 </html>

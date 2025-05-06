@@ -389,7 +389,10 @@ class ProjectService
         }
 
         $allocation = null;
-        if (isset($response['allocation'])) {
+        if (isset($response['checklists'])) {
+            $allocation = $response['checklists'];
+            Log::info('Found allocation in response["checklists"]');
+        } elseif (isset($response['allocation'])) {
             $allocation = $response['allocation'];
             Log::info('Found allocation in response["allocation"]');
         } elseif (isset($response['checklist_id'])) {
