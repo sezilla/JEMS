@@ -9,6 +9,7 @@ use App\Events\ProjectCreatedEvent;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Events\ProjectCreationFailed;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -111,12 +112,13 @@ class Project extends Model
                 Log::info('Project teams updated successfully', ['teams' => $allocatedTeams]);
 
                 DB::commit();
+
+                event(new ProjectCreatedEvent($project));
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Error during team allocation', ['message' => $e->getMessage()]);
+                event(new ProjectCreationFailed($project));
             }
-
-            event(new ProjectCreatedEvent($project));
         });
 
         static::deleted(function ($project) {

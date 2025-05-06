@@ -512,6 +512,12 @@ class ProjectService
                     'message' => 'User allocation completed successfully',
                     'tasks_allocated' => count($userTasks)
                 ];
+
+                // Notification::make()
+                //     ->title('User Allocation Completed')
+                //     ->body('The user allocation for the project "' . $project->name . '" has been completed successfully.')
+                //     ->success()
+                //     ->sendToDatabase($project->user);
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Failed to save allocation data', [
