@@ -368,12 +368,15 @@ class ProjectService
                     'card_name' => $card['name'],
                     'checklists' => $checklistArray
                 ];
+
+                Log::info('Data array', ['data_array' => $dataArray]);
             }
 
-            // Eager load teams with users and skills to avoid N+1 queries
             $teams = $project->teams()
                 ->with(['users.skills', 'departments'])
                 ->get();
+
+            Log::info('Teams', ['teams' => $teams]);
 
             if ($teams->isEmpty()) {
                 throw new \Exception('No teams found for project: ' . $project->id);
@@ -398,47 +401,32 @@ class ProjectService
                 }
             }
 
+            Log::info('Users array', ['users_array' => $usersArray]);
+
             if (empty($usersArray)) {
                 throw new \Exception('No users found in any department for project: ' . $project->id);
             }
 
-            // Retry logic for Python service call
-            $maxRetries = 3;
-            $retryCount = 0;
-            $response = null;
-            $lastError = null;
+            // Make Python service call with detailed logging
+            Log::info('Attempting to call Python service', [
+                'project_id' => $project->id,
+                'data_array_size' => count($dataArray['data_array']),
+                'users_array_size' => count($usersArray)
+            ]);
 
-            while ($retryCount < $maxRetries) {
-                try {
-                    $response = $this->python_service->allocateUserToTask($project->id, $dataArray, $usersArray);
+            try {
+                $response = $this->python_service->allocateUserToTask($project->id, $dataArray, $usersArray);
+                Log::info('Python service response received', ['response' => $response]);
 
-                    // Check if response is valid
-                    if (isset($response['success']) && $response['success'] === true) {
-                        break;
-                    }
-
-                    // If we get here, the response wasn't successful
-                    $lastError = $response['error'] ?? 'Unknown error';
-                    throw new \Exception('Invalid response from Python service: ' . $lastError);
-                } catch (\Exception $e) {
-                    $lastError = $e->getMessage();
-                    Log::warning('Python service call failed', [
-                        'attempt' => $retryCount + 1,
-                        'error' => $lastError
-                    ]);
-
-                    $retryCount++;
-                    if ($retryCount === $maxRetries) {
-                        throw new \Exception('Failed to allocate users after ' . $maxRetries . ' attempts. Last error: ' . $lastError);
-                    }
-
-                    // Exponential backoff
-                    sleep(pow(2, $retryCount));
+                if (!isset($response['success']) || $response['success'] !== true) {
+                    throw new \Exception('User Allocation Error: ' . ($response['error'] ?? 'Unknown error'));
                 }
-            }
-
-            if (!isset($response['success']) || $response['success'] !== true) {
-                throw new \Exception('User Allocation Error: ' . ($response['error'] ?? 'Unknown error'));
+            } catch (\Exception $e) {
+                Log::error('Python service call failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                throw $e;
             }
 
             // Extract allocation data
@@ -512,12 +500,6 @@ class ProjectService
                     'message' => 'User allocation completed successfully',
                     'tasks_allocated' => count($userTasks)
                 ];
-
-                // Notification::make()
-                //     ->title('User Allocation Completed')
-                //     ->body('The user allocation for the project "' . $project->name . '" has been completed successfully.')
-                //     ->success()
-                //     ->sendToDatabase($project->user);
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Failed to save allocation data', [
