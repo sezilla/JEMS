@@ -155,21 +155,24 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $coordinationDepartmentId);
         })->get();
 
-        $coordinationTeams = $coordinationTeams->shuffle();
+        $numberOfCoordinators = 24;
+        $numberOfTeams = $coordinationTeams->count();
+        $coordinatorsPerTeam = ceil($numberOfCoordinators / $numberOfTeams);
 
-        User::factory()->count(20)->create()->each(function ($user, $index) use ($coordinationTeams, $departmentSkillsMap) {
+        User::factory()->count($numberOfCoordinators)->create()->each(function ($user, $index) use ($coordinationTeams, $departmentSkillsMap, $coordinatorsPerTeam) {
             $user->assignRole(config('filament-shield.coordinator_user.name'));
 
             $departmentKey = 'coordination';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $coordinationTeams->count()) {
-                $user->teams()->attach($coordinationTeams[$index]->id);
+            // Calculate which team this coordinator should be assigned to
+            $teamIndex = floor($index / $coordinatorsPerTeam);
+            if ($teamIndex < $coordinationTeams->count()) {
+                $user->teams()->attach($coordinationTeams[$teamIndex]->id);
             }
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -181,21 +184,17 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $cateringDepartmentId);
         })->get();
 
-        $cateringTeams = $cateringTeams->shuffle();
-
-        User::factory()->count(5)->create()->each(function ($user, $index) use ($cateringTeams, $departmentSkillsMap) {
+        User::factory()->count(6)->create()->each(function ($user, $index) use ($cateringTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.leader_user.name'));
 
             $departmentKey = 'catering';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $cateringTeams->count()) {
-                $user->teams()->attach($cateringTeams[$index]->id);
-            }
+            // Assign to specific team based on index
+            $user->teams()->attach($cateringTeams[$index]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -206,21 +205,17 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $hair_and_makeupDepartmentId);
         })->get();
 
-        $hair_and_makeupTeams = $hair_and_makeupTeams->shuffle();
-
-        User::factory()->count(5)->create()->each(function ($user, $index) use ($hair_and_makeupTeams, $departmentSkillsMap) {
+        User::factory()->count(6)->create()->each(function ($user, $index) use ($hair_and_makeupTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.leader_user.name'));
 
             $departmentKey = 'hair_and_makeup';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $hair_and_makeupTeams->count()) {
-                $user->teams()->attach($hair_and_makeupTeams[$index]->id);
-            }
+            // Assign to specific team based on index
+            $user->teams()->attach($hair_and_makeupTeams[$index]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -231,21 +226,17 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $photo_and_videoDepartmentId);
         })->get();
 
-        $photo_and_videoTeams = $photo_and_videoTeams->shuffle();
-
-        User::factory()->count(5)->create()->each(function ($user, $index) use ($photo_and_videoTeams, $departmentSkillsMap) {
+        User::factory()->count(6)->create()->each(function ($user, $index) use ($photo_and_videoTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.leader_user.name'));
 
             $departmentKey = 'photo_and_video';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $photo_and_videoTeams->count()) {
-                $user->teams()->attach($photo_and_videoTeams[$index]->id);
-            }
+            // Assign to specific team based on index
+            $user->teams()->attach($photo_and_videoTeams[$index]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -256,21 +247,17 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $designingDepartmentId);
         })->get();
 
-        $designingTeams = $designingTeams->shuffle();
-
-        User::factory()->count(5)->create()->each(function ($user, $index) use ($designingTeams, $departmentSkillsMap) {
+        User::factory()->count(6)->create()->each(function ($user, $index) use ($designingTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.leader_user.name'));
 
             $departmentKey = 'designing';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $designingTeams->count()) {
-                $user->teams()->attach($designingTeams[$index]->id);
-            }
+            // Assign to specific team based on index
+            $user->teams()->attach($designingTeams[$index]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -281,21 +268,17 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $entertainmentDepartmentId);
         })->get();
 
-        $entertainmentTeams = $entertainmentTeams->shuffle();
-
-        User::factory()->count(5)->create()->each(function ($user, $index) use ($entertainmentTeams, $departmentSkillsMap) {
+        User::factory()->count(6)->create()->each(function ($user, $index) use ($entertainmentTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.leader_user.name'));
 
             $departmentKey = 'entertainment';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $entertainmentTeams->count()) {
-                $user->teams()->attach($entertainmentTeams[$index]->id);
-            }
+            // Assign to specific team based on index
+            $user->teams()->attach($entertainmentTeams[$index]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -308,21 +291,18 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $cateringDepartmentId);
         })->get();
 
-        $cateringTeams = $cateringTeams->shuffle();
-
-        User::factory()->count(18)->create()->each(function ($user, $index) use ($cateringTeams, $departmentSkillsMap) {
+        User::factory()->count(30)->create()->each(function ($user, $index) use ($cateringTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.member_user.name'));
 
             $departmentKey = 'catering';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $cateringTeams->count()) {
-                $user->teams()->attach($cateringTeams[$index]->id);
-            }
+            // Assign to specific team based on index (5 members per team)
+            $teamIndex = floor($index / 5);
+            $user->teams()->attach($cateringTeams[$teamIndex]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -333,21 +313,18 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $hair_and_makeupDepartmentId);
         })->get();
 
-        $hair_and_makeupTeams = $hair_and_makeupTeams->shuffle();
-
-        User::factory()->count(18)->create()->each(function ($user, $index) use ($hair_and_makeupTeams, $departmentSkillsMap) {
+        User::factory()->count(30)->create()->each(function ($user, $index) use ($hair_and_makeupTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.member_user.name'));
 
             $departmentKey = 'hair_and_makeup';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $hair_and_makeupTeams->count()) {
-                $user->teams()->attach($hair_and_makeupTeams[$index]->id);
-            }
+            // Assign to specific team based on index (5 members per team)
+            $teamIndex = floor($index / 5);
+            $user->teams()->attach($hair_and_makeupTeams[$teamIndex]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -358,21 +335,18 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $photo_and_videoDepartmentId);
         })->get();
 
-        $photo_and_videoTeams = $photo_and_videoTeams->shuffle();
-
-        User::factory()->count(18)->create()->each(function ($user, $index) use ($photo_and_videoTeams, $departmentSkillsMap) {
+        User::factory()->count(30)->create()->each(function ($user, $index) use ($photo_and_videoTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.member_user.name'));
 
             $departmentKey = 'photo_and_video';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $photo_and_videoTeams->count()) {
-                $user->teams()->attach($photo_and_videoTeams[$index]->id);
-            }
+            // Assign to specific team based on index (5 members per team)
+            $teamIndex = floor($index / 5);
+            $user->teams()->attach($photo_and_videoTeams[$teamIndex]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -383,21 +357,18 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $designingDepartmentId);
         })->get();
 
-        $designingTeams = $designingTeams->shuffle();
-
-        User::factory()->count(18)->create()->each(function ($user, $index) use ($designingTeams, $departmentSkillsMap) {
+        User::factory()->count(30)->create()->each(function ($user, $index) use ($designingTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.member_user.name'));
 
             $departmentKey = 'designing';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $designingTeams->count()) {
-                $user->teams()->attach($designingTeams[$index]->id);
-            }
+            // Assign to specific team based on index (5 members per team)
+            $teamIndex = floor($index / 5);
+            $user->teams()->attach($designingTeams[$teamIndex]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
@@ -408,21 +379,18 @@ class DummyUserSeeder extends Seeder
             $query->where('department_id', $entertainmentDepartmentId);
         })->get();
 
-        $entertainmentTeams = $entertainmentTeams->shuffle();
-
-        User::factory()->count(18)->create()->each(function ($user, $index) use ($entertainmentTeams, $departmentSkillsMap) {
+        User::factory()->count(30)->create()->each(function ($user, $index) use ($entertainmentTeams, $departmentSkillsMap) {
             $user->assignRole(config('filament-shield.member_user.name'));
 
             $departmentKey = 'entertainment';
             $departmentId = config('seeder.department.' . $departmentKey . '.id');
             $user->departments()->attach($departmentId);
 
-            if ($index < $entertainmentTeams->count()) {
-                $user->teams()->attach($entertainmentTeams[$index]->id);
-            }
+            // Assign to specific team based on index (5 members per team)
+            $teamIndex = floor($index / 5);
+            $user->teams()->attach($entertainmentTeams[$teamIndex]->id);
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
-
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
             $user->skills()->attach($randomSkills);
         });
