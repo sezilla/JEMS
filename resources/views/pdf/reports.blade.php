@@ -5,6 +5,10 @@
     <title>Overall Reports of Projects</title>
 
     <style>
+        @page {
+            size: landscape;
+            margin: 10mm;
+        }
         /* Reset & base */
         body { margin: 0; padding: 0; font-family: sans-serif; font-size: 12px; color: #333; }
         .container { padding: 20px; }
