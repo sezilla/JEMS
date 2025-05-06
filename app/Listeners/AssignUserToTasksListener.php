@@ -36,8 +36,8 @@ class AssignUserToTasksListener implements ShouldQueue
 
             Notification::make()
                 ->success()
-                ->title('Tasks Assigned')
-                ->body('You have been assigned to tasks for project: ' . $project->name)
+                ->title('Tasks Assigned to Users')
+                ->body('Successfully assigned Users to Tasks for project: ' . $project->name)
                 ->sendToDatabase($user);
         } catch (\Exception $e) {
             Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage());
