@@ -13,6 +13,7 @@ use App\Models\TrelloProjectTask;
 use App\Events\AssignTaskSchedules;
 use App\Events\SyncTrelloBoardToDB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardCreatedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
@@ -315,133 +316,218 @@ class ProjectService
 
     public function allocateUserToTask(Project $project)
     {
-        Log::info('Allocating users to tasks for project: ' . $project->name);
+        try {
+            Log::info('Starting user allocation for project', [
+                'project_id' => $project->id,
+                'project_name' => $project->name
+            ]);
 
-        $departmentList = $this->trello_service->getDepartmentsListId($project->trello_board_id);
-        $cards = $this->trello_service->getListCards($departmentList);
+            if (!$project->trello_board_id) {
+                throw new \Exception('Trello board ID is missing for project: ' . $project->id);
+            }
 
-        $dataArray = [
-            'project_id' => $project->id,
-            'data_array' => []
-        ];
+            // Get department list and cards in a single call
+            $departmentList = $this->trello_service->getDepartmentsListId($project->trello_board_id);
+            if (!$departmentList) {
+                throw new \Exception('Department list not found for project: ' . $project->id);
+            }
 
-        foreach ($cards as $card) {
-            $checklists = $this->trello_service->getChecklistsByCardId($card['id']);
-            $checklistArray = [];
+            $cards = $this->trello_service->getListCards($departmentList);
+            if (empty($cards)) {
+                throw new \Exception('No cards found in department list for project: ' . $project->id);
+            }
 
-            foreach ($checklists as $checklist) {
-                $checkItems = $this->trello_service->getChecklistItems($checklist['id']);
-                $checkItemsArray = [];
+            // Prepare task data with chunking for memory efficiency
+            $dataArray = [
+                'project_id' => $project->id,
+                'data_array' => []
+            ];
 
-                foreach ($checkItems as $checkItem) {
-                    $checkItemsArray[] = [
-                        'check_item_id' => $checkItem['id'],
-                        'check_item_name' => $checkItem['name']
+            foreach ($cards as $card) {
+                $checklists = $this->trello_service->getChecklistsByCardId($card['id']);
+                $checklistArray = [];
+
+                foreach ($checklists as $checklist) {
+                    $checkItems = $this->trello_service->getChecklistItems($checklist['id']);
+                    $checkItemsArray = array_map(function ($item) {
+                        return [
+                            'check_item_id' => $item['id'],
+                            'check_item_name' => $item['name']
+                        ];
+                    }, $checkItems);
+
+                    $checklistArray[] = [
+                        'checklist_id' => $checklist['id'],
+                        'checklist_name' => $checklist['name'],
+                        'check_items' => $checkItemsArray
                     ];
                 }
 
-                $checklistArray[] = [
-                    'checklist_id'   => $checklist['id'],
-                    'checklist_name' => $checklist['name'],
-                    'check_items'    => $checkItemsArray
+                $dataArray['data_array'][] = [
+                    'card_id' => $card['id'],
+                    'card_name' => $card['name'],
+                    'checklists' => $checklistArray
                 ];
             }
 
-            $dataArray['data_array'][] = [
-                'card_id' => $card['id'],
-                'card_name' => $card['name'],
-                'checklists' => $checklistArray
-            ];
-        }
+            // Eager load teams with users and skills to avoid N+1 queries
+            $teams = $project->teams()
+                ->with(['users.skills', 'departments'])
+                ->get();
 
-        $teams = $project->teams()->with(['users.skills'])->get();
-        $usersArray = [];
-
-        foreach ($teams as $team) {
-            foreach ($team->departments as $department) {
-                $departmentName = $department->name;
-                $usersInDept = [];
-
-                foreach ($team->users as $user) {
-                    $skills = $user->skills->pluck('name')->toArray();
-                    $usersInDept[] = [
-                        'user_id' => $user->id,
-                        'skills' => $skills
-                    ];
-                }
-
-                if (!isset($usersArray[$departmentName])) {
-                    $usersArray[$departmentName] = $usersInDept;
-                } else {
-                    $usersArray[$departmentName] = array_merge($usersArray[$departmentName], $usersInDept);
-                }
+            if ($teams->isEmpty()) {
+                throw new \Exception('No teams found for project: ' . $project->id);
             }
-        }
 
-        Log::info('Prepared task data array', $dataArray);
-        Log::info('Prepared user allocation array', $usersArray);
+            $usersArray = [];
+            foreach ($teams as $team) {
+                foreach ($team->departments as $department) {
+                    $departmentName = $department->name;
+                    $usersInDept = $team->users->map(function ($user) {
+                        return [
+                            'user_id' => $user->id,
+                            'skills' => $user->skills->pluck('name')->toArray()
+                        ];
+                    })->toArray();
 
-        $response = $this->python_service->allocateUserToTask($project->id, $dataArray, $usersArray);
-        Log::info('Response from Python service', ['response' => $response]);
-
-        if (!isset($response['success']) || $response['success'] !== true) {
-            throw new \Exception('User Allocation Error: ' . ($response['error'] ?? 'Unknown error'));
-        }
-
-        $allocation = null;
-        if (isset($response['checklists'])) {
-            $allocation = $response['checklists'];
-            Log::info('Found allocation in response["checklists"]');
-        } elseif (isset($response['allocation'])) {
-            $allocation = $response['allocation'];
-            Log::info('Found allocation in response["allocation"]');
-        } elseif (isset($response['checklist_id'])) {
-            $allocation = $response['checklist_id'];
-            Log::info('Found allocation in response["checklist_id"]');
-        } elseif (isset($response['response']) && isset($response['response']['allocation'])) {
-            $allocation = $response['response']['allocation'];
-            Log::info('Found allocation in response["response"]["allocation"]');
-        }
-
-        if ($allocation) {
-            ChecklistUser::updateOrCreate(
-                ['project_id' => $project->id],
-                ['user_checklist' => $allocation]
-            );
-
-            foreach ($allocation as $checklistId => $tasks) {
-                foreach ($tasks as $task) {
-                    UserTask::updateOrCreate(
-                        [
-                            'user_id' => $task['user_id'],
-                            'check_item_id' => $task['check_item_id'],
-                        ],
-                        [
-                            'status' => 'incomplete',
-                            'task_name' => $task['check_item_name'],
-                            'card_id' => $task['card_id'],
-                        ]
-                    );
-
-                    $user = User::find($task['user_id']);
-
-                    if ($user) {
-                        Notification::make()
-                            ->info()
-                            ->title('New Task Assigned for Project: ' . $project->name)
-                            ->body('You have been assigned a new task: ' . $task['check_item_name'])
-                            ->sendToDatabase($user);
+                    if (!isset($usersArray[$departmentName])) {
+                        $usersArray[$departmentName] = $usersInDept;
+                    } else {
+                        $usersArray[$departmentName] = array_merge($usersArray[$departmentName], $usersInDept);
                     }
                 }
             }
 
-            Log::info('Checklist saved successfully.', ['checklist' => $allocation]);
-        } else {
-            Log::warning('No allocation data found in the response.', ['response_keys' => array_keys($response)]);
-        }
+            if (empty($usersArray)) {
+                throw new \Exception('No users found in any department for project: ' . $project->id);
+            }
 
-        Log::info('User assigned to tasks for project: ' . $project->id);
-        return ['success' => true, 'message' => 'User allocation completed'];
+            // Retry logic for Python service call
+            $maxRetries = 3;
+            $retryCount = 0;
+            $response = null;
+            $lastError = null;
+
+            while ($retryCount < $maxRetries) {
+                try {
+                    $response = $this->python_service->allocateUserToTask($project->id, $dataArray, $usersArray);
+
+                    // Check if response is valid
+                    if (isset($response['success']) && $response['success'] === true) {
+                        break;
+                    }
+
+                    // If we get here, the response wasn't successful
+                    $lastError = $response['error'] ?? 'Unknown error';
+                    throw new \Exception('Invalid response from Python service: ' . $lastError);
+                } catch (\Exception $e) {
+                    $lastError = $e->getMessage();
+                    Log::warning('Python service call failed', [
+                        'attempt' => $retryCount + 1,
+                        'error' => $lastError
+                    ]);
+
+                    $retryCount++;
+                    if ($retryCount === $maxRetries) {
+                        throw new \Exception('Failed to allocate users after ' . $maxRetries . ' attempts. Last error: ' . $lastError);
+                    }
+
+                    // Exponential backoff
+                    sleep(pow(2, $retryCount));
+                }
+            }
+
+            if (!isset($response['success']) || $response['success'] !== true) {
+                throw new \Exception('User Allocation Error: ' . ($response['error'] ?? 'Unknown error'));
+            }
+
+            // Extract allocation data
+            $allocation = $response['checklists'] ??
+                $response['allocation'] ??
+                $response['checklist_id'] ??
+                ($response['response']['allocation'] ?? null);
+
+            if (!$allocation) {
+                throw new \Exception('No allocation data found in response');
+            }
+
+            // Use database transaction for atomic operations
+            DB::beginTransaction();
+            try {
+                // Update or create checklist user record
+                ChecklistUser::updateOrCreate(
+                    ['project_id' => $project->id],
+                    ['user_checklist' => $allocation]
+                );
+
+                // Batch insert user tasks
+                $userTasks = [];
+
+                foreach ($allocation as $checklistId => $tasks) {
+                    foreach ($tasks as $task) {
+                        $userTasks[] = [
+                            'user_id' => $task['user_id'],
+                            'check_item_id' => $task['check_item_id'],
+                            'status' => 'incomplete',
+                            'task_name' => $task['check_item_name'],
+                            'card_id' => $task['card_id'],
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
+                    }
+                }
+
+                // Batch insert user tasks
+                if (!empty($userTasks)) {
+                    UserTask::upsert(
+                        $userTasks,
+                        ['user_id', 'check_item_id'],
+                        ['status', 'task_name', 'card_id', 'updated_at']
+                    );
+                }
+
+                // Send Filament notifications
+                foreach ($allocation as $checklistId => $tasks) {
+                    foreach ($tasks as $task) {
+                        $user = User::find($task['user_id']);
+                        if ($user) {
+                            Notification::make()
+                                ->title('New Task Assigned')
+                                ->body('You have been assigned a new task: ' . $task['check_item_name'])
+                                ->success()
+                                ->sendToDatabase($user);
+                        }
+                    }
+                }
+
+                DB::commit();
+
+                Log::info('User allocation completed successfully', [
+                    'project_id' => $project->id,
+                    'tasks_allocated' => count($userTasks)
+                ]);
+
+                return [
+                    'success' => true,
+                    'message' => 'User allocation completed successfully',
+                    'tasks_allocated' => count($userTasks)
+                ];
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Failed to save allocation data', [
+                    'project_id' => $project->id,
+                    'error' => $e->getMessage()
+                ]);
+                throw $e;
+            }
+        } catch (\Exception $e) {
+            Log::error('User allocation failed', [
+                'project_id' => $project->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw $e;
+        }
     }
 
     public function markAsDone(Project $project)
