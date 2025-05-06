@@ -37,6 +37,7 @@ use App\Filament\Resources\ProjectResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\App\Resources\ProjectResource\Widgets\ProjectDetails;
 
 
 

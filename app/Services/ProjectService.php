@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Exception;
+use App\Models\User;
 use App\Models\Project;
 use App\Models\UserTask;
 use App\Models\ChecklistUser;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardCreatedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
+use Filament\Notifications\Notification;
 
 
 class ProjectService
@@ -403,26 +405,38 @@ class ProjectService
                 ['project_id' => $project->id],
                 ['user_checklist' => $allocation]
             );
-        
+
             foreach ($allocation as $checklistId => $tasks) {
                 foreach ($tasks as $task) {
                     UserTask::updateOrCreate(
                         [
-                            'user_id' => $task['user_id'], 
+                            'user_id' => $task['user_id'],
                             'check_item_id' => $task['check_item_id'],
                         ],
                         [
                             'status' => 'incomplete',
+                            'task_name' => $task['check_item_name'],
+                            'card_id' => $task['card_id'],
                         ]
                     );
+
+                    $user = User::find($task['user_id']);
+
+                    if ($user) {
+                        Notification::make()
+                            ->info()
+                            ->title('New Task Assigned for Project: ' . $project->name)
+                            ->body('You have been assigned a new task: ' . $task['check_item_name'])
+                            ->sendToDatabase($user);
+                    }
                 }
-            }                     
-        
+            }
+
             Log::info('Checklist saved successfully.', ['checklist' => $allocation]);
         } else {
             Log::warning('No allocation data found in the response.', ['response_keys' => array_keys($response)]);
         }
-        
+
         Log::info('User assigned to tasks for project: ' . $project->id);
         return ['success' => true, 'message' => 'User allocation completed'];
     }
@@ -434,5 +448,26 @@ class ProjectService
         Log::info('Project marked as done: ' . $project->name);
         $this->trello_service->closeBoard($project->trello_board_id);
         Log::info('Trello board closed for project: ' . $project->name);
+    }
+
+    public function getProjectProgress(?Project $project)
+    {
+        if (!$project) {
+            Log::warning('Attempted to get project progress with null project');
+            return [];
+        }
+
+        Log::info('Getting project progress for project: ' . $project->name);
+
+        if (!$project->trello_board_id) {
+            Log::error('Trello board ID is null for the project: ' . $project->name);
+            return [];
+        }
+
+        $boardId = $project->trello_board_id;
+        $progress = $this->trello_service->getTrelloBoardProgress($boardId);
+
+        Log::info('Project progress retrieved', ['progress' => $progress]);
+        return $progress ?? [];
     }
 }

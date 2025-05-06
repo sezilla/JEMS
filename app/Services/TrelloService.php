@@ -492,17 +492,112 @@ class TrelloService
 
         foreach ($cards as $card) {
             try {
-            $response = $this->client->get("cards/{$card['id']}/checkItemStates", [
-                'query' => $this->getAuthParams(),
-            ]);
+                $response = $this->client->get("cards/{$card['id']}/checkItemStates", [
+                    'query' => $this->getAuthParams(),
+                ]);
 
-            $checkItemStates = json_decode($response->getBody()->getContents(), true);
-            $totalCheckItems += count($checkItemStates);
+                $checkItemStates = json_decode($response->getBody()->getContents(), true);
+                $totalCheckItems += count($checkItemStates);
             } catch (RequestException $e) {
-            Log::error("Failed to fetch check item states for card ID: {$card['id']}. Error: " . $e->getMessage());
+                Log::error("Failed to fetch check item states for card ID: {$card['id']}. Error: " . $e->getMessage());
             }
         }
 
         return $totalCheckItems;
+    }
+
+    public function getTrelloBoardProgress($boardId)
+    {
+        try {
+            Log::info('Starting to fetch Trello board progress', ['board_id' => $boardId]);
+
+            $cards = $this->fetchTrelloCards($boardId);
+            if (!$cards) {
+                Log::error('No cards found for board', ['board_id' => $boardId]);
+                return [];
+            }
+
+            Log::info('Fetched Trello cards', [
+                'board_id' => $boardId,
+                'card_count' => count($cards),
+                'cards' => array_map(function ($card) {
+                    return [
+                        'id' => $card['id'],
+                        'name' => $card['name']
+                    ];
+                }, $cards)
+            ]);
+
+            $progress = [];
+
+            foreach ($cards as $card) {
+                $cardId = $card['id'];
+                $cardName = $card['name'];
+
+                Log::info('Processing card', [
+                    'card_id' => $cardId,
+                    'card_name' => $cardName
+                ]);
+
+                $checklists = $this->getCardChecklists($cardId);
+                if (!$checklists) {
+                    Log::warning('No checklists found for card', [
+                        'card_id' => $cardId,
+                        'card_name' => $cardName
+                    ]);
+                    continue;
+                }
+
+                $totalItems = 0;
+                $completedItems = 0;
+
+                foreach ($checklists as $checklist) {
+                    Log::info('Processing checklist', [
+                        'checklist_id' => $checklist['id'],
+                        'checklist_name' => $checklist['name'],
+                        'item_count' => count($checklist['checkItems'] ?? [])
+                    ]);
+
+                    foreach ($checklist['checkItems'] as $item) {
+                        $totalItems++;
+                        if ($item['state'] === 'complete') {
+                            $completedItems++;
+                        }
+                    }
+                }
+
+                $percentage = $totalItems > 0 ? intval(($completedItems / $totalItems) * 100) : 0;
+
+                Log::info('Card progress calculated', [
+                    'card_name' => $cardName,
+                    'total_items' => $totalItems,
+                    'completed_items' => $completedItems,
+                    'percentage' => $percentage
+                ]);
+
+                $progress[$cardName] = $percentage;
+            }
+
+            Log::info('Board progress calculation completed', [
+                'board_id' => $boardId,
+                'progress' => $progress
+            ]);
+
+            return $progress;
+        } catch (RequestException $e) {
+            Log::error('Failed to get board progress', [
+                'board_id' => $boardId,
+                'error' => $e->getMessage(),
+                'response' => $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : null
+            ]);
+            return [];
+        } catch (\Exception $e) {
+            Log::error('Unexpected error getting board progress', [
+                'board_id' => $boardId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return [];
+        }
     }
 }

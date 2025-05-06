@@ -1,0 +1,238 @@
+{
+    "6814be7537b9d0be98717d3d": [
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ecd",
+            "check_item_name": "Initial meeting"
+        },
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ece",
+            "check_item_name": "Confirm availability"
+        },
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ecf",
+            "check_item_name": "Task distribution"
+        },
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ed0",
+            "check_item_name": "Memo distribution"
+        },
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ed1",
+            "check_item_name": "Monitor departments"
+        }
+    ],
+    "6814be7537b9d0be98717d3e": [
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717ed8",
+            "check_item_name": "Finalize event flow"
+        },
+        { "user_id": 1, "check_item_id": "6814ca28906e972d4f226fa3" },
+        { "user_id": 1, "check_item_id": "6814d1a21afd2ee2978f759b" },
+        { "user_id": 1, "check_item_id": "6814d7adad112d67811f526a" },
+        { "user_id": 1, "check_item_id": "6814d8033eea9fba2322995f" }
+    ],
+    "6814be7537b9d0be98717d3f": [
+        {
+            "user_id": 12,
+            "check_item_id": "6814be7537b9d0be98717edb",
+            "check_item_name": "Oversee final prep"
+        },
+        { "user_id": 1, "check_item_id": "6814d28f23f1af84af383268" },
+        { "user_id": 1, "check_item_id": "6814d56eeab6c61c931551d6" },
+        { "user_id": 1, "check_item_id": "6814d697a3e017d9aaaeed07" },
+        { "user_id": 1, "check_item_id": "6814d97a601c6114a4c2f82c" }
+    ],
+    "6814be7537b9d0be98717d40": {
+        "1": { "user_id": 1, "check_item_id": "6814be7537b9d0be98717edf" },
+        "2": { "user_id": 1, "check_item_id": "6814be7537b9d0be98717ede" }
+    },
+    "6814be7537b9d0be98717d41": [
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717ef6",
+            "check_item_name": "Food planning meeting"
+        },
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717ef7",
+            "check_item_name": "Menu planning"
+        }
+    ],
+    "6814be7537b9d0be98717d42": [
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717efb",
+            "check_item_name": "Food tasting"
+        },
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717efc",
+            "check_item_name": "Coordinate venue logistics"
+        },
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717efd",
+            "check_item_name": "Table and chair setup plan"
+        }
+    ],
+    "6814be7537b9d0be98717d43": [
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717f02",
+            "check_item_name": "Finalize setup plan"
+        },
+        { "user_id": 1, "check_item_id": "6814d4f656e3b348bf5d0850" },
+        { "user_id": 1, "check_item_id": "6814e1b9894815c991cf55ca" },
+        { "user_id": 1, "check_item_id": "6814e1dd64afa0eeaa7898d1" },
+        { "user_id": 57, "check_item_id": "6814e1b9894815c991cf55ca" },
+        { "user_id": 57, "check_item_id": "6814e1b9894815c991cf55ca" }
+    ],
+    "6814be7537b9d0be98717d44": [
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717f05",
+            "check_item_name": "Buffet Setup"
+        },
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717f06",
+            "check_item_name": "Reception design setup"
+        },
+        {
+            "user_id": 57,
+            "check_item_id": "6814be7537b9d0be98717f07",
+            "check_item_name": "Service cleanup"
+        }
+    ],
+    "6814be7537b9d0be98717d45": [
+        {
+            "user_id": 36,
+            "check_item_id": "6814be7537b9d0be98717eae",
+            "check_item_name": "Initial makeup consultation"
+        },
+        {
+            "user_id": 77,
+            "check_item_id": "6814be7537b9d0be98717eaf",
+            "check_item_name": "Theme meeting with couple"
+        }
+    ],
+    "6814be7537b9d0be98717d46": [
+        {
+            "user_id": 36,
+            "check_item_id": "6814be7537b9d0be98717eb3",
+            "check_item_name": "Bride airbrush makeup"
+        },
+        {
+            "user_id": 77,
+            "check_item_id": "6814be7537b9d0be98717eb4",
+            "check_item_name": "Entourage makeup"
+        },
+        {
+            "user_id": 36,
+            "check_item_id": "6814be7537b9d0be98717eb5",
+            "check_item_name": "Pre-ceremony shoot makeup"
+        }
+    ],
+    "6814be7537b9d0be98717d47": [
+        {
+            "user_id": 52,
+            "check_item_id": "6814be7537b9d0be98717eba",
+            "check_item_name": "Reception tone meeting"
+        },
+        {
+            "user_id": 126,
+            "check_item_id": "6814be7537b9d0be98717ebb",
+            "check_item_name": "Plan reception activities"
+        }
+    ],
+    "6814be7537b9d0be98717d48": [
+        {
+            "user_id": 52,
+            "check_item_id": "6814be7537b9d0be98717ebf",
+            "check_item_name": "Check sound and lights"
+        },
+        {
+            "user_id": 126,
+            "check_item_id": "6814be7537b9d0be98717ec0",
+            "check_item_name": "Music preference discussion"
+        },
+        { "user_id": 1, "check_item_id": "6814d055de012f687012a820" },
+        { "user_id": 57, "check_item_id": "6814d101d9f8c7f2f7c61db5" }
+    ],
+    "6814be7537b9d0be98717d49": [
+        {
+            "user_id": 52,
+            "check_item_id": "6814be7537b9d0be98717ec4",
+            "check_item_name": "Setup lights and sound"
+        },
+        {
+            "user_id": 126,
+            "check_item_id": "6814be7537b9d0be98717ec5",
+            "check_item_name": "Deploy band"
+        },
+        {
+            "user_id": 52,
+            "check_item_id": "6814be7537b9d0be98717ec6",
+            "check_item_name": "Coordinate with emcee"
+        },
+        {
+            "user_id": 126,
+            "check_item_id": "6814be7537b9d0be98717ec7",
+            "check_item_name": "Setup reception activities"
+        },
+        { "user_id": 1, "check_item_id": "6814cfa1ed6cdf11848837d6" }
+    ],
+    "6814be7537b9d0be98717d4a": [
+        {
+            "user_id": 109,
+            "check_item_id": "6814be7537b9d0be98717ee3",
+            "check_item_name": "Plan overall theme"
+        },
+        { "user_id": 1, "check_item_id": "6814d6113452ae1a00f394b9" }
+    ],
+    "6814be7537b9d0be98717d4b": [
+        {
+            "user_id": 46,
+            "check_item_id": "6814be7537b9d0be98717ee6",
+            "check_item_name": "Aisle, walkway, and altar setup"
+        },
+        {
+            "user_id": 109,
+            "check_item_id": "6814be7537b9d0be98717ee7",
+            "check_item_name": "Coordinate reception design"
+        },
+        {
+            "user_id": 46,
+            "check_item_id": "6814be7537b9d0be98717ee8",
+            "check_item_name": "Entourage flowers"
+        },
+        {
+            "user_id": 109,
+            "check_item_id": "6814be7537b9d0be98717ee9",
+            "check_item_name": "Garden forestry design"
+        }
+    ],
+    "6814be7537b9d0be98717d4c": [
+        {
+            "user_id": 46,
+            "check_item_id": "6814be7537b9d0be98717eef",
+            "check_item_name": "Setup LED wall"
+        },
+        {
+            "user_id": 109,
+            "check_item_id": "6814be7537b9d0be98717ef0",
+            "check_item_name": "Early decorative setup"
+        },
+        {
+            "user_id": 46,
+            "check_item_id": "6814be7537b9d0be98717ef1",
+            "check_item_name": "Final touch-ups"
+        }
+    ]
+}

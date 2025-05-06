@@ -22,10 +22,12 @@ use App\Filament\Resources\TaskCategoryResource\RelationManagers;
 class TaskCategoryResource extends Resource
 {
     protected static ?string $model = TaskCategory::class;
-
+    protected static ?string $navigationLabel = 'Task Duration';
+    protected static ?string $navigationGroup = 'Event Management';
+    protected static ?string $slug = 'task-duration';
     protected static ?string $recordTitleAttribute = 'name';
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $label = 'Task Duration';
 
     public static function form(Form $form): Form
     {
@@ -81,21 +83,11 @@ class TaskCategoryResource extends Resource
             ]);
     }
 
-    protected function getTitle(): string
-    {
-        return 'Task Duration'; // Your custom title here
-    }
-
     public static function getRelations(): array
     {
         return [
             RelationManagers\TaskRelationManager::class,
         ];
-    }
-
-    public static function getNavigationGroup(): ?string
-    {
-        return 'Event Management';
     }
 
     public static function getPages(): array

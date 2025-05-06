@@ -49,6 +49,7 @@
             display: inline-block;
             border: 1px solid #000;
             vertical-align: middle;
+            background-color: var(--theme-color, #ffffff);
         }
 
         .photo {
