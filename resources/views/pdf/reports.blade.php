@@ -10,9 +10,30 @@
         .container { padding: 20px; }
 
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header .title { font-size: 18px; font-weight: bold; }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .main-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-top: 4px;
+            font-weight: normal;
+            letter-spacing: 1px;
+        }
         .header img.logo { height: 40px; }
+        .subtext {
+            font-size: 11px;
+            color: #bbb;
+            margin-top: 2px;
+            font-style: italic;
+            letter-spacing: 0.5px;
+        }
 
         /* Summary section */
         .summary { margin-bottom: 30px; }
@@ -34,8 +55,8 @@
     <div class="container">
         <!-- Header with title + logo -->
         <div class="header">
-            <h1>Project Reports<h1>
-            <h3>Jhossa Events Management</h3>
+            <h1 class="main-title">Event Reports</h1>
+            <div class="subtitle">Jhossa Events Management</div>
         </div>
 
         <!-- Summary block: date range, filters, etc. -->

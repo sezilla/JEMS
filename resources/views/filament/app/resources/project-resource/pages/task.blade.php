@@ -116,18 +116,25 @@
                     <div class="space-y-2">
                         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h3>
                         <div class="relative">
-                            <div class="text-gray-700 dark:text-gray-300 {{ !$showFullDescription ? 'line-clamp-3' : '' }}">
+                            <div class="text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out {{ !$showFullDescription ? 'line-clamp-3' : '' }}">
                                 {{ $project->description }}
                             </div>
                             @if(str_word_count($project->description) > 30)
                                 <div class="mt-2">
                                     <x-filament::button
-                                        wire:click="$set('showFullDescription', {{ !$showFullDescription ? 'true' : 'false' }})"
+                                        wire:click="toggleDescription"
+                                        wire:loading.attr="disabled"
                                         color="gray"
                                         size="sm"
-                                        class="text-sm"
+                                        class="text-sm transition-opacity duration-200"
                                     >
-                                        {{ $showFullDescription ? 'Show Less' : 'See More...' }}
+                                        <span wire:loading.remove wire:target="toggleDescription">
+                                            {{ $showFullDescription ? 'Show Less' : 'See More...' }}
+                                        </span>
+                                        {{-- <span wire:loading wire:target="toggleDescription" class="inline-flex items-center">
+                                            <x-filament::icon icon="heroicon-o-arrow-path" class="w-4 h-4 animate-spin mr-1" />
+                                            Loading...
+                                        </span> --}}
                                     </x-filament::button>
                                 </div>
                             @endif
@@ -142,18 +149,25 @@
                     <div class="space-y-2">
                         <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Special Request</h3>
                         <div class="relative">
-                            <div class="text-gray-700 dark:text-gray-300 {{ !$showFullSpecialRequest ? 'line-clamp-3' : '' }}">
+                            <div class="text-gray-700 dark:text-gray-300 transition-all duration-300 ease-in-out {{ !$showFullSpecialRequest ? 'line-clamp-3' : '' }}">
                                 {{ $project->special_request }}
                             </div>
                             @if(str_word_count($project->special_request) > 30)
                                 <div class="mt-2">
                                     <x-filament::button
-                                        wire:click="$set('showFullSpecialRequest', {{ !$showFullSpecialRequest ? 'true' : 'false' }})"
+                                        wire:click="toggleSpecialRequest"
+                                        wire:loading.attr="disabled"
                                         color="gray"
                                         size="sm"
-                                        class="text-sm"
+                                        class="text-sm transition-opacity duration-200"
                                     >
-                                        {{ $showFullSpecialRequest ? 'Show Less' : 'See More...' }}
+                                        <span wire:loading.remove wire:target="toggleSpecialRequest">
+                                            {{ $showFullSpecialRequest ? 'Show Less' : 'See More...' }}
+                                        </span>
+                                        {{-- <span wire:loading wire:target="toggleSpecialRequest" class="inline-flex items-center">
+                                            <x-filament::icon icon="heroicon-o-arrow-path" class="w-4 h-4 animate-spin mr-1" />
+                                            Loading...
+                                        </span> --}}
                                     </x-filament::button>
                                 </div>
                             @endif
@@ -176,7 +190,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->headAssistant->name }}
+                                    {{ $project->headAssistant?->name ?? 'Not assigned' }}
                                 </p>
                             </div>
                         @endif
@@ -194,7 +208,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->brideAssistant->name }}
+                                    {{ $project->brideAssistant?->name ?? 'Not assigned' }}
                                 </p>
                             </div>
                         @endif
@@ -212,7 +226,7 @@
                             <div>
                                 <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Assistant</h3>
                                 <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                    {{ $project->groomAssistant->name }}
+                                    {{ $project->groomAssistant?->name ?? 'Not assigned' }}
                                 </p>
                             </div>
                         @endif
