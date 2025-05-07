@@ -547,4 +547,83 @@ class ProjectService
         Log::info('Project progress retrieved', ['progress' => $progress]);
         return $progress ?? [];
     }
+
+    public function updateTrelloBoard(Project $project)
+    {
+        $this->trello_service->updateBoard($project->trello_board_id, [
+            'name' => $project->name,
+        ]);
+
+        $createOrUpdateCard = function ($listId, $cardName, $cardData) {
+            $card = $this->trello_service->getCardByName($listId, $cardName);
+            if (!$card) {
+                Log::info("$cardName card not found, creating new card.");
+                $card = $this->trello_service->createCardInList($listId, $cardName);
+            }
+            if ($card && isset($card['id'])) {
+                Log::info("Updating $cardName card.");
+                $this->trello_service->updateCard($card['id'], $cardData);
+                return $card['id'];
+            }
+            return null;
+        };
+
+        $detailsList = $this->trello_service->getBoardListByName(
+            $project->trello_board_id,
+            'Project details'
+        );
+        $coordinatorList = $this->trello_service->getBoardListByName(
+            $project->trello_board_id,
+            'Coordinators'
+        );
+
+        if ($coordinatorList) {
+            Log::info('Updating Coordinator list.');
+
+            $coordinatorMappings = [
+                'groom_coordinator' => ['card_name' => 'groom coordinator', 'relation' => 'groomCoordinator'],
+                'bride_coordinator' => ['card_name' => 'bride coordinator', 'relation' => 'brideCoordinator'],
+                'head_coordinator' => ['card_name' => 'head coordinator', 'relation' => 'headCoordinator'],
+                'head_coor_assistant' => ['card_name' => 'head coordinator assistant', 'relation' => 'headAssistant'],
+                'bride_coor_assistant' => ['card_name' => 'bride coordinator assistant', 'relation' => 'brideAssistant'],
+                'groom_coor_assistant' => ['card_name' => 'groom coordinator assistant', 'relation' => 'groomAssistant'],
+            ];
+
+            foreach ($coordinatorMappings as $field => $config) {
+                if ($project->$field) {
+                    try {
+                        $relation = $config['relation'];
+                        $name = $project->$relation->name;
+                        $createOrUpdateCard($coordinatorList['id'], $config['card_name'], ['desc' => $name]);
+                        Log::info("Updated {$config['card_name']} card", ['name' => $name]);
+                    } catch (\Exception $e) {
+                        Log::error("Failed to update {$config['card_name']} card", [
+                            'error' => $e->getMessage(),
+                            'field' => $field
+                        ]);
+                    }
+                }
+            }
+        }
+
+        if ($detailsList) {
+            Log::info('Updating Project details list.');
+
+            $coupleCardId = $createOrUpdateCard(
+                $detailsList['id'],
+                'name of couple',
+                ['desc' => "{$project->groom_name} & {$project->bride_name}", 'due' => $project->end]
+            );
+            $createOrUpdateCard($detailsList['id'], 'package', ['desc' => $project->package->name]);
+            $createOrUpdateCard($detailsList['id'], 'description', ['desc' => $project->description]);
+            $createOrUpdateCard($detailsList['id'], 'venue of wedding', ['desc' => $project->venue]);
+            $createOrUpdateCard($detailsList['id'], 'wedding theme color', ['desc' => $project->theme_color]);
+            $createOrUpdateCard($detailsList['id'], 'special request', ['desc' => $project->special_request]);
+
+            if ($project->thumbnail_path && $coupleCardId) {
+                Log::info('Updating thumbnail on the couple name card.');
+                $this->trello_service->addAttachmentToCard($coupleCardId, $project->thumbnail_path);
+            }
+        }
+    }
 }

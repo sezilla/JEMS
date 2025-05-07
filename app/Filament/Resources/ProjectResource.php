@@ -59,7 +59,7 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
-                            ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
+                            ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject)
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -182,7 +182,8 @@ class ProjectResource extends Resource
                             })
                             ->label('Groom Coordinator Assistant')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->nullable(),
                         Forms\Components\Select::make('bride_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -192,7 +193,8 @@ class ProjectResource extends Resource
                             })
                             ->label('Bride Coordinator Assistant')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->nullable(),
                         Forms\Components\Select::make('head_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -202,69 +204,50 @@ class ProjectResource extends Resource
                             })
                             ->label('Head Coordinator Assistant')
                             ->searchable()
-                            ->preload(),
-                        // Forms\Components\Select::make('other_coordinators')
-                        //     ->relationship('coordinators', 'name', function ($query) {
-                        //         $query->whereHas('roles', function ($q) {
-                        //             $q->where('name', 'Coordinator');
-                        //         });
-                        //     })
-                        //     ->multiple()
-                        //     ->label('Other Coordinators')
-                        //     ->searchable()
-                        //     ->preload(),
-
+                            ->preload()
+                            ->nullable(),
                     ]),
 
                 Section::make()
-                    ->columns(3)
                     ->description('Teams')
-                    // ->visible(fn ($livewire) => $livewire instanceof Pages\ViewProject)
                     ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
                     ->collapsible()
                     ->schema([
-                        Forms\Components\Select::make('team1')
-                            ->relationship('cateringTeam', 'name')
-                            ->label('Catering')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
-                        Forms\Components\Select::make('team2')
-                            ->relationship('hairAndMakeupTeam', 'name')
-                            ->label('Hair and Makeup')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
-                        Forms\Components\Select::make('team3')
-                            ->relationship('photoAndVideoTeam', 'name')
-                            ->label('Photo and Video')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
-                        Forms\Components\Select::make('team4')
-                            ->relationship('designingTeam', 'name')
-                            ->label('Designing')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
-                        Forms\Components\Select::make('team5')
-                            ->relationship('entertainmentTeam', 'name')
-                            ->label('Entertainment')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
-                        Forms\Components\Select::make('team6')
-                            ->relationship('coordinationTeam', 'name')
-                            ->label('Other Coordination')
-                            // ->multiple()
-                            ->preload()
-                            ->searchable(),
-
+                        Forms\Components\Repeater::make('teams')
+                            ->label('')
+                            ->relationship('teams')
+                            ->grid(3)
+                            ->schema([
+                                Forms\Components\Select::make('team_id')
+                                    ->label('')
+                                    ->options(function () {
+                                        return \App\Models\Team::with('departments')
+                                            ->get()
+                                            ->mapWithKeys(function ($team) {
+                                                return [$team->id => $team->name];
+                                            });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ])
+                            ->defaultItems(1)
+                            ->addActionLabel('Add Team')
+                            // ->reorderable(true)
+                            ->itemLabel(function (array $state): ?string {
+                                $teamId = $state['team_id'] ?? null;
+                                if (!$teamId) {
+                                    return 'Team';
+                                }
+                                $team = \App\Models\Team::with('departments')->find($teamId);
+                                return $team && $team->departments->isNotEmpty() 
+                                    ? ucfirst($team->departments->first()->name) . ' Team' 
+                                    : 'Team';
+                            })
+                            ->saveRelationshipsUsing(function ($record, $state) {
+                                $record->teams()->sync(collect($state)->pluck('team_id')->filter());
+                            }),
                     ]),
             ]);
     }
