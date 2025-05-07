@@ -4,9 +4,10 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Services\PythonService;
+use App\Events\UpdateProjectEvent;
 use Illuminate\Support\Facades\DB;
-use App\Events\ProjectCreatedEvent;
 
+use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Events\ProjectCreationFailed;
@@ -121,6 +122,16 @@ class Project extends Model
             }
         });
 
+        static::updating(function ($project) {
+            if ($project->groom_name && $project->bride_name && $project->end) {
+                $formattedDate = Carbon::parse($project->end)->format('M d, Y');
+                $project->name = "{$project->groom_name} & {$project->bride_name} @ {$formattedDate}";
+            }
+        });
+        static::updated(function ($project) {
+            event(new UpdateProjectEvent($project));
+        });
+
         static::deleted(function ($project) {
             Log::info("Project deleted: {$project->name}");
             $project->status = config('project.project_status.archived');
@@ -170,6 +181,10 @@ class Project extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+    public function departments()
+    {
+        return $this->hasMany(Department::class);
     }
 
     // Relationship with coordinators (users)

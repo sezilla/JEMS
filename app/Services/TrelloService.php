@@ -625,4 +625,16 @@ class TrelloService
             return [];
         }
     }
+
+    public function updateBoard($boardId, array $data)
+    {
+        return $this->makeRateLimitedRequest(function () use ($boardId, $data) {
+            $response = $this->client->put("boards/{$boardId}", [
+                'query' => $this->getAuthParams(),
+                'json' => $data,
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        });
+    }
 }

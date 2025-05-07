@@ -151,7 +151,7 @@ class OverallReports extends BaseWidget
                                 return 'No Trello board found';
                             }
                             
-                            $cards = $trelloService->getListCards($listId);
+                            $cards = $trelloService->getListCards($listId) ?? [];
                             $progress = [];
                             
                             // Define the desired order
@@ -167,7 +167,9 @@ class OverallReports extends BaseWidget
                             // Sort cards according to the desired order
                             usort($cards, function($a, $b) use ($orderedDepartments) {
                                 $aIndex = array_search($a['name'], $orderedDepartments);
+                                $aIndex = $aIndex === false ? -1 : $aIndex;
                                 $bIndex = array_search($b['name'], $orderedDepartments);
+                                $bIndex = $bIndex === false ? -1 : $bIndex;
                                 return $aIndex - $bIndex;
                             });
                             
@@ -221,7 +223,7 @@ class OverallReports extends BaseWidget
                                 return 'No Trello board found';
                             }
                             
-                            $cards = $trelloService->getListCards($listId);
+                            $cards = $trelloService->getListCards($listId) ?? [];
                             $totalTasks = 0;
                             $completedTasks = 0;
                             
