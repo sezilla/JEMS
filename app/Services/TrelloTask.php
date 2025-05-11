@@ -333,4 +333,22 @@ class TrelloTask
             return null;
         }
     }
+
+    public function updateCard($cardId, $cardData)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}", [
+                'query' => array_merge($this->getAuthParams(), $cardData),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to update card', [
+                'card_id' => $cardId,
+                'card_data' => $cardData,
+                'message' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
 }

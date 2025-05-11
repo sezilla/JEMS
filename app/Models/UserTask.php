@@ -16,7 +16,8 @@ class UserTask extends Model
         'task_name',
         'approved_by',
         'card_id',
-        'due_date'
+        'due_date',
+        'project_id'
     ];
 
     protected $casts = [

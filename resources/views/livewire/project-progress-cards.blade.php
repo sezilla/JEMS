@@ -7,6 +7,7 @@
         </div>
     @else
     @if (auth()->user()->hasRole('Coordinator'))
+        <h1 class="text-2xl font-bold mb-4">Event Tasks</h1>
         <div class="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4">
             @foreach($progress as $cardName => $percentage)
                 <x-filament::card class="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg rounded-xl transition-transform transform hover:scale-105 duration-200">

@@ -250,7 +250,6 @@ class ProjectService
                 ];
 
                 foreach ($checklistItems as $item) {
-
                     $checklistData['check_items'][] = [
                         'check_item_id' => $item['id'],
                         'check_item_name' => $item['name'],
@@ -258,6 +257,20 @@ class ProjectService
                         'status' => $item['state'] ?? 'incomplete',
                         'user_id' => null
                     ];
+
+                    // Create or update UserTask record
+                    UserTask::updateOrCreate(
+                        [
+                            'project_id' => $project->id,
+                            'check_item_id' => $item['id'],
+                        ],
+                        [
+                            'task_name' => $item['name'],
+                            'due_date' => $item['due'] ? date('Y-m-d', strtotime($item['due'])) : null,
+                            'status' => $item['state'] ?? 'incomplete',
+                            'user_id' => null
+                        ]
+                    );
                 }
 
                 $cardData['checklists'][] = $checklistData;
@@ -482,6 +495,17 @@ class ProjectService
                                     foreach ($checklist['check_items'] as &$checkItem) {
                                         if ($checkItem['check_item_id'] === $allocatedItem['check_item_id']) {
                                             $checkItem['user_id'] = $allocatedItem['user_id'];
+
+                                            // Create or update UserTask with allocated user
+                                            UserTask::updateOrCreate(
+                                                [
+                                                    'project_id' => $project->id,
+                                                    'check_item_id' => $allocatedItem['check_item_id'],
+                                                ],
+                                                [
+                                                    'user_id' => $allocatedItem['user_id'] ?? null
+                                                ]
+                                            );
 
                                             // Send notification to the allocated user
                                             if ($allocatedItem['user_id']) {
