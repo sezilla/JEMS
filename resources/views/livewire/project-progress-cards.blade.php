@@ -11,7 +11,7 @@
             @foreach($progress as $cardName => $percentage)
                 <x-filament::card class="bg-gradient-to-b from-gray-800 to-gray-900 shadow-lg rounded-xl transition-transform transform hover:scale-105 duration-200">
                     <div class="grid grid-rows-3">
-                        <h3 class="text-xl font-extrabold text-white text-center tracking-wide drop-shadow">
+                        <h3 class="text-xl font-extrabold text-gray-900 dark:text-white text-center tracking-wide drop-shadow">
                             {{ $cardName }}
                         </h3>
                         <div class="w-5/6 mx-auto h-1 rounded-full bg-white opacity-70"></div>
@@ -44,7 +44,7 @@
                                     </linearGradient>
                                 </defs>
                             </svg>
-                            <span class="absolute text-xl font-bold text-white drop-shadow">
+                            <span class="absolute text-xl font-bold text-gray-900 dark:text-white drop-shadow">
                                 {{ $percentage }}%
                             </span>
                         </div>
