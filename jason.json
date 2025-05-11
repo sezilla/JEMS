@@ -1,268 +1,411 @@
-{
-    "681a2a486038a09229a9836a": [
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 406,
-            "check_item_id": "681a2a486038a09229a984fa",
-            "check_item_name": "Plan overall theme"
-        }
-    ],
-    "681a2a486038a09229a9836b": [
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 512,
-            "check_item_id": "681a2a486038a09229a984fd",
-            "check_item_name": "Aisle, walkway, and altar setup"
-        },
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 513,
-            "check_item_id": "681a2a486038a09229a984fe",
-            "check_item_name": "Coordinate reception design"
-        },
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 514,
-            "check_item_id": "681a2a486038a09229a984ff",
-            "check_item_name": "Entourage flowers"
-        },
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 515,
-            "check_item_id": "681a2a486038a09229a98500",
-            "check_item_name": "Garden forestry design"
-        }
-    ],
-    "681a2a486038a09229a9836c": [
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 516,
-            "check_item_id": "681a2a486038a09229a98506",
-            "check_item_name": "Setup LED wall"
-        },
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 406,
-            "check_item_id": "681a2a486038a09229a98507",
-            "check_item_name": "Early decorative setup"
-        },
-        {
-            "card_id": "681a2a486038a09229a98360",
-            "user_id": 512,
-            "check_item_id": "681a2a486038a09229a98508",
-            "check_item_name": "Final touch-ups"
-        }
-    ],
-    "681a2a486038a09229a9836d": [
-        {
-            "card_id": "681a2a486038a09229a9835e",
-            "user_id": 394,
-            "check_item_id": "681a2a486038a09229a984db",
-            "check_item_name": "Initial makeup consultation"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835e",
-            "user_id": 452,
-            "check_item_id": "681a2a486038a09229a984dc",
-            "check_item_name": "Theme meeting with couple"
-        }
-    ],
-    "681a2a486038a09229a9836e": [
-        {
-            "card_id": "681a2a486038a09229a9835e",
-            "user_id": 454,
-            "check_item_id": "681a2a486038a09229a984e0",
-            "check_item_name": "Bride airbrush makeup"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835e",
-            "user_id": 455,
-            "check_item_id": "681a2a486038a09229a984e1",
-            "check_item_name": "Entourage makeup"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835e",
-            "user_id": 456,
-            "check_item_id": "681a2a486038a09229a984e2",
-            "check_item_name": "Pre-ceremony shoot makeup"
-        }
-    ],
-    "681a2a486038a09229a9836f": [
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 412,
-            "check_item_id": "681a2a486038a09229a984e7",
-            "check_item_name": "Reception tone meeting"
-        },
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 542,
-            "check_item_id": "681a2a486038a09229a984e8",
-            "check_item_name": "Plan reception activities"
-        }
-    ],
-    "681a2a486038a09229a98370": [
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 543,
-            "check_item_id": "681a2a486038a09229a984ec",
-            "check_item_name": "Check sound and lights"
-        },
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 544,
-            "check_item_id": "681a2a486038a09229a984ed",
-            "check_item_name": "Music preference discussion"
-        }
-    ],
-    "681a2a486038a09229a98371": [
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 545,
-            "check_item_id": "681a2a486038a09229a984f1",
-            "check_item_name": "Setup lights and sound"
-        },
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 546,
-            "check_item_id": "681a2a486038a09229a984f2",
-            "check_item_name": "Deploy band"
-        },
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 412,
-            "check_item_id": "681a2a486038a09229a984f3",
-            "check_item_name": "Coordinate with emcee"
-        },
-        {
-            "card_id": "681a2a486038a09229a98362",
-            "user_id": 542,
-            "check_item_id": "681a2a486038a09229a984f4",
-            "check_item_name": "Setup reception activities"
-        }
-    ],
-    "681a2a486038a09229a98372": [
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 422,
-            "check_item_id": "681a2a486038a09229a98523",
-            "check_item_name": "Food planning meeting"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 423,
-            "check_item_id": "681a2a486038a09229a98524",
-            "check_item_name": "Menu planning"
-        }
-    ],
-    "681a2a486038a09229a98373": [
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 424,
-            "check_item_id": "681a2a486038a09229a98528",
-            "check_item_name": "Food tasting"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 425,
-            "check_item_id": "681a2a486038a09229a98529",
-            "check_item_name": "Coordinate venue logistics"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 426,
-            "check_item_id": "681a2a486038a09229a9852a",
-            "check_item_name": "Table and chair setup plan"
-        }
-    ],
-    "681a2a486038a09229a98374": [
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 422,
-            "check_item_id": "681a2a486038a09229a9852f",
-            "check_item_name": "Finalize setup plan"
-        }
-    ],
-    "681a2a486038a09229a98375": [
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 423,
-            "check_item_id": "681a2a486038a09229a98532",
-            "check_item_name": "Buffet Setup"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 424,
-            "check_item_id": "681a2a486038a09229a98533",
-            "check_item_name": "Reception design setup"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835c",
-            "user_id": 425,
-            "check_item_id": "681a2a486038a09229a98534",
-            "check_item_name": "Service cleanup"
-        }
-    ],
-    "681a2a486038a09229a98376": [
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 363,
-            "check_item_id": "681a2a486038a09229a9850d",
-            "check_item_name": "Initial meeting"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 364,
-            "check_item_id": "681a2a486038a09229a9850e",
-            "check_item_name": "Confirm availability"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 365,
-            "check_item_id": "681a2a486038a09229a9850f",
-            "check_item_name": "Task distribution"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 366,
-            "check_item_id": "681a2a486038a09229a98510",
-            "check_item_name": "Memo distribution"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 363,
-            "check_item_id": "681a2a486038a09229a98511",
-            "check_item_name": "Monitor departments"
-        }
-    ],
-    "681a2a486038a09229a98377": [
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 364,
-            "check_item_id": "681a2a486038a09229a98518",
-            "check_item_name": "Finalize event flow"
-        }
-    ],
-    "681a2a486038a09229a98378": [
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 363,
-            "check_item_id": "681a2a486038a09229a9851b",
-            "check_item_name": "Oversee final prep"
-        }
-    ],
-    "681a2a486038a09229a98379": [
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 364,
-            "check_item_id": "681a2a486038a09229a9851e",
-            "check_item_name": "Final check-ins"
-        },
-        {
-            "card_id": "681a2a486038a09229a9835a",
-            "user_id": 365,
-            "check_item_id": "681a2a486038a09229a9851f",
-            "check_item_name": "Day-of oversight"
-        }
-    ]
-}
+[
+    {
+        "card_id": "68208c02576931669a2c60c7",
+        "card_name": "Coordination",
+        "checklists": [
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 29,
+                        "due_date": "2025-05-15",
+                        "check_item_id": "68208c02576931669a2c625b",
+                        "check_item_name": "Initial meeting"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 30,
+                        "due_date": "2025-05-25",
+                        "check_item_id": "68208c02576931669a2c625c",
+                        "check_item_name": "Confirm availability"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 31,
+                        "due_date": "2025-06-10",
+                        "check_item_id": "68208c02576931669a2c625d",
+                        "check_item_name": "Task distribution"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 32,
+                        "due_date": "2025-07-05",
+                        "check_item_id": "68208c02576931669a2c625e",
+                        "check_item_name": "Memo distribution"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 29,
+                        "due_date": "2025-10-01",
+                        "check_item_id": "68208c02576931669a2c625f",
+                        "check_item_name": "Monitor departments"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60da",
+                "checklist_name": "6 months to 1 year before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 30,
+                        "due_date": "2026-01-11",
+                        "check_item_id": "68208c02576931669a2c6266",
+                        "check_item_name": "Finalize event flow"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60db",
+                "checklist_name": "3 Months to 6 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 31,
+                        "due_date": "2026-03-05",
+                        "check_item_id": "68208c02576931669a2c6269",
+                        "check_item_name": "Oversee final prep"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60dc",
+                "checklist_name": "1 Month to 3 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 32,
+                        "due_date": "2026-05-05",
+                        "check_item_id": "68208c02576931669a2c626c",
+                        "check_item_name": "Final check-ins"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 29,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c626d",
+                        "check_item_name": "Day-of oversight"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60dd",
+                "checklist_name": "1 Week before up to Wedding Day"
+            }
+        ],
+        "card_due_date": null,
+        "card_description": "Auto-generated department card"
+    },
+    {
+        "card_id": "68208c02576931669a2c60c9",
+        "card_name": "Catering",
+        "checklists": [
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 38,
+                        "due_date": "2025-11-01",
+                        "check_item_id": "68208c02576931669a2c6284",
+                        "check_item_name": "Food planning meeting"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 92,
+                        "due_date": "2025-11-20",
+                        "check_item_id": "68208c02576931669a2c6285",
+                        "check_item_name": "Menu planning"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e1",
+                "checklist_name": "6 Months to 9 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 91,
+                        "due_date": "2026-01-25",
+                        "check_item_id": "68208c02576931669a2c6289",
+                        "check_item_name": "Food tasting"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 90,
+                        "due_date": "2026-02-05",
+                        "check_item_id": "68208c02576931669a2c628a",
+                        "check_item_name": "Coordinate venue logistics"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 89,
+                        "due_date": "2026-02-20",
+                        "check_item_id": "68208c02576931669a2c628b",
+                        "check_item_name": "Table and chair setup plan"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e2",
+                "checklist_name": "3 Months to 6 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 88,
+                        "due_date": "2026-05-02",
+                        "check_item_id": "68208c02576931669a2c6290",
+                        "check_item_name": "Finalize setup plan"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e3",
+                "checklist_name": "1 Week to 1 Month before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 38,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6293",
+                        "check_item_name": "Buffet Setup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 89,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6294",
+                        "check_item_name": "Reception design setup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 91,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6295",
+                        "check_item_name": "Service cleanup"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e4",
+                "checklist_name": "Wedding Day"
+            }
+        ],
+        "card_due_date": null,
+        "card_description": "Auto-generated department card"
+    },
+    {
+        "card_id": "68208c02576931669a2c60cb",
+        "card_name": "Hair and Makeup",
+        "checklists": [
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 44,
+                        "due_date": "2025-12-10",
+                        "check_item_id": "68208c02576931669a2c629a",
+                        "check_item_name": "Initial makeup consultation"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 122,
+                        "due_date": "2026-01-05",
+                        "check_item_id": "68208c02576931669a2c629b",
+                        "check_item_name": "Theme meeting with couple"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e5",
+                "checklist_name": "1 Month to 6 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 120,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c629f",
+                        "check_item_name": "Bride airbrush makeup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 119,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c62a0",
+                        "check_item_name": "Entourage makeup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 118,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c62a1",
+                        "check_item_name": "Pre-ceremony shoot makeup"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e6",
+                "checklist_name": "Wedding Day"
+            }
+        ],
+        "card_due_date": null,
+        "card_description": "Auto-generated department card"
+    },
+    {
+        "card_id": "68208c02576931669a2c60cd",
+        "card_name": "Designing",
+        "checklists": [
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 56,
+                        "due_date": "2025-10-15",
+                        "check_item_id": "68208c02576931669a2c6271",
+                        "check_item_name": "Plan overall theme"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60de",
+                "checklist_name": "6 Months to 9 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 178,
+                        "due_date": "2026-03-15",
+                        "check_item_id": "68208c02576931669a2c6274",
+                        "check_item_name": "Aisle, walkway, and altar setup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 179,
+                        "due_date": "2026-04-01",
+                        "check_item_id": "68208c02576931669a2c6275",
+                        "check_item_name": "Coordinate reception design"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 180,
+                        "due_date": "2026-04-20",
+                        "check_item_id": "68208c02576931669a2c6276",
+                        "check_item_name": "Entourage flowers"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 181,
+                        "due_date": "2026-04-25",
+                        "check_item_id": "68208c02576931669a2c6277",
+                        "check_item_name": "Garden forestry design"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60df",
+                "checklist_name": "1 Month to 3 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 182,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c627d",
+                        "check_item_name": "Setup LED wall"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 181,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c627e",
+                        "check_item_name": "Early decorative setup"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 180,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c627f",
+                        "check_item_name": "Final touch-ups"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60e0",
+                "checklist_name": "Wedding Day"
+            }
+        ],
+        "card_due_date": null,
+        "card_description": "Auto-generated department card"
+    },
+    {
+        "card_id": "68208c02576931669a2c60cf",
+        "card_name": "Entertainment",
+        "checklists": [
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 62,
+                        "due_date": "2026-01-15",
+                        "check_item_id": "68208c02576931669a2c6248",
+                        "check_item_name": "Reception tone meeting"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 208,
+                        "due_date": "2026-02-10",
+                        "check_item_id": "68208c02576931669a2c6249",
+                        "check_item_name": "Plan reception activities"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60d7",
+                "checklist_name": "3 Months to 6 Months before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 209,
+                        "due_date": "2026-05-01",
+                        "check_item_id": "68208c02576931669a2c624d",
+                        "check_item_name": "Check sound and lights"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 210,
+                        "due_date": "2026-05-04",
+                        "check_item_id": "68208c02576931669a2c624e",
+                        "check_item_name": "Music preference discussion"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60d8",
+                "checklist_name": "1 Week to 1 Month before"
+            },
+            {
+                "check_items": [
+                    {
+                        "status": "incomplete",
+                        "user_id": 211,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6252",
+                        "check_item_name": "Setup lights and sound"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 212,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6253",
+                        "check_item_name": "Deploy band"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 209,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6254",
+                        "check_item_name": "Coordinate with emcee"
+                    },
+                    {
+                        "status": "incomplete",
+                        "user_id": 210,
+                        "due_date": "2026-05-11",
+                        "check_item_id": "68208c02576931669a2c6255",
+                        "check_item_name": "Setup reception activities"
+                    }
+                ],
+                "checklist_id": "68208c02576931669a2c60d9",
+                "checklist_name": "Wedding Day"
+            }
+        ],
+        "card_due_date": null,
+        "card_description": "Auto-generated department card"
+    }
+]

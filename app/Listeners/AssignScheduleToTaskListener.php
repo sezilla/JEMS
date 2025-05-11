@@ -34,6 +34,7 @@ class AssignScheduleToTaskListener implements ShouldQueue
 
         try {
             $this->projectService->assignTaskSchedules($project);
+            $this->projectService->syncChecklist($project);
 
             Notification::make()
                 ->success()

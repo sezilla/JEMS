@@ -9,7 +9,19 @@ class UserTask extends Model
 {
     protected $table = 'user_tasks';
 
-    protected $fillable = ['user_id', 'check_item_id', 'status', 'task_name', 'approved_by', 'card_id'];
+    protected $fillable = [
+        'user_id',
+        'check_item_id',
+        'status',
+        'task_name',
+        'approved_by',
+        'card_id',
+        'due_date'
+    ];
+
+    protected $casts = [
+        'due_date' => 'date',
+    ];
 
     public function users(): BelongsTo
     {
