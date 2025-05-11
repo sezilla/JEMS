@@ -570,16 +570,39 @@ class ProjectService
 
         Log::info('Getting project progress for project: ' . $project->name);
 
-        if (!$project->trello_board_id) {
-            Log::error('Trello board ID is null for the project: ' . $project->name);
+        $checklistUser = $project->checklist;
+        if (!$checklistUser) {
+            Log::error('No checklist found for project: ' . $project->name);
             return [];
         }
 
-        $boardId = $project->trello_board_id;
-        $progress = $this->trello_service->getTrelloBoardProgress($boardId);
+        $userChecklist = $checklistUser->user_checklist ?? [];
+        $progress = [];
 
-        Log::info('Project progress retrieved', ['progress' => $progress]);
-        return $progress ?? [];
+        // Batch process all cards at once
+        foreach ($userChecklist as $card) {
+            $cardName = $card['card_name'] ?? 'Unknown Department';
+            $totalTasks = 0;
+            $completedTasks = 0;
+
+            // Process all checklists in parallel
+            $checklists = $card['checklists'] ?? [];
+            foreach ($checklists as $checklist) {
+                $items = $checklist['check_items'] ?? [];
+                $totalTasks += count($items);
+                $completedTasks += count(array_filter($items, fn($item) => ($item['status'] ?? 'incomplete') === 'complete'));
+            }
+
+            // Calculate percentage only if there are tasks
+            if ($totalTasks > 0) {
+                $percentage = round(($completedTasks / $totalTasks) * 100);
+                $progress[$cardName] = $percentage;
+            } else {
+                $progress[$cardName] = 0;
+            }
+        }
+
+        return $progress;
     }
 
     public function updateTrelloBoard(Project $project)
