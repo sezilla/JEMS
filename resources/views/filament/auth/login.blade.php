@@ -2,10 +2,18 @@
     <div class="branding-logo">
         <img src="{{ asset('images/logo.webp') }}" alt="Logo">
     </div>
+    <div class="login-title-responsive">
+        {{ filament()->getId() === 'admin' ? 'Welcome, Admin!' : 'Welcome, Employee!' }}
+    </div>
     <h3 class="slogan-text">We make every event</h3>
     <h1 class="slogan-highlight">UNFORGETTABLE</h1>
+    
 </div>
 
+<a href="{{ url('/') }}" class="back-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" fill="none" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;"><path d="M15 19l-7-7 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back
+</a>
 
 <style>
     body {
@@ -84,6 +92,48 @@
             border-radius: 12px;
             z-index: -9;
             transform: rotate(7deg);
+        }
+    }
+
+    .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        background: #f86b84;
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 0.7em 2em;
+        font-size: 1.2em;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        z-index: 1000;
+    }
+    .back-btn:hover {
+        background: #ff4f68;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.13);
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .login-title-responsive {
+        color: #fff;
+        font-size: 1.5em;
+        font-weight: 700;
+        margin-top: 18px;
+        text-shadow: 2px 2px 5px #00000055;
+        text-align: center;
+    }
+    @media (max-width: 900px) {
+        .back-btn {
+            display: none !important;
+        }
+        .login-title-responsive {
+            font-size: 1.1em;
+            margin-top: 12px;
         }
     }
 </style>
