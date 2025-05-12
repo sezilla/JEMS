@@ -39,7 +39,23 @@ class ViewProject extends ViewRecord
                 ->icon('heroicon-o-check')
                 ->visible(fn($record) => $record->trashed() === false),
 
-            Actions\RestoreAction::make(),
+            Actions\RestoreAction::make()
+                ->label('Restore')
+                ->action(function ($record) {
+                    $record->restore();
+
+                    $record->update([
+                        'status' => config('project.project_status.active'),
+                    ]);
+
+                    Notification::make()
+                        ->title('Project restored')
+                        ->success()
+                        ->send();
+                })
+                ->requiresConfirmation()
+                ->color('success')
+                ->visible(fn($record) => $record->trashed() === true),
 
             Action::make('downloadPdf')
                 ->label('Download PDF')

@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use App\Enums\ProjectStatus;
 use App\Services\PythonService;
 use App\Events\UpdateProjectEvent;
-use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\DB;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -56,7 +57,8 @@ class Project extends Model
 
     protected $casts = [
         'start' => 'date',
-        'end' => 'date'
+        'end' => 'date',
+        'status' => ProjectStatus::class,
     ];
 
     protected static function booted(): void
@@ -132,11 +134,11 @@ class Project extends Model
             event(new UpdateProjectEvent($project));
         });
 
-        static::deleted(function ($project) {
-            Log::info("Project deleted: {$project->name}");
-            $project->status = config('project.project_status.archived');
-            $project->save();
-        });
+        // static::deleted(function ($project) {
+        //     Log::info("Project deleted: {$project->name}");
+        //     $project->status = config('project.project_status.archived');
+        //     $project->save();
+        // });
 
         static::restored(function ($project) {
             Log::info("Project restored: {$project->name}");

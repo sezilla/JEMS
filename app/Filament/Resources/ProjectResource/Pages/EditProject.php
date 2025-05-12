@@ -38,14 +38,15 @@ class EditProject extends EditRecord
                 })
                 ->requiresConfirmation()
                 ->color('secondary'),
-            Actions\Action::make('cancelProject')
+            DeleteAction::make('cancelProject')
                 ->label('Cancel')
                 ->action(function ($record) {
-                    $this->authorize('update_project', $record);
 
                     $record->update([
                         'status' => config('project.project_status.canceled'),
                     ]);
+
+                    $record->delete();
 
                     Notification::make()
                         ->title('Project marked as canceled')
@@ -56,6 +57,19 @@ class EditProject extends EditRecord
                 ->color('warning'),
 
             DeleteAction::make()
+                ->action(function ($record) {
+
+                    $record->update([
+                        'status' => config('project.project_status.archived'),
+                    ]);
+
+                    $record->delete();
+
+                    Notification::make()
+                        ->title('Project marked as canceled')
+                        ->success()
+                        ->send();
+                })
                 ->icon('heroicon-s-trash')
                 ->requiresConfirmation()
         ];

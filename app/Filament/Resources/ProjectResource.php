@@ -10,15 +10,17 @@ use App\Models\Package;
 use App\Models\Project;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\ProjectStatus;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Date;
-use Filament\Forms\Components\Select;
 
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ColorColumn;
@@ -285,6 +287,7 @@ class ProjectResource extends Resource
                                 ->limit(40)
                                 ->searchable(),
                             Split::make([
+
                                 TextColumn::make('package.name')
                                     ->label('Package')
                                     ->searchable()
@@ -300,11 +303,31 @@ class ProjectResource extends Resource
                                             default => 'gray',
                                         }
                                     ),
+
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()
                                     ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500)
+                                    ->copyMessageDuration(1500),
+
+                                IconColumn::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'heroicon-o-clock' => ProjectStatus::ACTIVE,
+                                        'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
+                                        'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                        'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
+                                        'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
+                                    ])
+                                    ->colors([
+                                        'success' => ProjectStatus::COMPLETED,
+                                        'warning' => ProjectStatus::ARCHIVED,
+                                        'danger' => ProjectStatus::CANCELLED,
+                                        'secondary' => ProjectStatus::ON_HOLD,
+                                        'primary' => ProjectStatus::ACTIVE,
+                                    ])
+                                    ->size('sm'),
+
                             ]),
 
                             TextColumn::make('venue'),
