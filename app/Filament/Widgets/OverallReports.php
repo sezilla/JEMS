@@ -5,6 +5,7 @@ namespace App\Filament\Widgets;
 use Filament\Tables;
 use App\Models\Project;
 use Filament\Tables\Table;
+use App\Enums\ProjectStatus;
 use App\Services\TrelloTask;
 use Illuminate\Support\Carbon;
 use App\Services\DashboardService;
@@ -112,21 +113,16 @@ class OverallReports extends BaseWidget
                 TextColumn::make('status')
                     ->label('Status')
                     ->getStateUsing(function ($record): string {
-                        $statuses = [
-                            10  => 'Active',
-                            200 => 'Completed',
-                            100 => 'Archived',
-                            0   => 'Canceled',
-                            50  => 'On Hold',
-                        ];
-                        return $statuses[$record->status] ?? 'Unknown';
+                        return $record->status instanceof ProjectStatus
+                            ? $record->status->label()
+                            : ProjectStatus::tryFrom((int) $record->status)?->label() ?? 'Unknown';
                     })
                     ->colors([
-                        'primary'   => 'Active',
-                        'success'   => 'Completed',
-                        'secondary' => 'Archived',
-                        'danger'    => 'Canceled',
-                        'warning'   => 'On Hold',
+                        'info'      => ProjectStatus::ACTIVE->label(),
+                        'primary'   => ProjectStatus::COMPLETED->label(),
+                        'warning'   => ProjectStatus::ARCHIVED->label(),
+                        'danger'    => ProjectStatus::CANCELLED->label(),
+                        'secondary' => ProjectStatus::ON_HOLD->label(),
                     ]),
                 TextColumn::make('teams.name')
                     ->label('Teams Assigned to Event')
