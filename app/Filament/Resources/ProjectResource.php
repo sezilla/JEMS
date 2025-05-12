@@ -49,6 +49,8 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
 
+    protected static ?string $label = 'Events';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -140,28 +142,6 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->columns(3)
                     ->schema([
-                        Forms\Components\Select::make('groom_coordinator')
-                            ->options(User::all()->pluck('name', 'id'))
-                            ->relationship('coordinators', 'name', function ($query) {
-                                $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'Coordinator');
-                                });
-                            })
-                            ->label('Groom Coordinator')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Select::make('bride_coordinator')
-                            ->options(User::all()->pluck('name', 'id'))
-                            ->relationship('coordinators', 'name', function ($query) {
-                                $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'Coordinator');
-                                });
-                            })
-                            ->label('Bride Coordinator')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
                         Forms\Components\Select::make('head_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -173,28 +153,31 @@ class ProjectResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('groom_coor_assistant')
+
+                        Forms\Components\Select::make('bride_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Groom Coordinator Assistant')
+                            ->label('Bride Coordinator')
+                            ->required()
                             ->searchable()
-                            ->preload()
-                            ->nullable(),
-                        Forms\Components\Select::make('bride_coor_assistant')
+                            ->preload(),
+
+                        Forms\Components\Select::make('groom_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Bride Coordinator Assistant')
+                            ->label('Groom Coordinator')
+                            ->required()
                             ->searchable()
-                            ->preload()
-                            ->nullable(),
+                            ->preload(),
+
                         Forms\Components\Select::make('head_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -206,6 +189,31 @@ class ProjectResource extends Resource
                             ->searchable()
                             ->preload()
                             ->nullable(),
+
+                        Forms\Components\Select::make('bride_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Bride Coordinator Assistant')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
+                        Forms\Components\Select::make('groom_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Groom Coordinator Assistant')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
                     ]),
 
                 Section::make()

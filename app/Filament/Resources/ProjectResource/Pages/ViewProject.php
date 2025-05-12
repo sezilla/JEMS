@@ -39,9 +39,6 @@ class ViewProject extends ViewRecord
                 ->icon('heroicon-o-check')
                 ->visible(fn($record) => $record->trashed() === false),
 
-            Actions\EditAction::make()
-                ->visible(fn($record) => $record->trashed() === false),
-
             Actions\RestoreAction::make(),
 
             Action::make('downloadPdf')
@@ -50,6 +47,9 @@ class ViewProject extends ViewRecord
                 ->url(fn($record) => route('projects.exportPdf', $record->id))
                 ->openUrlInNewTab()
                 ->color('secondary'),
+
+            Actions\EditAction::make()
+                ->visible(fn($record) => $record->trashed() === false),
         ];
     }
 
