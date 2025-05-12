@@ -86,6 +86,8 @@ class CreateGroupChatListener implements ShouldQueue
                         'mime_type' => mime_content_type($project->thumbnail_path),
                         'url' => url($project->thumbnail_path)
                     ]);
+                } else {
+                    Log::warning('Thumbnail file does not exist', ['path' => $project->thumbnail_path]);
                 }
                 $headCoordinator = $coordinatorIds->first();
                 $coordinatorIds->each(function ($userId) use ($conversation, $headCoordinator) {
