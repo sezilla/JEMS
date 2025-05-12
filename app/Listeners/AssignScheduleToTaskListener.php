@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Services\ProjectService;
+use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
 use Filament\Notifications\Notification;
@@ -33,8 +34,13 @@ class AssignScheduleToTaskListener implements ShouldQueue
         $user = $event->project->user;
 
         try {
+            Log::info('Starting assignTaskSchedules');
             $this->projectService->assignTaskSchedules($project);
+            Log::info('Finished assignTaskSchedules');
+
+            Log::info('Starting syncChecklist');
             $this->projectService->syncChecklist($project);
+            Log::info('Finished syncChecklist');
 
             Notification::make()
                 ->success()
