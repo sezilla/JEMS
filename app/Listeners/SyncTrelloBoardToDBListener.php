@@ -32,6 +32,8 @@ class SyncTrelloBoardToDBListener implements ShouldQueue
         try {
             $this->projectService->syncTrelloToDatabase($project);
 
+            $this->projectService->syncChecklist($project);
+
             TrelloBoardIsFinalEvent::dispatch($project);
         } catch (\Exception $e) {
             Log::error('Error syncing Trello board to database: ' . $e->getMessage(), [

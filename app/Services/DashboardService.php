@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\UserTask;
 use App\Models\ChecklistUser;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\ProjectService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,15 +19,18 @@ class DashboardService
     protected $project;
     protected $userTask;
     protected $trelloService;
+    protected $projectService;
 
     public function __construct(
         Project $project,
         UserTask $userTask,
-        TrelloService $TrelloService
+        TrelloService $TrelloService,
+        ProjectService $projectService
     ) {
         $this->project = $project;
         $this->userTask = $userTask;
         $this->trelloService = $TrelloService;
+        $this->projectService = $projectService;
     }
 
     public function getProjectCount()
@@ -54,78 +58,36 @@ class DashboardService
     public function getProjectTasksCount($projectId)
     {
         $project = $this->project->find($projectId);
-        $response = $this->trelloService->getCheckItemCount($project->trello_board_id);
+        // $response = $this->trelloService->getCheckItemCount($project->trello_board_id);
+        $response = $this->userTask->where('project_id', $projectId)->where('card_name', '=', Auth::user()->departments->first()?->name)->count();
 
         return $response['checkItemCount'] ?? 0;
     }
 
-    //     public function getTaskStatusBreakdown($projectId = null)
-    // {
-    //     $query = Auth::user()->tasks(); // returns query builder
+    public function getCardCompletedPercentage($projectId)
+    {
+        $project = $this->project->find($projectId);
+        $percentages = $this->projectService->getProjectProgress($project);
 
-    //     if ($projectId) {
-    //         $query->where('project_id', $projectId);
-    //     }
+        $html = '';
+        foreach ($percentages as $cardName => $percentage) {
+            $color = $this->getColorForPercentage($percentage);
+            $html .= "<div class='mb-1'><span class='font-semibold'>{$cardName}:</span> <span style='color: {$color};'>{$percentage}%</span></div>";
+        }
 
-    //     $tasks = $query->get();
+        return empty($html) ? 'No progress data available' : $html;
+    }
 
-    //     $ongoing = $tasks->where('status', 'incomplete')->count();
-    //     $finished = $tasks->where('status', 'complete')->count();
-
-    //     // Optional: Count assigned tasks (ongoing only)
-    //     $assignedOngoing = $tasks->where('status', 'incomplete')->where('assigned_to', Auth::id())->count();
-
-    //     return [
-    //         'ongoing' => $ongoing,
-    //         'finished' => $finished,
-    //         'assigned' => $assignedOngoing,
-    //         'total' => $ongoing + $finished,
-    //     ];
-    // }
-
-
-
-    // public function filterReports(?int $status = null, ?string $start = null, ?string $end = null): Collection
-    // {
-    //     Log::info('Filtering project reports', [
-    //         'status' => $status,
-    //         'start'  => $start,
-    //         'end'    => $end,
-    //     ]);
-
-    //     $query = Project::query()
-    //         ->with(['package', 'headCoordinator', 'groomCoordinator', 'brideCoordinator', 'teams']);
-
-    //     if ($status !== null) {
-    //         $query->where('status', $status);
-    //     }
-
-    //     if ($start) {
-    //         try {
-    //             $from = Carbon::createFromFormat('Y-m', $start)->startOfMonth();
-    //             $query->whereDate('end', '>=', $from);
-    //         } catch (\Exception $e) {
-    //             Log::error('Invalid start date format', ['start' => $start, 'error' => $e->getMessage()]);
-    //         }
-    //     }
-
-    //     if ($end) {
-    //         try {
-    //             $until = Carbon::createFromFormat('Y-m', $end)->endOfMonth();
-    //             $query->whereDate('end', '<=', $until);
-    //         } catch (\Exception $e) {
-    //             Log::error('Invalid end date format', ['end' => $end, 'error' => $e->getMessage()]);
-    //         }
-    //     }
-
-    //     $projects = $query->get();
-
-    //     foreach ($projects as $project) {
-    //         $project->statusText = $this->getStatusText($project->status);
-    //     }
-
-    //     return $projects;
-    // }
+    private function getColorForPercentage($percentage)
+    {
+        if ($percentage < 30) {
+            return '#ef4444'; // red
+        } elseif ($percentage < 70) {
+            return '#f59e0b'; // amber
+        } else {
+            return '#10b981'; // green
+        }
+    }
 
     public function getStatusText(int $statusCode): string
     {
