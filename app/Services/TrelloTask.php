@@ -351,4 +351,20 @@ class TrelloTask
             return null;
         }
     }
+
+    public function completeCheckItemStatus($cardId, $checkItemId)
+    {
+        try {
+            $response = $this->client->put("cards/{$cardId}/checkItem/{$checkItemId}", [
+                'query' => array_merge($this->getAuthParams(), [
+                    'state' => 'complete',
+                ]),
+            ]);
+
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (RequestException $e) {
+            Log::error('Failed to update check item status: ' . $e->getMessage());
+            return null;
+        }
+    }
 }

@@ -109,7 +109,7 @@
                                         <x-filament::modal>
                                             <x-slot name="trigger">
                                                 <x-filament::icon-button icon="heroicon-o-plus"
-                                                    wire:click="openChecklistModal('{{ $card['card_id'] }}', '{{ $checklist['checklist_id'] }}')"
+                                                    wire:click="openChecklistModal('{{ $card['card_id'] }}', '{{ $checklist['checklist_id'] }}', '{{ $card['card_name'] }}')"
                                                     tooltip="Create Task" />
                                             </x-slot>
 

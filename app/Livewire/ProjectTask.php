@@ -10,6 +10,9 @@ use App\Services\TrelloTask;
 use App\Models\ChecklistUser;
 use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
+use App\Filament\App\Resources\ProjectResource;
+use App\Filament\App\Resources\ProjectResource\Pages\task;
 
 class ProjectTask extends Component
 {
@@ -260,7 +263,7 @@ class ProjectTask extends Component
         }
     }
 
-    public function openChecklistModal($cardId, $checklistId)
+    public function openChecklistModal($cardId, $checklistId, $cardName)
     {
         if (!$cardId || !$checklistId) {
             return;
@@ -268,7 +271,7 @@ class ProjectTask extends Component
 
         $this->currentCard = $cardId;
         $this->currentChecklist = $checklistId;
-
+        $this->currentCardName = $cardName;
         foreach ($this->cards as $card) {
             if (($card['card_id'] ?? null) == $cardId) {
                 foreach ($card['checklists'] ?? [] as $checklist) {
@@ -389,6 +392,7 @@ class ProjectTask extends Component
             'user_id' => $this->assignedUser,
             'check_item_id' => $newCheckItemId,
             'card_id' => $this->currentCard,
+            'card_name' => $this->currentCardName,
             'due_date' => $this->checkItemDueDate,
             'task_name' => $this->currentCheckItemName,
             'status' => 'incomplete'
@@ -862,33 +866,64 @@ class ProjectTask extends Component
                 ]);
             }
 
-            $coordinators = collect([
-                $this->project->head_coordinator,
-                $this->project->head_coor_assistant,
-                $this->project->groom_coordinator,
-                $this->project->bride_coordinator,
-                $this->project->groom_coor_assistant,
-                $this->project->bride_coor_assistant,
-            ]);
+            // Get all coordinator users
+            $coordinatorUsers = collect();
 
-            $coordinatorTeams = $this->project->coordinationTeam()->get();
+            // Add head coordinator if exists
+            if ($this->project->head_coordinator) {
+                $coordinatorUsers->push(User::find($this->project->head_coordinator));
+            }
 
-            $coordinationUserIds = $coordinatorTeams
-                ->flatMap(function ($team) {
-                    return $team->users->pluck('id');
-                });
+            // Add head coordinator assistant if exists
+            if ($this->project->head_coor_assistant) {
+                $coordinatorUsers->push(User::find($this->project->head_coor_assistant));
+            }
 
-            $coordinators = $coordinators->merge($coordinationUserIds)
-                ->filter()
-                ->unique()
-                ->values();
+            // Add groom coordinator if exists
+            if ($this->project->groom_coordinator) {
+                $coordinatorUsers->push(User::find($this->project->groom_coordinator));
+            }
 
-            foreach ($coordinators as $coordinator) {
-                Notification::make()
-                    ->title('Task Status Updated')
-                    ->body('A Task from "' . $this->project->name . '" has been submitted as Completed and is pending for approval.')
-                    ->success()
-                    ->sendToDatabase($coordinator);
+            // Add bride coordinator if exists
+            if ($this->project->bride_coordinator) {
+                $coordinatorUsers->push(User::find($this->project->bride_coordinator));
+            }
+
+            // Add groom coordinator assistant if exists
+            if ($this->project->groom_coor_assistant) {
+                $coordinatorUsers->push(User::find($this->project->groom_coor_assistant));
+            }
+
+            // Add bride coordinator assistant if exists
+            if ($this->project->bride_coor_assistant) {
+                $coordinatorUsers->push(User::find($this->project->bride_coor_assistant));
+            }
+
+            // Add users from coordination teams
+            $coordinatorTeams = $this->project->coordinationTeam()->with('users')->get();
+            foreach ($coordinatorTeams as $team) {
+                $coordinatorUsers = $coordinatorUsers->merge($team->users);
+            }
+
+            // Filter out null values and get unique users
+            $coordinatorUsers = $coordinatorUsers->filter()->unique('id')->values();
+
+            // Send notification to all coordinator users
+            foreach ($coordinatorUsers as $coordinator) {
+                if ($coordinator) {
+                    Notification::make()
+                        ->title('New Pending Task for Approval')
+                        ->body('A Task from "' . $this->project->name . '" has been submitted as Completed and is pending for approval.')
+                        ->info()
+                        ->actions([
+                            Action::make('view')
+                                ->label('View Task')
+                                ->markAsRead()
+                                ->icon('heroicon-o-eye')
+                                ->url(ProjectResource::getUrl('task', ['record' => $this->project->id]))
+                        ])
+                        ->sendToDatabase($coordinator);
+                }
             }
 
             $this->cards = $checklistUser->user_checklist;

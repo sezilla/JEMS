@@ -17,7 +17,8 @@ class UserTask extends Model
         'approved_by',
         'card_id',
         'due_date',
-        'project_id'
+        'project_id',
+        'card_name'
     ];
 
     protected $casts = [
@@ -26,6 +27,6 @@ class UserTask extends Model
 
     public function users(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

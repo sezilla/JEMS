@@ -21,7 +21,7 @@ class ProjectProgressCards extends Component
     {
         $cacheKey = "project_{$this->project->id}_progress";
 
-        $this->progress = cache()->remember($cacheKey, now()->addMinutes(5), function () {
+        $this->progress = cache()->remember($cacheKey, now()->addMinutes(1), function () {
             // Eager load the checklist relationship
             $this->project->load('checklist');
             return app(ProjectService::class)->getProjectProgress($this->project);

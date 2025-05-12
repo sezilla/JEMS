@@ -263,6 +263,8 @@ class ProjectService
                         [
                             'project_id' => $project->id,
                             'check_item_id' => $item['id'],
+                            'card_id' => $card['id'],
+                            'card_name' => $card['name']
                         ],
                         [
                             'task_name' => $item['name'],
@@ -360,10 +362,6 @@ class ProjectService
                                     }
                                 }
                             }
-
-                            // // Update UserTask model
-                            // UserTask::where('check_item_id', $item['id'])
-                            //     ->update(['due_date' => $dueDate]);
 
                             // $this->syncChecklist($project);
                         } else {
