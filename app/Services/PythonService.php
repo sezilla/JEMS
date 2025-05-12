@@ -117,7 +117,7 @@ class PythonService
             $response = Http::timeout(360)->post($url, [
                 'project_id' => $projectId,
                 'data_array' => $dataArray['data_array'],
-                'users' => $usersArray,
+                'users' => $usersArray
             ]);
 
             if ($response->failed()) {

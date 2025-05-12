@@ -14,11 +14,19 @@ class ProjectProgressCards extends Component
     public function mount($project)
     {
         $this->project = $project;
+        $this->loadProgress();
     }
 
     public function loadProgress()
     {
-        $this->progress = app(ProjectService::class)->getProjectProgress($this->project);
+        $cacheKey = "project_{$this->project->id}_progress";
+
+        $this->progress = cache()->remember($cacheKey, now()->addMinutes(1), function () {
+            // Eager load the checklist relationship
+            $this->project->load('checklist');
+            return app(ProjectService::class)->getProjectProgress($this->project);
+        });
+
         $this->loading = false;
     }
 

@@ -15,7 +15,7 @@ class FakeUser extends Seeder
     {
         $this->call([
             DummyUserSeeder::class,
-            TestProjectSeeder::class,
+            // TestProjectSeeder::class,
         ]);
     }
 }

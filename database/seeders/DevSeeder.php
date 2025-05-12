@@ -33,7 +33,7 @@ class DevSeeder extends Seeder
             TeamSeeder::class,
             PackageTask::class,
             DummyUserSeeder::class,
-            TestProjectSeeder::class,
+            // TestProjectSeeder::class,
         ]);
     }
 }
