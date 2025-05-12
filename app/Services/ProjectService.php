@@ -436,118 +436,109 @@ class ProjectService
             }
         }
 
-        try {
-            Log::info('Starting user allocation for project', [
-                'project_id' => $project->id,
-                'project_name' => $project->name
-            ]);
+        Log::info('Starting user allocation for project', [
+            'project_id' => $project->id,
+            'project_name' => $project->name
+        ]);
 
-            // Transform data to match Python endpoint's expected format
-            $formattedData = [
-                'project_id' => $project->id,
-                'data_array' => array_map(function ($card) {
-                    return [
-                        'card_id' => $card['card_id'],
-                        'card_name' => $card['card_name'],
-                        'card_due_date' => $card['card_due_date'] ? date('Y-m-d', strtotime($card['card_due_date'])) : date('Y-m-d'),
-                        'card_description' => $card['card_description'] ?? '',
-                        'checklists' => array_map(function ($checklist) {
-                            return [
-                                'checklist_id' => $checklist['checklist_id'],
-                                'checklist_name' => $checklist['checklist_name'],
-                                'check_items' => array_map(function ($item) {
-                                    return [
-                                        'check_item_id' => $item['check_item_id'],
-                                        'check_item_name' => $item['check_item_name'],
-                                        'due_date' => $item['due_date'] ? date('Y-m-d', strtotime($item['due_date'])) : date('Y-m-d'),
-                                        'status' => $item['status'] ?? 'incomplete'
-                                    ];
-                                }, $checklist['check_items'])
-                            ];
-                        }, $card['checklists'])
-                    ];
-                }, $dataArray)
-            ];
+        // Transform data to match Python endpoint's expected format
+        $formattedData = [
+            'project_id' => $project->id,
+            'data_array' => array_map(function ($card) {
+                return [
+                    'card_id' => $card['card_id'],
+                    'card_name' => $card['card_name'],
+                    'card_due_date' => $card['card_due_date'] ? date('Y-m-d', strtotime($card['card_due_date'])) : date('Y-m-d'),
+                    'card_description' => $card['card_description'] ?? '',
+                    'checklists' => array_map(function ($checklist) {
+                        return [
+                            'checklist_id' => $checklist['checklist_id'],
+                            'checklist_name' => $checklist['checklist_name'],
+                            'check_items' => array_map(function ($item) {
+                                return [
+                                    'check_item_id' => $item['check_item_id'],
+                                    'check_item_name' => $item['check_item_name'],
+                                    'due_date' => $item['due_date'] ? date('Y-m-d', strtotime($item['due_date'])) : date('Y-m-d'),
+                                    'status' => $item['status'] ?? 'incomplete'
+                                ];
+                            }, $checklist['check_items'])
+                        ];
+                    }, $card['checklists'])
+                ];
+            }, $dataArray)
+        ];
 
-            Log::info('Formatted data for Python service', [
-                'formatted_data' => $formattedData
-            ]);
+        Log::info('Formatted data for Python service', [
+            'formatted_data' => $formattedData
+        ]);
 
-            $response = $this->python_service->allocateUserToTask(
-                $project->id,
-                $formattedData,
-                $usersArray
-            );
+        $response = $this->python_service->allocateUserToTask(
+            $project->id,
+            $formattedData,
+            $usersArray
+        );
 
-            if (isset($response['error'])) {
-                throw new \Exception('User allocation failed: ' . $response['error']);
-            }
+        if (isset($response['error'])) {
+            throw new \Exception('User allocation failed: ' . $response['error']);
+        }
 
-            // Update user_id values in the original data structure
-            if (isset($response['allocation'])) {
-                foreach ($response['allocation'] as $checklistId => $checklistData) {
-                    foreach ($checklistData['check_items'] as $allocatedItem) {
-                        foreach ($dataArray as &$card) {
-                            foreach ($card['checklists'] as &$checklist) {
-                                if ($checklist['checklist_id'] === $checklistId) {
-                                    foreach ($checklist['check_items'] as &$checkItem) {
-                                        if ($checkItem['check_item_id'] === $allocatedItem['check_item_id']) {
-                                            $checkItem['user_id'] = $allocatedItem['user_id'];
+        // Update user_id values in the original data structure
+        if (isset($response['allocation'])) {
+            foreach ($response['allocation'] as $checklistId => $checklistData) {
+                foreach ($checklistData['check_items'] as $allocatedItem) {
+                    foreach ($dataArray as &$card) {
+                        foreach ($card['checklists'] as &$checklist) {
+                            if ($checklist['checklist_id'] === $checklistId) {
+                                foreach ($checklist['check_items'] as &$checkItem) {
+                                    if ($checkItem['check_item_id'] === $allocatedItem['check_item_id']) {
+                                        $checkItem['user_id'] = $allocatedItem['user_id'];
 
-                                            // Create or update UserTask with allocated user
-                                            UserTask::updateOrCreate(
-                                                [
-                                                    'project_id' => $project->id,
-                                                    'check_item_id' => $allocatedItem['check_item_id'],
-                                                ],
-                                                [
-                                                    'user_id' => $allocatedItem['user_id'] ?? null
-                                                ]
-                                            );
+                                        // Create or update UserTask with allocated user
+                                        UserTask::updateOrCreate(
+                                            [
+                                                'project_id' => $project->id,
+                                                'check_item_id' => $allocatedItem['check_item_id'],
+                                            ],
+                                            [
+                                                'user_id' => $allocatedItem['user_id'] ?? null
+                                            ]
+                                        );
 
-                                            // Send notification to the allocated user
-                                            if ($allocatedItem['user_id']) {
-                                                $user = User::find($allocatedItem['user_id']);
-                                                if ($user) {
-                                                    Notification::make()
-                                                        ->success()
-                                                        ->title('New Task Assignment')
-                                                        ->body('You have been assigned to task: ' . $checkItem['check_item_name'])
-                                                        ->sendToDatabase($user);
-                                                }
+                                        // Send notification to the allocated user
+                                        if ($allocatedItem['user_id']) {
+                                            $user = User::find($allocatedItem['user_id']);
+                                            if ($user) {
+                                                Notification::make()
+                                                    ->success()
+                                                    ->title('New Task Assignment')
+                                                    ->body('You have been assigned to task: ' . $checkItem['check_item_name'])
+                                                    ->sendToDatabase($user);
                                             }
-                                            break;
                                         }
+                                        break;
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-                // Save the updated data back to the database
-                $checklistUser->user_checklist = $dataArray;
-                $checklistUser->save();
-
-                Log::info('Updated ChecklistUser with allocated users', [
-                    'project_id' => $project->id
-                ]);
             }
 
-            Log::info('User allocation completed successfully', [
-                'project_id' => $project->id,
-                'response' => $response
-            ]);
+            // Save the updated data back to the database
+            $checklistUser->user_checklist = $dataArray;
+            $checklistUser->save();
 
-            return $response;
-        } catch (\Exception $e) {
-            Log::error('User allocation failed', [
-                'project_id' => $project->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            Log::info('Updated ChecklistUser with allocated users', [
+                'project_id' => $project->id
             ]);
-            throw $e;
         }
+
+        Log::info('User allocation completed successfully', [
+            'project_id' => $project->id,
+            'response' => $response
+        ]);
+
+        return $response;
     }
 
     public function markAsDone(Project $project)

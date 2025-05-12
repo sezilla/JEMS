@@ -153,11 +153,13 @@ class PendingList extends Component implements HasTable, HasForms
                                 ->danger()
                                 ->send();
 
-                            Notification::make()
-                                ->title('Your Task has been Rejected')
-                                ->body('The task: ' . $record->task_name . ' has been rejected.')
-                                ->danger()
-                                ->sendToDatabase(User::find($record->user_id));
+                            if ($record->user_id) {
+                                Notification::make()
+                                    ->title('Your Task has been Rejected')
+                                    ->body('The task: ' . $record->task_name . ' has been rejected.')
+                                    ->danger()
+                                    ->sendToDatabase(User::find($record->user_id));
+                            }
                         } else {
                             Notification::make()
                                 ->title('Task Not Found')
