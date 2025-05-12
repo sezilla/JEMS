@@ -2,32 +2,40 @@
 
 namespace App\Filament\App\Resources;
 
-use App\Filament\App\Resources\ProjectResource\Pages;
-use App\Filament\App\Resources\ProjectResource\RelationManagers;
-use App\Models\Project;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Models\Package;
+use Carbon\Carbon;
+use App\Models\Task;
 use App\Models\User;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Tables;
+use App\Models\Package;
+use App\Models\Project;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Date;
+use Filament\Forms\Components\Select;
+use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\ColorPicker;
+
+use Filament\Support\Enums\FontFamily;
+use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
-use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\FontFamily;
-use Illuminate\Support\Facades\Date;
-use Filament\Support\Enums\Alignment;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\MarkdownEditor;
 use Filament\Support\Enums\VerticalAlignment;
-use Filament\Tables\Columns\ColorColumn;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\App\Resources\ProjectResource\Pages;
+use App\Filament\App\Resources\ProjectResource\RelationManagers;
 
 $user = Auth::user();
 
@@ -38,10 +46,217 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
+    // public static function form(Form $form): Form
+    // {
+    //     return $form
+    //         ->schema([
+    //             Section::make()
+    //                 ->description('Project details')
+    //                 ->collapsible()
+    //                 ->schema([
+    //                     TextInput::make('name')
+    //                         ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject)
+    //                         ->columnSpan(1)
+    //                         ->required()
+    //                         ->maxLength(255),
+    //                     Select::make('package_id')
+    //                         ->label('Packages')
+    //                         ->required()
+    //                         ->preload()
+    //                         ->searchable()
+    //                         ->options(Package::all()->pluck('name', 'id'))
+    //                         ->disabled(fn($record) => $record !== null),
+    //                     MarkdownEditor::make('description')
+    //                         ->columnSpanFull(),
+
+
+    //                     DatePicker::make('start')
+    //                         ->columnSpan(1)
+    //                         ->label('Start Date')
+    //                         ->required()
+    //                         ->default(now()->toDateString()),
+    //                     DatePicker::make('end')
+    //                         ->columnSpan(1)
+    //                         ->label('Event Date')
+    //                         ->required()
+    //                         ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
+    //                         ->after('start') // Ensures 'end' is after 'start'
+    //                         ->rules([
+    //                             function () {
+    //                                 return function ($attribute, $value, $fail) {
+    //                                     $start = request()->input('start');
+    //                                     if ($start) {
+    //                                         $startDate = Carbon::parse($start);
+    //                                         $endDate = Carbon::parse($value);
+
+    //                                         if ($endDate->lessThan($startDate->addMonths(4))) {
+    //                                             $fail('The end date must be at least 4 months after the start date.');
+    //                                         }
+    //                                     }
+    //                                 };
+    //                             }
+    //                         ]),
+
+    //                     TextInput::make('venue')
+    //                         ->maxLength(255),
+    //                 ])
+    //                 ->columns(3),
+
+    //             Section::make()
+    //                 ->description('Couple Details')
+    //                 ->collapsible()
+    //                 ->columns(2)
+    //                 ->schema([
+    //                     TextInput::make('groom_name')
+    //                         ->label('Groom Name')
+    //                         ->required()
+    //                         ->columnSpan(1)
+    //                         ->maxLength(255),
+    //                     TextInput::make('bride_name')
+    //                         ->label('Bride Name')
+    //                         ->columnSpan(1)
+    //                         ->required()
+    //                         ->maxLength(255),
+    //                     MarkdownEditor::make('special_request')
+    //                         ->label('Special Requests')
+    //                         ->columnSpan('full'),
+    //                     ColorPicker::make('theme_color')
+    //                         ->columnSpan(1),
+
+    //                     FileUpload::make('thumbnail_path')
+    //                         ->disk('public')
+    //                         ->columnSpan(1)
+    //                         ->label('Thumbnail')
+    //                         ->directory('thumbnails'),
+    //                 ]),
+
+
+    //             Section::make()
+    //                 ->description('Coordinators')
+    //                 ->collapsible()
+    //                 ->columns(3)
+    //                 ->schema([
+    //                     Select::make('head_coordinator')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Head Coordinator')
+    //                         ->required()
+    //                         ->searchable()
+    //                         ->preload(),
+
+    //                     Select::make('bride_coordinator')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Bride Coordinator')
+    //                         ->required()
+    //                         ->searchable()
+    //                         ->preload(),
+
+    //                     Select::make('groom_coordinator')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Groom Coordinator')
+    //                         ->required()
+    //                         ->searchable()
+    //                         ->preload(),
+
+    //                     Select::make('head_coor_assistant')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Head Coordinator Assistant')
+    //                         ->searchable()
+    //                         ->preload()
+    //                         ->nullable(),
+
+    //                     Select::make('bride_coor_assistant')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Bride Coordinator Assistant')
+    //                         ->searchable()
+    //                         ->preload()
+    //                         ->nullable(),
+
+    //                     Select::make('groom_coor_assistant')
+    //                         ->options(User::all()->pluck('name', 'id'))
+    //                         ->relationship('coordinators', 'name', function ($query) {
+    //                             $query->whereHas('roles', function ($q) {
+    //                                 $q->where('name', 'Coordinator');
+    //                             });
+    //                         })
+    //                         ->label('Groom Coordinator Assistant')
+    //                         ->searchable()
+    //                         ->preload()
+    //                         ->nullable(),
+
+    //                 ]),
+
+    //             Section::make()
+    //                 ->description('Teams')
+    //                 ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
+    //                 ->collapsible()
+    //                 ->schema([
+    //                     Repeater::make('teams')
+    //                         ->label('')
+    //                         ->relationship('teams')
+    //                         ->grid(3)
+    //                         ->schema([
+    //                             Select::make('team_id')
+    //                                 ->label('')
+    //                                 ->options(function () {
+    //                                     return \App\Models\Team::with('departments')
+    //                                         ->get()
+    //                                         ->mapWithKeys(function ($team) {
+    //                                             return [$team->id => $team->name];
+    //                                         });
+    //                                 })
+    //                                 ->searchable()
+    //                                 ->preload()
+    //                                 ->required()
+    //                                 ->columnSpanFull(),
+    //                         ])
+    //                         ->defaultItems(1)
+    //                         ->addActionLabel('Add Team')
+    //                         // ->reorderable(true)
+    //                         ->itemLabel(function (array $state): ?string {
+    //                             $teamId = $state['team_id'] ?? null;
+    //                             if (!$teamId) {
+    //                                 return 'Team';
+    //                             }
+    //                             $team = \App\Models\Team::with('departments')->find($teamId);
+    //                             return $team && $team->departments->isNotEmpty()
+    //                                 ? ucfirst($team->departments->first()->name) . ' Team'
+    //                                 : 'Team';
+    //                         })
+    //                         ->saveRelationshipsUsing(function ($record, $state) {
+    //                             $record->teams()->sync(collect($state)->pluck('team_id')->filter());
+    //                         }),
+    //                 ]),
+    //         ]);
+    // }
+
     public static function table(Table $table): Table
     {
         return $table
-            ->query(Project::forUser(Auth::user()))
             ->columns([
                 Stack::make([
                     Split::make([
@@ -59,7 +274,8 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
-                            TextColumn::make('name')
+                            TextColumn::make('description')
+                                ->limit(40)
                                 ->searchable(),
                             Split::make([
                                 TextColumn::make('package.name')
@@ -73,7 +289,7 @@ class ProjectResource extends Resource
                                             'Garnet' => 'garnet',
                                             'Emerald' => 'emerald',
                                             'Infinity' => 'infinity',
-                                            'sapphire' => 'sapphire',
+                                            'Sapphire' => 'sapphire',
                                             default => 'gray',
                                         }
                                     ),
@@ -85,18 +301,22 @@ class ProjectResource extends Resource
                             ]),
 
                             TextColumn::make('venue'),
+                            ImageColumn::make('user.avatar_url')
+                                ->tooltip(fn($record) => $record->user->name)
+                                ->label('Coordinator')
+                                ->width(20)
+                                ->height(20),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
-                                    ->sortable()
+                                    // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
-                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . Carbon::parse($state)->format('m-d-Y') . '</span>';
                                     })
                                     ->html(),
                                 TextColumn::make('end')
                                     ->label('Event Date')
                                     ->date()
-                                    ->sortable()
                                     ->fontFamily(FontFamily::Mono)
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
@@ -122,23 +342,7 @@ class ProjectResource extends Resource
                                 ->badge()
                                 ->limit(8),
                         ]),
-                        Stack::make([
-                            TextColumn::make('groomCoordinator.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('groomCoordinator.name')
-                                ->label('Groom Coordinator')
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
+
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
@@ -156,78 +360,70 @@ class ProjectResource extends Resource
                                 ->badge()
                                 ->limit(8),
                         ]),
+
+                        Stack::make([
+                            TextColumn::make('groomCoordinator.name')
+                                ->getStateUsing(function ($record) {
+                                    return 'Groom coor';
+                                })
+                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->weight(FontWeight::Thin)
+                                ->formatStateUsing(function ($column, $state) {
+                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                })
+                                ->html(),
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
+                                ->searchable()
+                                ->badge()
+                                ->limit(8),
+                        ]),
+
                     ]),
+                    TextColumn::make('teams.name')
+                        ->getStateUsing(function ($record) {
+                            return 'Teams';
+                        })
+                        ->size(TextColumn\TextColumnSize::ExtraSmall)
+                        ->weight(FontWeight::Thin)
+                        ->formatStateUsing(function ($column, $state) {
+                            return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                        })
+                        ->html(),
+                    ImageColumn::make('teams.image')
+                        ->label('Bride Coordinator')
+                        ->searchable()
+                        ->stacked()
+                        ->limit(6)
+                        ->circular()
+                        ->limitedRemainingText(),
                     // TextColumn::make('start')
                     //     ->label('Date Added')
                     //     ->date()
                     //     ->sortable(),
 
                 ])->space(3),
-            ])
+            ])->defaultSort('end', 'asc')
             ->contentGrid([
                 'md' => 2,
                 'xl' => 3,
+                'sm' => 1,
             ])
-            // ->columns([
-            //     ImageColumn::make('thumbnail_path')
-            //         ->disk('public')
-            //         ->label('Thumbnail'),
-            //     TextColumn::make('name')
-            //         ->searchable(),
-            //     TextColumn::make('package.name')
-            //         ->label('Package')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('event_date')
-            //         ->date()
-            //         ->sortable(),
-            //     TextColumn::make('user.name')
-            //         ->label('Creator')
-            //         ->toggleable(isToggledHiddenByDefault: true),
-            //     TextColumn::make('coordinators.name')
-            //         ->label('Coordinators')
-            //         ->searchable()
-            //         ->getStateUsing(function ($record) {
-            //             if ($record->coordinators) {
-            //                 return implode('<br/>', $record->coordinators->pluck('name')->toArray());
-            //             }
-            //             return 'N/A';
-            //         })
-            //         ->html()
-            //         ->verticallyAlignStart(),
-            //     TextColumn::make('teams.name')
-            //         ->label('Teams')
-            //         ->searchable()
-            //         ->getStateUsing(function ($record) {
-            //             if ($record->teams) {
-            //                 return implode('<br/>', $record->teams->pluck('name')->toArray());
-            //             }
-            //             return 'N/A';
-            //         })
-            //         ->html()
-            //         ->verticallyAlignStart(),
-            //     TextColumn::make('venue')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('groom_name')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('bride_name')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('groomCoordinator.name')
-            //         ->label('Groom Coordinator')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('brideCoordinator.name')
-            //         ->label('Bride Coordinator')
-            //         ->searchable()
-            //         ->limit(15),
-            //     TextColumn::make('headCoordinator.name')
-            //         ->label('Head Coordinator')
-            //         ->searchable()
-            //         ->limit(15),
-            // ])
+            // ->recordAction('task')
+            ->paginated([12, 24, 48, 96, 'all'])
+            ->filters([
+                Tables\Filters\Filter::make('completed')
+                    ->label('Completed')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.completed'))),
+                Tables\Filters\Filter::make('canceled')
+                    ->label('Canceled')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.canceled'))),
+                Tables\Filters\Filter::make('on_hold')
+                    ->label('On Hold')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
+                Tables\Filters\TrashedFilter::make()
+                    ->label('Deleted')
+            ])
             ->filters([
                 //
             ])
@@ -258,10 +454,10 @@ class ProjectResource extends Resource
     {
         return [
             'index' => Pages\ListProjects::route('/'),
-            'view' => Pages\ViewProject::route('/{record}'),
+            // 'view' => Pages\ViewProject::route('/{record}'),
             // 'create' => Pages\CreateProject::route('/create'),
             'task' => Pages\task::route('/{record}/task'),
-            'edit' => Pages\EditProject::route('/{record}/edit'),
+            // 'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }
 }
