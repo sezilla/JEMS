@@ -31,9 +31,9 @@ class PendingList extends Component implements HasTable, HasForms
     public function mount($project)
     {
         $user = Auth::user();
-        if (!$user->hasRole(config('filament-shield.coordinator_user.name'))) {
-            abort(403, 'Unauthorized action.');
-        }
+        // if (!$user->hasRole(config('filament-shield.coordinator_user.name'))) {
+        //     abort(403, 'Unauthorized action.');
+        // }
 
         $this->project = $project;
     }
