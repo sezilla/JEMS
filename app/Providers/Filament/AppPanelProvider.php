@@ -52,6 +52,12 @@ class AppPanelProvider extends PanelProvider
             ->path('app')
             ->colors([
                 'primary' => '#b22d67',
+
+                'ruby' => Color::Red,
+                'emerald' => Color::Emerald,
+                'garnet' => Color::Pink,
+                'sapphire' => Color::Sky,
+                'infinity' => Color::Cyan,
             ])
 
             // ->topNavigation([

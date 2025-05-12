@@ -10,15 +10,17 @@ use App\Models\Package;
 use App\Models\Project;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\ProjectStatus;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Date;
-use Filament\Forms\Components\Select;
 
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ColorColumn;
@@ -48,6 +50,8 @@ class ProjectResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-check';
+
+    protected static ?string $label = 'Events';
 
     public static function form(Form $form): Form
     {
@@ -140,28 +144,6 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->columns(3)
                     ->schema([
-                        Forms\Components\Select::make('groom_coordinator')
-                            ->options(User::all()->pluck('name', 'id'))
-                            ->relationship('coordinators', 'name', function ($query) {
-                                $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'Coordinator');
-                                });
-                            })
-                            ->label('Groom Coordinator')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
-                        Forms\Components\Select::make('bride_coordinator')
-                            ->options(User::all()->pluck('name', 'id'))
-                            ->relationship('coordinators', 'name', function ($query) {
-                                $query->whereHas('roles', function ($q) {
-                                    $q->where('name', 'Coordinator');
-                                });
-                            })
-                            ->label('Bride Coordinator')
-                            ->required()
-                            ->searchable()
-                            ->preload(),
                         Forms\Components\Select::make('head_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -173,28 +155,31 @@ class ProjectResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        Forms\Components\Select::make('groom_coor_assistant')
+
+                        Forms\Components\Select::make('bride_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Groom Coordinator Assistant')
+                            ->label('Bride Coordinator')
+                            ->required()
                             ->searchable()
-                            ->preload()
-                            ->nullable(),
-                        Forms\Components\Select::make('bride_coor_assistant')
+                            ->preload(),
+
+                        Forms\Components\Select::make('groom_coordinator')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
                                 $query->whereHas('roles', function ($q) {
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Bride Coordinator Assistant')
+                            ->label('Groom Coordinator')
+                            ->required()
                             ->searchable()
-                            ->preload()
-                            ->nullable(),
+                            ->preload(),
+
                         Forms\Components\Select::make('head_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
                             ->relationship('coordinators', 'name', function ($query) {
@@ -206,6 +191,31 @@ class ProjectResource extends Resource
                             ->searchable()
                             ->preload()
                             ->nullable(),
+
+                        Forms\Components\Select::make('bride_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Bride Coordinator Assistant')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
+                        Forms\Components\Select::make('groom_coor_assistant')
+                            ->options(User::all()->pluck('name', 'id'))
+                            ->relationship('coordinators', 'name', function ($query) {
+                                $query->whereHas('roles', function ($q) {
+                                    $q->where('name', 'Coordinator');
+                                });
+                            })
+                            ->label('Groom Coordinator Assistant')
+                            ->searchable()
+                            ->preload()
+                            ->nullable(),
+
                     ]),
 
                 Section::make()
@@ -241,8 +251,8 @@ class ProjectResource extends Resource
                                     return 'Team';
                                 }
                                 $team = \App\Models\Team::with('departments')->find($teamId);
-                                return $team && $team->departments->isNotEmpty() 
-                                    ? ucfirst($team->departments->first()->name) . ' Team' 
+                                return $team && $team->departments->isNotEmpty()
+                                    ? ucfirst($team->departments->first()->name) . ' Team'
                                     : 'Team';
                             })
                             ->saveRelationshipsUsing(function ($record, $state) {
@@ -277,6 +287,7 @@ class ProjectResource extends Resource
                                 ->limit(40)
                                 ->searchable(),
                             Split::make([
+
                                 TextColumn::make('package.name')
                                     ->label('Package')
                                     ->searchable()
@@ -292,20 +303,45 @@ class ProjectResource extends Resource
                                             default => 'gray',
                                         }
                                     ),
+
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()
                                     ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500)
+                                    ->copyMessageDuration(1500),
+
+                                IconColumn::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'heroicon-o-clock' => ProjectStatus::ACTIVE,
+                                        'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
+                                        'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                        'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
+                                        'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
+                                    ])
+                                    ->colors([
+                                        'success' => ProjectStatus::COMPLETED,
+                                        'warning' => ProjectStatus::ARCHIVED,
+                                        'danger' => ProjectStatus::CANCELLED,
+                                        'secondary' => ProjectStatus::ON_HOLD,
+                                        'primary' => ProjectStatus::ACTIVE,
+                                    ])
+                                    ->size('sm'),
+
                             ]),
 
                             TextColumn::make('venue'),
+                            ImageColumn::make('user.avatar_url')
+                                ->tooltip(fn($record) => $record->user->name)
+                                ->label('Coordinator')
+                                ->width(20)
+                                ->height(20),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
                                     // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
-                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . Carbon::parse($state)->format('m-d-Y') . '</span>';
                                     })
                                     ->html(),
                                 TextColumn::make('end')
@@ -336,23 +372,7 @@ class ProjectResource extends Resource
                                 ->badge()
                                 ->limit(8),
                         ]),
-                        Stack::make([
-                            TextColumn::make('groomCoordinator.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('groomCoordinator.name')
-                                ->label('Groom Coordinator')
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
+
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
@@ -366,6 +386,24 @@ class ProjectResource extends Resource
                                 ->html(),
                             TextColumn::make('brideCoordinator.name')
                                 ->label('Bride Coordinator')
+                                ->searchable()
+                                ->badge()
+                                ->limit(8),
+                        ]),
+
+                        Stack::make([
+                            TextColumn::make('groomCoordinator.name')
+                                ->getStateUsing(function ($record) {
+                                    return 'Groom coor';
+                                })
+                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->weight(FontWeight::Thin)
+                                ->formatStateUsing(function ($column, $state) {
+                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                })
+                                ->html(),
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),

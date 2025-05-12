@@ -27,12 +27,14 @@ class UpdateTrelloBoardListener
     {
         $project = $event->project;
 
-        $this->projectService->updateTrelloBoard($project);
-        Log::info('Trello board updated for project: ' . $project->name);
+        if ($project->trello_board_id) {
+            $this->projectService->updateTrelloBoard($project);
+            Log::info('Trello board updated for project: ' . $project->name);
 
-        Notification::make()
-            ->title('Trello board updated for project: ' . $project->name)
-            ->success()
-            ->send();
+            Notification::make()
+                ->title('Trello board updated for project: ' . $project->name)
+                ->success()
+                ->send();
+        }
     }
 }

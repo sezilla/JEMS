@@ -36,41 +36,38 @@
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h3>
                     <p class="text-lg font-semibold">
                         @php
-                            $statusConfig = config('project.project_status');
-                            $statusKey = array_search($project->status, $statusConfig);
+                            $status = $project->status;
 
-                            $statusColor = match ($statusKey) {
-                                'active' => 'success',
-                                'completed' => 'success',
-                                'archived' => 'gray',
-                                'canceled' => 'danger',
-                                'on_hold' => 'warning',
-                                default => 'gray',
-                            };
-
-                            $statusIcon = match ($statusKey) {
-                                'active' => 'heroicon-o-play-circle',
-                                'completed' => 'heroicon-o-check-circle',
-                                'archived' => 'heroicon-o-archive-box',
-                                'canceled' => 'heroicon-o-x-circle',
-                                'on_hold' => 'heroicon-o-pause-circle',
+                            $statusColor = $status->color() ?? 'gray';
+                            $statusIcon = match ($status) {
+                                App\Enums\ProjectStatus::ACTIVE => 'heroicon-o-play-circle',
+                                App\Enums\ProjectStatus::COMPLETED => 'heroicon-o-check-circle',
+                                App\Enums\ProjectStatus::ARCHIVED => 'heroicon-o-archive-box',
+                                App\Enums\ProjectStatus::CANCELLED => 'heroicon-o-x-circle',
+                                App\Enums\ProjectStatus::ON_HOLD => 'heroicon-o-pause-circle',
                                 default => 'heroicon-o-question-mark-circle',
                             };
 
-                            $statusText = match ($statusKey) {
-                                'active' => 'Active',
-                                'completed' => 'Completed',
-                                'archived' => 'Archived',
-                                'canceled' => 'Canceled',
-                                'on_hold' => 'On Hold',
-                                default => 'Unknown',
-                            };
+                            $statusText = $status->label() ?? 'Unknown';
                         @endphp
-                        <x-filament::badge color="{{ $statusColor }}" class="inline-flex flex-row items-center gap-2">
-                            <x-filament::icon :icon="$statusIcon" class="w-4 h-4" />
-                            <span>{{ $statusText }}</span>
-                        </x-filament::badge>
+                        <div class="inline-flex">
+                            <x-filament::badge color="{{ $statusColor }}">
+                                <div class="flex gap-2">
+                                    <x-filament::icon :icon="$statusIcon" class="w-4 h-4" />
+                                    <span>{{ $statusText }}</span>
+                                </div>
+                            </x-filament::badge>
+                        </div>
                     </p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Color</h3>
+                    <div class="inline-flex items-center gap-2">
+                        <div class="w-6 h-6 rounded" style="background-color: {{ $project->theme_color }};"></div>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {{ $project->theme_color }}
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -94,7 +91,7 @@
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Teams</h3>
                     <div class="space-y-1">
                         @forelse($project->teams as $team)
-                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <p class="text-md text-gray-900 dark:text-gray-100">
                                 {{ $team->name }}
                             </p>
                         @empty
