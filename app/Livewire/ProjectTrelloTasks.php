@@ -243,6 +243,57 @@ class ProjectTrelloTasks extends Component
         $response = $this->setCheckItemDue($this->currentTask, $this->dueDate);
         $success = $response && isset($response['id']);
 
+        if ($success) {
+            $checklistUser = $this->project->checklist;
+            if (!$checklistUser) {
+                $checklistUser = new ChecklistUser([
+                    'project_id' => $this->project->id,
+                    'user_checklist' => [],
+                ]);
+                $this->project->checklist()->save($checklistUser);
+            }
+
+            $userChecklist = $checklistUser->user_checklist ?? [];
+            $checklistId = $this->currentTask['checklist_id'];
+            $itemId = $this->currentTask['item_id'];
+
+            if (!isset($userChecklist[$checklistId]) || !is_array($userChecklist[$checklistId])) {
+                $userChecklist[$checklistId] = [];
+            }
+
+            // Check if entry exists
+            $entryExists = false;
+            foreach ($userChecklist[$checklistId] as &$entry) {
+                if ($entry['check_item_id'] === $itemId) {
+                    $entry['due_date'] = $this->dueDate;
+                    $entryExists = true;
+                    break;
+                }
+            }
+
+            // If entry doesn't exist, create new one
+            if (!$entryExists) {
+                $userChecklist[$checklistId][] = [
+                    'check_item_id' => $itemId,
+                    'due_date' => $this->dueDate
+                ];
+            }
+
+            $checklistUser->user_checklist = $userChecklist;
+            $checklistUser->save();
+
+            // Update UserTask with due date
+            UserTask::where('check_item_id', $itemId)
+                ->update(['due_date' => $this->dueDate]);
+
+            Log::info('Updated checklist user due date', [
+                'checklist_id' => $checklistId,
+                'item_id' => $itemId,
+                'due_date' => $this->dueDate,
+                'action' => $entryExists ? 'updated' : 'created'
+            ]);
+        }
+
         $this->refreshData();
         $this->dispatch('refresh');
 

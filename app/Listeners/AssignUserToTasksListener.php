@@ -31,7 +31,7 @@ class AssignUserToTasksListener implements ShouldQueue
         $user = $event->project->user;
 
         try {
-            $this->projectService->allocateUserToTask($project);
+            $this->projectService->allocateUser($project);
             Log::info('User assigned to tasks for project: ' . $project->id);
 
             Notification::make()
