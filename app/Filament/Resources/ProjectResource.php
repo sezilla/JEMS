@@ -308,6 +308,11 @@ class ProjectResource extends Resource
                             ]),
 
                             TextColumn::make('venue'),
+                            ImageColumn::make('user.avatar_url')
+                                ->tooltip(fn($record) => $record->user->name)
+                                ->label('Coordinator')
+                                ->width(20)
+                                ->height(20),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
@@ -344,23 +349,7 @@ class ProjectResource extends Resource
                                 ->badge()
                                 ->limit(8),
                         ]),
-                        Stack::make([
-                            TextColumn::make('groomCoordinator.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('groomCoordinator.name')
-                                ->label('Groom Coordinator')
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
+
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
@@ -374,6 +363,24 @@ class ProjectResource extends Resource
                                 ->html(),
                             TextColumn::make('brideCoordinator.name')
                                 ->label('Bride Coordinator')
+                                ->searchable()
+                                ->badge()
+                                ->limit(8),
+                        ]),
+
+                        Stack::make([
+                            TextColumn::make('groomCoordinator.name')
+                                ->getStateUsing(function ($record) {
+                                    return 'Groom coor';
+                                })
+                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->weight(FontWeight::Thin)
+                                ->formatStateUsing(function ($column, $state) {
+                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                })
+                                ->html(),
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
