@@ -34,7 +34,7 @@ class ProjectStatsCoorView extends BaseWidget
             ->columns([
                 TextColumn::make('name')
                     ->label('Project Name')
-                    ->url(fn($record): string => \App\Filament\App\Resources\ProjectResource::getUrl('edit', ['record' => $record]))
+                    ->url(fn($record): string => \App\Filament\App\Resources\ProjectResource::getUrl('task', ['record' => $record]))
                     ->searchable(),
                 TextColumn::make('end')
                     ->label('Wedding Date')
