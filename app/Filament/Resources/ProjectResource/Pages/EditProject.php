@@ -66,7 +66,7 @@ class EditProject extends EditRecord
                     $record->delete();
 
                     Notification::make()
-                        ->title('Project marked as canceled')
+                        ->title('Project Archived')
                         ->success()
                         ->send();
                 })

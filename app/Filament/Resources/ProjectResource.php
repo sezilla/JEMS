@@ -106,6 +106,7 @@ class ProjectResource extends Resource
                             ]),
 
                         Forms\Components\TextInput::make('venue')
+                            ->label('Location')
                             ->maxLength(255),
                     ])
                     ->columns(3),
