@@ -241,8 +241,8 @@ class ProjectResource extends Resource
                                     return 'Team';
                                 }
                                 $team = \App\Models\Team::with('departments')->find($teamId);
-                                return $team && $team->departments->isNotEmpty() 
-                                    ? ucfirst($team->departments->first()->name) . ' Team' 
+                                return $team && $team->departments->isNotEmpty()
+                                    ? ucfirst($team->departments->first()->name) . ' Team'
                                     : 'Team';
                             })
                             ->saveRelationshipsUsing(function ($record, $state) {
@@ -305,7 +305,7 @@ class ProjectResource extends Resource
                                     ->date()
                                     // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
-                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . Carbon::parse($state)->format('m-d-Y') . '</span>';
                                     })
                                     ->html(),
                                 TextColumn::make('end')
