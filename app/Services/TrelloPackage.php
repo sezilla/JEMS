@@ -259,7 +259,7 @@ class TrelloPackage
                 'json' => [
                     'idList' => $listId,
                     'name' => $name,
-                    'desc' => 'Auto-generated department card',
+                    'desc' => $name . ' card description',
                 ],
             ]);
 
