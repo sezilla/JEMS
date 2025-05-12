@@ -499,7 +499,7 @@
 
                                                                 <div
                                                                     class="flex flex-col items-center justify-center py-6 space-y-4">
-                                                                    @if (strtolower($item['status'] ?? '') === 'complete')
+                                                                    @if (strtolower($item['status'] ?? '') === 'complete' || strtolower($item['status'] ?? '') === 'pending')
                                                                         <x-filament::icon icon="heroicon-o-x-circle"
                                                                             class="w-16 h-16 text-danger-500"
                                                                             color="danger" />
