@@ -33,7 +33,7 @@ class ProjectCalendar extends FullCalendarWidget
                     ->borderColor($event->theme_color)
                     ->end($event->end)
                     ->url(
-                        url: ProjectResource::getUrl(name: 'view', parameters: ['record' => $event]),
+                        url: ProjectResource::getUrl(name: 'task', parameters: ['record' => $event]),
                         shouldOpenUrlInNewTab: false
                     )
             )
