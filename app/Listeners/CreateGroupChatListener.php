@@ -79,23 +79,6 @@ class CreateGroupChatListener implements ShouldQueue
                     'name' => "{$project->groom_name} & {$project->bride_name} Project Coordinators",
                     'description' => "Coordination group for {$project->groom_name} and {$project->bride_name}'s project"
                 ]);
-                if ($project->thumbnail_path) {
-                    try {
-                        $group->cover()->create([
-                            'file_path' => $project->thumbnail_path,
-                            'file_name' => basename($project->thumbnail_path),
-                            'mime_type' => mime_content_type($project->thumbnail_path),
-                            'url' => url($project->thumbnail_path)
-                        ]);
-                    } catch (Exception $e){
-                        Log:error('failed to create group cover', [
-                        'error' => $e->getMessage(),
-                        ]);
-                    }
-                 
-                } else {
-                    Log::warning('Thumbnail file does not exist', ['path' => $project->thumbnail_path]);
-                }
                 $headCoordinator = $coordinatorIds->first();
                 $coordinatorIds->each(function ($userId) use ($conversation, $headCoordinator) {
                     $user = User::find($userId);
