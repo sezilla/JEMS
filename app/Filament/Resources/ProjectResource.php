@@ -87,8 +87,8 @@ class ProjectResource extends Resource
                             ->columnSpan(1)
                             ->label('Event Date')
                             ->required()
-                            ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
-                            ->after('start') // Ensures 'end' is after 'start'
+                            ->default(Carbon::now()->addYear()->toDateString())
+                            ->after('start')
                             ->rules([
                                 function () {
                                     return function ($attribute, $value, $fail) {
@@ -98,8 +98,18 @@ class ProjectResource extends Resource
                                             $endDate = Carbon::parse($value);
 
                                             if ($endDate->lessThan($startDate->addMonths(4))) {
-                                                $fail('The end date must be at least 4 months after the start date.');
+                                                $fail('The event date must be at least 4 months after the start date.');
                                             }
+                                        }
+                                    };
+                                },
+                                function () {
+                                    return function ($attribute, $value, $fail) {
+                                        $date = Carbon::parse($value);
+                                        $projectCount = Project::whereDate('end', $date)->count();
+                                        
+                                        if ($projectCount >= 6) {
+                                            $fail('Max number of events (6) has been reached for this date. Please select another date.');
                                         }
                                     };
                                 }
