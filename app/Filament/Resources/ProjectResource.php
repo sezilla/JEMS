@@ -304,10 +304,10 @@ class ProjectResource extends Resource
                             ->extraImgAttributes(['class' => 'rounded-md'])
                             ->defaultImageUrl(url('https://placehold.co/150x200')),
                         Stack::make([
-                            TextColumn::make('groom_name')
+                            TextColumn::make('name')
                                 ->label('Names')
                                 ->searchable()
-                                ->limit(16)
+                                ->limit(14)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
