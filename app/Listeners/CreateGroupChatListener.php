@@ -121,7 +121,14 @@ class CreateGroupChatListener implements ShouldQueue
                 ]);
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Failed to create project coordinator group', ['error' => $e->getMessage()]);
+                Log::error('Failed to create project coordinator group', [
+                    'error' => $e->getMessage(),
+                    'project_id' => $project->id,
+                    'exception' => $e,
+                ]);
+
+                // Mark the job as failed but don't stop the queue worker
+                $this->fail($e);
             }
         }
     }

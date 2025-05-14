@@ -127,12 +127,12 @@ class ProjectResource extends Resource
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('groom_name')
-                            ->label('Groom Name')
+                            ->label('Groom`s Name')
                             ->required()
                             ->columnSpan(1)
                             ->maxLength(255),
                         Forms\Components\TextInput::make('bride_name')
-                            ->label('Bride Name')
+                            ->label('Bride`s Name')
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -140,6 +140,23 @@ class ProjectResource extends Resource
                             ->label('Special Requests')
                             ->columnSpan('full'),
                         ColorPicker::make('theme_color')
+                            ->default('#d095ed')
+                            ->label('Legends Color')
+                            ->required()
+                            ->rules([
+                                'required',
+                                'string',
+                                function () {
+                                    return function (string $attribute, $value, $fail) {
+                                        if (
+                                            !preg_match('/^#([0-9a-fA-F]{6})$/', $value) &&
+                                            !preg_match('/^[a-zA-Z]+$/', $value)
+                                        ) {
+                                            $fail('The color must be a valid hex code or color name.');
+                                        }
+                                    };
+                                },
+                            ])
                             ->columnSpan(1),
 
                         FileUpload::make('thumbnail_path')
@@ -148,7 +165,6 @@ class ProjectResource extends Resource
                             ->label('Thumbnail')
                             ->directory('thumbnails'),
                     ]),
-
 
                 Section::make()
                     ->description('Coordinators')

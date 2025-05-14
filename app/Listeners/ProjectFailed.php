@@ -52,7 +52,8 @@ class ProjectFailed implements ShouldQueue
         } catch (\Exception $e) {
             Log::error('Error handling project failure', [
                 'project_id' => $project->id,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'exception' => $e
             ]);
 
             Notification::make()
@@ -66,6 +67,9 @@ class ProjectFailed implements ShouldQueue
                         ->button()
                 ])
                 ->sendToDatabase($user);
+
+            // Mark the job as failed but don't stop the queue worker
+            $this->fail($e);
         }
     }
 }

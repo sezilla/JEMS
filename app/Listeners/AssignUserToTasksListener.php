@@ -27,7 +27,6 @@ class AssignUserToTasksListener implements ShouldQueue
     public function handle(DueDateAssignedEvent $event): void
     {
         $project = $event->project;
-
         $user = $event->project->user;
 
         try {
@@ -40,13 +39,19 @@ class AssignUserToTasksListener implements ShouldQueue
                 ->body('Successfully assigned Users to Tasks for project: ' . $project->name)
                 ->sendToDatabase($user);
         } catch (\Exception $e) {
-            Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage());
+            Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage(), [
+                'project_id' => $project->id,
+                'exception' => $e,
+            ]);
 
             Notification::make()
                 ->danger()
                 ->title('Task Assignment Failed')
                 ->body('An error occurred while assigning tasks for project: ' . $project->name)
                 ->sendToDatabase($user);
+
+            // Mark the job as failed but don't stop the queue worker
+            $this->fail($e);
         }
     }
 }
