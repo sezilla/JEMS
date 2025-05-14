@@ -2,44 +2,37 @@
 
 namespace App\Filament\Resources\TeamResource\RelationManagers;
 
+use Carbon\Carbon;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use App\Models\Project;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Enums\ProjectStatus;
 
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Support\Enums\FontWeight;
-use Filament\Support\Enums\FontFamily;
 use Illuminate\Support\Facades\Date;
 use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\VerticalAlignment;
+use Filament\Forms\Components\Section;
+use Filament\Support\Enums\FontFamily;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
+use Illuminate\Database\Eloquent\Builder;
 
-use App\Models\Project;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Support\Enums\VerticalAlignment;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
 class ProjectRelationManager extends RelationManager
 {
     protected static string $relationship = 'Projects';
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-            ]);
-    }
 
     public function table(Table $table): Table
     {
@@ -57,19 +50,23 @@ class ProjectRelationManager extends RelationManager
                             ->label('Thumbnail')
                             ->width(150)
                             ->height(200)
-                            ->extraImgAttributes(['class' => 'rounded-md']),
+                            ->extraImgAttributes(['class' => 'rounded-md'])
+                            ->defaultImageUrl(url('https://placehold.co/150x200')),
                         Stack::make([
-                            TextColumn::make('groom_name')
+                            TextColumn::make('name')
                                 ->label('Names')
                                 ->searchable()
+                                ->limit(16)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
                             TextColumn::make('description')
                                 ->limit(40)
-                                ->searchable(),
+                                ->searchable()
+                                ->placeholder('No description'),
                             Split::make([
+
                                 TextColumn::make('package.name')
                                     ->label('Package')
                                     ->searchable()
@@ -85,20 +82,53 @@ class ProjectRelationManager extends RelationManager
                                             default => 'gray',
                                         }
                                     ),
+
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()
                                     ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500)
+                                    ->copyMessageDuration(1500),
+
+                                IconColumn::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'heroicon-o-clock' => ProjectStatus::ACTIVE,
+                                        'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
+                                        'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                        'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
+                                        'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
+                                    ])
+                                    ->colors([
+                                        'success' => ProjectStatus::COMPLETED,
+                                        'warning' => ProjectStatus::ARCHIVED,
+                                        'danger' => ProjectStatus::CANCELLED,
+                                        'secondary' => ProjectStatus::ON_HOLD,
+                                        'primary' => ProjectStatus::ACTIVE,
+                                    ])
+                                    ->size('sm'),
+
                             ]),
 
-                            TextColumn::make('venue'),
+                            TextColumn::make('venue')
+                                ->placeholder('No location'),
+                            Split::make([
+                                ImageColumn::make('user.avatar_url')
+                                    ->tooltip('Event Creator')
+                                    ->label('Coordinator')
+                                    ->width(20)
+                                    ->height(20)
+                                    ->grow(false),
+                                TextColumn::make('user.name')
+                                    ->label('Coordinator')
+                                    ->searchable()
+                                    ->limit(15),
+                            ]),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
                                     // ->sortable()
                                     ->formatStateUsing(function ($column, $state) {
-                                        return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                        return '<span style="font-size: 70%; opacity: 0.7;">' . Carbon::parse($state)->format('m-d-Y') . '</span>';
                                     })
                                     ->html(),
                                 TextColumn::make('end')
@@ -108,6 +138,7 @@ class ProjectRelationManager extends RelationManager
                                     ->size(TextColumn\TextColumnSize::Large)
                                     ->alignment(Alignment::Left),
                             ]),
+
                         ])->space(3),
                     ]),
                     Split::make([
@@ -128,23 +159,7 @@ class ProjectRelationManager extends RelationManager
                                 ->badge()
                                 ->limit(8),
                         ]),
-                        Stack::make([
-                            TextColumn::make('groomCoordinator.name')
-                                ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
-                                })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
-                                ->weight(FontWeight::Thin)
-                                ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
-                                })
-                                ->html(),
-                            TextColumn::make('groomCoordinator.name')
-                                ->label('Groom Coordinator')
-                                ->searchable()
-                                ->badge()
-                                ->limit(8),
-                        ]),
+
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
@@ -158,6 +173,24 @@ class ProjectRelationManager extends RelationManager
                                 ->html(),
                             TextColumn::make('brideCoordinator.name')
                                 ->label('Bride Coordinator')
+                                ->searchable()
+                                ->badge()
+                                ->limit(8),
+                        ]),
+
+                        Stack::make([
+                            TextColumn::make('groomCoordinator.name')
+                                ->getStateUsing(function ($record) {
+                                    return 'Groom coor';
+                                })
+                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->weight(FontWeight::Thin)
+                                ->formatStateUsing(function ($column, $state) {
+                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                })
+                                ->html(),
+                            TextColumn::make('groomCoordinator.name')
+                                ->label('Groom Coordinator')
                                 ->searchable()
                                 ->badge()
                                 ->limit(8),
@@ -186,24 +219,26 @@ class ProjectRelationManager extends RelationManager
                     //     ->date()
                     //     ->sortable(),
 
-
                 ])->space(3),
+            ])->defaultSort('end', 'asc')
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+                'sm' => 1,
             ])
+            ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
-                //
-            ])
-            // ->headerActions([
-            //     Tables\Actions\CreateAction::make(),
-            // ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
-            ])
-
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Filters\Filter::make('completed')
+                    ->label('Completed')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.completed'))),
+                Tables\Filters\Filter::make('canceled')
+                    ->label('Canceled')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.canceled'))),
+                Tables\Filters\Filter::make('on_hold')
+                    ->label('On Hold')
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
+                Tables\Filters\TrashedFilter::make()
+                    ->label('Deleted')
             ]);
     }
 }

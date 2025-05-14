@@ -111,7 +111,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                managepackage::class,
+                // managepackage::class,
             ])
             //wirechat
             ->renderHook(

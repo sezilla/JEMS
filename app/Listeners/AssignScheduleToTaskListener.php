@@ -30,7 +30,6 @@ class AssignScheduleToTaskListener implements ShouldQueue
     public function handle(TrelloBoardIsFinalEvent $event): void
     {
         $project = $event->project;
-
         $user = $event->project->user;
 
         try {
@@ -48,13 +47,23 @@ class AssignScheduleToTaskListener implements ShouldQueue
                 ->body('The task schedules for your project have been successfully assigned.')
                 ->sendToDatabase($user);
 
+            // Dispatch next event in the workflow
             DueDateAssignedEvent::dispatch($project);
         } catch (\Exception $e) {
+            Log::error('Error assigning task schedules: ' . $e->getMessage(), [
+                'project_id' => $project->id ?? null,
+                'task' => 'assignTaskSchedules or syncChecklist',
+                'exception' => $e,
+            ]);
+
             Notification::make()
                 ->danger()
                 ->title('Error Assigning Task Schedules')
                 ->body('An error occurred while assigning task schedules: ' . $e->getMessage())
                 ->sendToDatabase($user);
+
+            // Mark the job as failed but don't stop the queue worker
+            $this->fail($e);
         }
     }
 }

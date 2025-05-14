@@ -3,39 +3,26 @@
 namespace App\Filament\App\Resources;
 
 use Carbon\Carbon;
-use App\Models\Task;
-use App\Models\User;
 use Filament\Tables;
 use App\Models\Package;
 use App\Models\Project;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Enums\ProjectStatus;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
-use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
-use Filament\Forms\Components\Section;
-
 use Filament\Support\Enums\FontFamily;
 use Filament\Support\Enums\FontWeight;
-use Filament\Forms\Components\Repeater;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\MarkdownEditor;
-use Filament\Support\Enums\VerticalAlignment;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\App\Resources\ProjectResource\Pages;
-use App\Filament\App\Resources\ProjectResource\RelationManagers;
 
 $user = Auth::user();
 
@@ -46,217 +33,15 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
-    // public static function form(Form $form): Form
-    // {
-    //     return $form
-    //         ->schema([
-    //             Section::make()
-    //                 ->description('Project details')
-    //                 ->collapsible()
-    //                 ->schema([
-    //                     TextInput::make('name')
-    //                         ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject)
-    //                         ->columnSpan(1)
-    //                         ->required()
-    //                         ->maxLength(255),
-    //                     Select::make('package_id')
-    //                         ->label('Packages')
-    //                         ->required()
-    //                         ->preload()
-    //                         ->searchable()
-    //                         ->options(Package::all()->pluck('name', 'id'))
-    //                         ->disabled(fn($record) => $record !== null),
-    //                     MarkdownEditor::make('description')
-    //                         ->columnSpanFull(),
-
-
-    //                     DatePicker::make('start')
-    //                         ->columnSpan(1)
-    //                         ->label('Start Date')
-    //                         ->required()
-    //                         ->default(now()->toDateString()),
-    //                     DatePicker::make('end')
-    //                         ->columnSpan(1)
-    //                         ->label('Event Date')
-    //                         ->required()
-    //                         ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
-    //                         ->after('start') // Ensures 'end' is after 'start'
-    //                         ->rules([
-    //                             function () {
-    //                                 return function ($attribute, $value, $fail) {
-    //                                     $start = request()->input('start');
-    //                                     if ($start) {
-    //                                         $startDate = Carbon::parse($start);
-    //                                         $endDate = Carbon::parse($value);
-
-    //                                         if ($endDate->lessThan($startDate->addMonths(4))) {
-    //                                             $fail('The end date must be at least 4 months after the start date.');
-    //                                         }
-    //                                     }
-    //                                 };
-    //                             }
-    //                         ]),
-
-    //                     TextInput::make('venue')
-    //                         ->maxLength(255),
-    //                 ])
-    //                 ->columns(3),
-
-    //             Section::make()
-    //                 ->description('Couple Details')
-    //                 ->collapsible()
-    //                 ->columns(2)
-    //                 ->schema([
-    //                     TextInput::make('groom_name')
-    //                         ->label('Groom Name')
-    //                         ->required()
-    //                         ->columnSpan(1)
-    //                         ->maxLength(255),
-    //                     TextInput::make('bride_name')
-    //                         ->label('Bride Name')
-    //                         ->columnSpan(1)
-    //                         ->required()
-    //                         ->maxLength(255),
-    //                     MarkdownEditor::make('special_request')
-    //                         ->label('Special Requests')
-    //                         ->columnSpan('full'),
-    //                     ColorPicker::make('theme_color')
-    //                         ->columnSpan(1),
-
-    //                     FileUpload::make('thumbnail_path')
-    //                         ->disk('public')
-    //                         ->columnSpan(1)
-    //                         ->label('Thumbnail')
-    //                         ->directory('thumbnails'),
-    //                 ]),
-
-
-    //             Section::make()
-    //                 ->description('Coordinators')
-    //                 ->collapsible()
-    //                 ->columns(3)
-    //                 ->schema([
-    //                     Select::make('head_coordinator')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Head Coordinator')
-    //                         ->required()
-    //                         ->searchable()
-    //                         ->preload(),
-
-    //                     Select::make('bride_coordinator')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Bride Coordinator')
-    //                         ->required()
-    //                         ->searchable()
-    //                         ->preload(),
-
-    //                     Select::make('groom_coordinator')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Groom Coordinator')
-    //                         ->required()
-    //                         ->searchable()
-    //                         ->preload(),
-
-    //                     Select::make('head_coor_assistant')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Head Coordinator Assistant')
-    //                         ->searchable()
-    //                         ->preload()
-    //                         ->nullable(),
-
-    //                     Select::make('bride_coor_assistant')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Bride Coordinator Assistant')
-    //                         ->searchable()
-    //                         ->preload()
-    //                         ->nullable(),
-
-    //                     Select::make('groom_coor_assistant')
-    //                         ->options(User::all()->pluck('name', 'id'))
-    //                         ->relationship('coordinators', 'name', function ($query) {
-    //                             $query->whereHas('roles', function ($q) {
-    //                                 $q->where('name', 'Coordinator');
-    //                             });
-    //                         })
-    //                         ->label('Groom Coordinator Assistant')
-    //                         ->searchable()
-    //                         ->preload()
-    //                         ->nullable(),
-
-    //                 ]),
-
-    //             Section::make()
-    //                 ->description('Teams')
-    //                 ->visible(fn($livewire) => $livewire instanceof Pages\ViewProject || $livewire instanceof Pages\EditProject)
-    //                 ->collapsible()
-    //                 ->schema([
-    //                     Repeater::make('teams')
-    //                         ->label('')
-    //                         ->relationship('teams')
-    //                         ->grid(3)
-    //                         ->schema([
-    //                             Select::make('team_id')
-    //                                 ->label('')
-    //                                 ->options(function () {
-    //                                     return \App\Models\Team::with('departments')
-    //                                         ->get()
-    //                                         ->mapWithKeys(function ($team) {
-    //                                             return [$team->id => $team->name];
-    //                                         });
-    //                                 })
-    //                                 ->searchable()
-    //                                 ->preload()
-    //                                 ->required()
-    //                                 ->columnSpanFull(),
-    //                         ])
-    //                         ->defaultItems(1)
-    //                         ->addActionLabel('Add Team')
-    //                         // ->reorderable(true)
-    //                         ->itemLabel(function (array $state): ?string {
-    //                             $teamId = $state['team_id'] ?? null;
-    //                             if (!$teamId) {
-    //                                 return 'Team';
-    //                             }
-    //                             $team = \App\Models\Team::with('departments')->find($teamId);
-    //                             return $team && $team->departments->isNotEmpty()
-    //                                 ? ucfirst($team->departments->first()->name) . ' Team'
-    //                                 : 'Team';
-    //                         })
-    //                         ->saveRelationshipsUsing(function ($record, $state) {
-    //                             $record->teams()->sync(collect($state)->pluck('team_id')->filter());
-    //                         }),
-    //                 ]),
-    //         ]);
-    // }
-
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return Project::forUser(Auth::user());
+            })
+            ->recordUrl(
+                fn(Project $record): string => static::getUrl('task', ['record' => $record])
+            )
             ->columns([
                 Stack::make([
                     Split::make([
@@ -265,19 +50,23 @@ class ProjectResource extends Resource
                             ->label('Thumbnail')
                             ->width(150)
                             ->height(200)
-                            ->extraImgAttributes(['class' => 'rounded-md']),
+                            ->extraImgAttributes(['class' => 'rounded-md'])
+                            ->defaultImageUrl(url('https://placehold.co/150x200')),
                         Stack::make([
                             TextColumn::make('groom_name')
                                 ->label('Names')
                                 ->searchable()
+                                ->limit(16)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
                             TextColumn::make('description')
                                 ->limit(40)
-                                ->searchable(),
+                                ->searchable()
+                                ->placeholder('No description'),
                             Split::make([
+
                                 TextColumn::make('package.name')
                                     ->label('Package')
                                     ->searchable()
@@ -293,19 +82,47 @@ class ProjectResource extends Resource
                                             default => 'gray',
                                         }
                                     ),
+
                                 ColorColumn::make('theme_color')
                                     ->label('Theme Color')
                                     ->copyable()
                                     ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500)
+                                    ->copyMessageDuration(1500),
+
+                                IconColumn::make('status')
+                                    ->label('Status')
+                                    ->options([
+                                        'heroicon-o-clock' => ProjectStatus::ACTIVE,
+                                        'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
+                                        'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                        'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
+                                        'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
+                                    ])
+                                    ->colors([
+                                        'success' => ProjectStatus::COMPLETED,
+                                        'warning' => ProjectStatus::ARCHIVED,
+                                        'danger' => ProjectStatus::CANCELLED,
+                                        'secondary' => ProjectStatus::ON_HOLD,
+                                        'primary' => ProjectStatus::ACTIVE,
+                                    ])
+                                    ->size('sm'),
+
                             ]),
 
-                            TextColumn::make('venue'),
-                            ImageColumn::make('user.avatar_url')
-                                ->tooltip(fn($record) => $record->user->name)
-                                ->label('Coordinator')
-                                ->width(20)
-                                ->height(20),
+                            TextColumn::make('venue')
+                                ->placeholder('No location'),
+                            Split::make([
+                                ImageColumn::make('user.avatar_url')
+                                    ->tooltip('Event Creator')
+                                    ->label('Coordinator')
+                                    ->width(20)
+                                    ->height(20)
+                                    ->grow(false),
+                                TextColumn::make('user.name')
+                                    ->label('Coordinator')
+                                    ->searchable()
+                                    ->limit(15),
+                            ]),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
@@ -409,7 +226,6 @@ class ProjectResource extends Resource
                 'xl' => 3,
                 'sm' => 1,
             ])
-            // ->recordAction('task')
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 Tables\Filters\Filter::make('completed')
@@ -424,11 +240,10 @@ class ProjectResource extends Resource
                 Tables\Filters\TrashedFilter::make()
                     ->label('Deleted')
             ])
-            ->filters([
-                //
-            ])
             ->actions([
+                // ForceDeleteAction::make()
                 // Tables\Actions\EditAction::make(),
+                // Tables\Actions\ViewAction::make()
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
@@ -456,7 +271,7 @@ class ProjectResource extends Resource
             'index' => Pages\ListProjects::route('/'),
             // 'view' => Pages\ViewProject::route('/{record}'),
             // 'create' => Pages\CreateProject::route('/create'),
-            'task' => Pages\task::route('/{record}/task'),
+            'task' => Pages\task::route('/{record}'),
             // 'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }

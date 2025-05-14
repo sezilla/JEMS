@@ -3,6 +3,7 @@
 namespace app\Filament\App\Widgets;
 
 use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Auth;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 use Saade\FilamentFullCalendar\Data\EventData;
 use App\Filament\Resources\ProjectResource;
@@ -18,7 +19,7 @@ class ProjectCalendar extends FullCalendarWidget
 
     public function fetchEvents(array $fetchInfo): array
     {
-        return Project::query()
+        return Project::forUser(Auth::user())
             ->where(function ($query) use ($fetchInfo) {
                 $query->where('start', '<=', $fetchInfo['end'])
                     ->where('end', '>=', $fetchInfo['start']);
@@ -33,7 +34,7 @@ class ProjectCalendar extends FullCalendarWidget
                     ->borderColor($event->theme_color)
                     ->end($event->end)
                     ->url(
-                        url: ProjectResource::getUrl(name: 'view', parameters: ['record' => $event]),
+                        url: ProjectResource::getUrl(name: 'task', parameters: ['record' => $event]),
                         shouldOpenUrlInNewTab: false
                     )
             )

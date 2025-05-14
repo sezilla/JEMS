@@ -87,8 +87,8 @@ class ProjectResource extends Resource
                             ->columnSpan(1)
                             ->label('Event Date')
                             ->required()
-                            ->default(Carbon::now()->addYear()->toDateString()) // Default: 1 year from today
-                            ->after('start') // Ensures 'end' is after 'start'
+                            ->default(Carbon::now()->addYear()->toDateString())
+                            ->after('start')
                             ->rules([
                                 function () {
                                     return function ($attribute, $value, $fail) {
@@ -98,8 +98,18 @@ class ProjectResource extends Resource
                                             $endDate = Carbon::parse($value);
 
                                             if ($endDate->lessThan($startDate->addMonths(4))) {
-                                                $fail('The end date must be at least 4 months after the start date.');
+                                                $fail('The event date must be at least 4 months after the start date.');
                                             }
+                                        }
+                                    };
+                                },
+                                function () {
+                                    return function ($attribute, $value, $fail) {
+                                        $date = Carbon::parse($value);
+                                        $projectCount = Project::whereDate('end', $date)->count();
+
+                                        if ($projectCount >= 6) {
+                                            $fail('Max number of events (6) has been reached for this date. Please select another date.');
                                         }
                                     };
                                 }
@@ -117,12 +127,12 @@ class ProjectResource extends Resource
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('groom_name')
-                            ->label('Groom Name')
+                            ->label('Groom`s Name')
                             ->required()
                             ->columnSpan(1)
                             ->maxLength(255),
                         Forms\Components\TextInput::make('bride_name')
-                            ->label('Bride Name')
+                            ->label('Bride`s Name')
                             ->columnSpan(1)
                             ->required()
                             ->maxLength(255),
@@ -130,6 +140,23 @@ class ProjectResource extends Resource
                             ->label('Special Requests')
                             ->columnSpan('full'),
                         ColorPicker::make('theme_color')
+                            ->default('#d095ed')
+                            ->label('Legends Color')
+                            ->required()
+                            ->rules([
+                                'required',
+                                'string',
+                                function () {
+                                    return function (string $attribute, $value, $fail) {
+                                        if (
+                                            !preg_match('/^#([0-9a-fA-F]{6})$/', $value) &&
+                                            !preg_match('/^[a-zA-Z]+$/', $value)
+                                        ) {
+                                            $fail('The color must be a valid hex code or color name.');
+                                        }
+                                    };
+                                },
+                            ])
                             ->columnSpan(1),
 
                         FileUpload::make('thumbnail_path')
@@ -138,7 +165,6 @@ class ProjectResource extends Resource
                             ->label('Thumbnail')
                             ->directory('thumbnails'),
                     ]),
-
 
                 Section::make()
                     ->description('Coordinators')
@@ -275,18 +301,21 @@ class ProjectResource extends Resource
                             ->label('Thumbnail')
                             ->width(150)
                             ->height(200)
-                            ->extraImgAttributes(['class' => 'rounded-md']),
+                            ->extraImgAttributes(['class' => 'rounded-md'])
+                            ->defaultImageUrl(url('https://placehold.co/150x200')),
                         Stack::make([
                             TextColumn::make('groom_name')
                                 ->label('Names')
                                 ->searchable()
+                                ->limit(16)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
                             TextColumn::make('description')
                                 ->limit(40)
-                                ->searchable(),
+                                ->searchable()
+                                ->placeholder('No description'),
                             Split::make([
 
                                 TextColumn::make('package.name')
@@ -331,12 +360,20 @@ class ProjectResource extends Resource
 
                             ]),
 
-                            TextColumn::make('venue'),
-                            ImageColumn::make('user.avatar_url')
-                                ->tooltip(fn($record) => $record->user->name)
-                                ->label('Coordinator')
-                                ->width(20)
-                                ->height(20),
+                            TextColumn::make('venue')
+                                ->placeholder('No location'),
+                            Split::make([
+                                ImageColumn::make('user.avatar_url')
+                                    ->tooltip('Event Creator')
+                                    ->label('Coordinator')
+                                    ->width(20)
+                                    ->height(20)
+                                    ->grow(false),
+                                TextColumn::make('user.name')
+                                    ->label('Coordinator')
+                                    ->searchable()
+                                    ->limit(15),
+                            ]),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
