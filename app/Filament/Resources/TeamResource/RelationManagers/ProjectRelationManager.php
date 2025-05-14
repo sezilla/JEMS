@@ -50,18 +50,21 @@ class ProjectRelationManager extends RelationManager
                             ->label('Thumbnail')
                             ->width(150)
                             ->height(200)
-                            ->extraImgAttributes(['class' => 'rounded-md']),
+                            ->extraImgAttributes(['class' => 'rounded-md'])
+                            ->defaultImageUrl(url('https://placehold.co/150x200')),
                         Stack::make([
-                            TextColumn::make('groom_name')
+                            TextColumn::make('name')
                                 ->label('Names')
                                 ->searchable()
+                                ->limit(16)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
                                 }),
                             TextColumn::make('description')
                                 ->limit(40)
-                                ->searchable(),
+                                ->searchable()
+                                ->placeholder('No description'),
                             Split::make([
 
                                 TextColumn::make('package.name')
@@ -106,12 +109,20 @@ class ProjectRelationManager extends RelationManager
 
                             ]),
 
-                            TextColumn::make('venue'),
-                            ImageColumn::make('user.avatar_url')
-                                ->tooltip(fn($record) => $record->user->name)
-                                ->label('Coordinator')
-                                ->width(20)
-                                ->height(20),
+                            TextColumn::make('venue')
+                                ->placeholder('No location'),
+                            Split::make([
+                                ImageColumn::make('user.avatar_url')
+                                    ->tooltip('Event Creator')
+                                    ->label('Coordinator')
+                                    ->width(20)
+                                    ->height(20)
+                                    ->grow(false),
+                                TextColumn::make('user.name')
+                                    ->label('Coordinator')
+                                    ->searchable()
+                                    ->limit(15),
+                            ]),
                             Stack::make([
                                 TextColumn::make('start')
                                     ->date()
@@ -228,16 +239,6 @@ class ProjectRelationManager extends RelationManager
                     ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
                 Tables\Filters\TrashedFilter::make()
                     ->label('Deleted')
-            ])
-            ->actions([
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\DeleteAction::make(),
-            ])
-
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
             ]);
     }
 }

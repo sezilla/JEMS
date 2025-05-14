@@ -56,24 +56,24 @@ class SkillResource extends Resource
                             ->multiple(),
                     ]),
             ]);
-            // ->schema([
-            //     Forms\Components\TextInput::make('name')
-            //         ->required()
-            //         ->maxLength(255),
-            //     Forms\Components\Select::make('task_id')
-            //         ->label('Task')
-            //         ->relationship('task', 'name')
-            //         ->required()
-            //         ->multiple(),
-            //     Forms\Components\Select::make('department_id')
-            //         ->label('Department')
-            //         ->relationship('department', 'name')
-            //         ->required()
-            //         ->multiple(),
-            //     Forms\Components\MarkdownEditor::make('description')
-            //         ->required()
-            //         ->columnSpanFull(),
-            // ]);
+        // ->schema([
+        //     Forms\Components\TextInput::make('name')
+        //         ->required()
+        //         ->maxLength(255),
+        //     Forms\Components\Select::make('task_id')
+        //         ->label('Task')
+        //         ->relationship('task', 'name')
+        //         ->required()
+        //         ->multiple(),
+        //     Forms\Components\Select::make('department_id')
+        //         ->label('Department')
+        //         ->relationship('department', 'name')
+        //         ->required()
+        //         ->multiple(),
+        //     Forms\Components\MarkdownEditor::make('description')
+        //         ->required()
+        //         ->columnSpanFull(),
+        // ]);
     }
 
     public static function table(Table $table): Table
@@ -90,19 +90,19 @@ class SkillResource extends Resource
                     ]),
                     Split::make([
                         Tables\Columns\TextColumn::make('department.name')
-                        ->searchable()
-                        ->badge()
-                        ->width('10%')
-                        ->color(
-                            fn (string $state): string => match ($state) {
-                                'Catering' => 'Catering',
-                                'Hair and Makeup' => 'Hair',
-                                'Photo and Video' => 'Photo',
-                                'Designing' => 'Designing',
-                                'Entertainment' => 'Entertainment',
-                                'Coordination' => 'Coordination',
-                            }
-                        ),
+                            ->searchable()
+                            ->badge()
+                            ->width('10%')
+                            ->color(
+                                fn(string $state): string => match ($state) {
+                                    'Catering' => 'Catering',
+                                    'Hair and Makeup' => 'Hair',
+                                    'Photo and Video' => 'Photo',
+                                    'Designing' => 'Designing',
+                                    'Entertainment' => 'Entertainment',
+                                    'Coordination' => 'Coordination',
+                                }
+                            ),
                     ]),
                 ])
             ])
