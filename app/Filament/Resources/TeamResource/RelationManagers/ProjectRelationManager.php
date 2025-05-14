@@ -115,6 +115,7 @@ class ProjectRelationManager extends RelationManager
                                 ImageColumn::make('user.avatar_url')
                                     ->tooltip('Event Creator')
                                     ->label('Coordinator')
+                                    ->circular()
                                     ->width(20)
                                     ->height(20)
                                     ->grow(false),

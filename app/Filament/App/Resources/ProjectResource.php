@@ -117,6 +117,7 @@ class ProjectResource extends Resource
                                     ->label('Coordinator')
                                     ->width(20)
                                     ->height(20)
+                                    ->circular()
                                     ->grow(false),
                                 TextColumn::make('user.name')
                                     ->label('Coordinator')
