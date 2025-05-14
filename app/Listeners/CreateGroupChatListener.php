@@ -114,6 +114,12 @@ class CreateGroupChatListener implements ShouldQueue
                     ->body('You have been assigned as Coordinator for: ' . $project->name)
                     ->sendToDatabase($users);
 
+                Notification::make()
+                    ->success()
+                    ->title('Group chat Created')
+                    ->body('Group chat created successfully for: ' . $project->name . 'for Coordinators')
+                    ->sendToDatabase(User::find($project->user()));
+
                 Log::info('Project coordinator group conversation created', [
                     'project_id' => $project->id,
                     'conversation_id' => $conversation->id,
