@@ -10,7 +10,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 
 Route::get('/', function () {
-    return view('landing2');
+    return view('welcomepage-final');
 });
 
 Route::get('/about', function () {
