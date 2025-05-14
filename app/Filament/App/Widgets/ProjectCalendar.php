@@ -3,6 +3,7 @@
 namespace app\Filament\App\Widgets;
 
 use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Auth;
 use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 use Saade\FilamentFullCalendar\Data\EventData;
 use App\Filament\Resources\ProjectResource;
@@ -18,7 +19,7 @@ class ProjectCalendar extends FullCalendarWidget
 
     public function fetchEvents(array $fetchInfo): array
     {
-        return Project::query()
+        return Project::forUser(Auth::user())
             ->where(function ($query) use ($fetchInfo) {
                 $query->where('start', '<=', $fetchInfo['end'])
                     ->where('end', '>=', $fetchInfo['start']);

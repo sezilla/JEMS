@@ -2,13 +2,14 @@
 
 namespace App\Http\Middleware;
 
-use App\Filament\App\Resources\ProjectResource;
 use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Filament\Facades\Filament;
 use App\Models\Project;
+use Illuminate\Http\Request;
+use Filament\Facades\Filament;
+use Illuminate\Support\Facades\Auth;
 use Filament\Navigation\NavigationItem;
+use Symfony\Component\HttpFoundation\Response;
+use App\Filament\App\Resources\ProjectResource;
 
 class AddUserProjectsMiddleware
 {
@@ -19,7 +20,7 @@ class AddUserProjectsMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             return $next($request);
         }
 
@@ -30,7 +31,7 @@ class AddUserProjectsMiddleware
         $itemsList = [];
 
         // Fetch projects associated with the authenticated user using the scope
-        $user = auth()->user();
+        $user = Auth::user();
         $projects = Project::forUser($user)->get(); // Use the scopeForUser here
 
         foreach ($projects as $project) {
