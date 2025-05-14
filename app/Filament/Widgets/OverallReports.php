@@ -80,7 +80,7 @@ class OverallReports extends BaseWidget
                     ->label('Project Name')
                     ->url(fn(Project $record): string => ProjectResource::getUrl('edit', ['record' => $record]))
                     ->searchable()
-                    ->limit(30),
+                    ->limit(20),
                 TextColumn::make('package.name')
                     ->label('Package Name')
                     ->searchable()
@@ -97,6 +97,8 @@ class OverallReports extends BaseWidget
                     }),
                 TextColumn::make('venue')
                     ->label('Location')
+                    ->placeholder('No location')
+                    ->limit(20)
                     ->searchable(),
                 TextColumn::make('end')
                     ->label('Wedding Date')
@@ -108,7 +110,7 @@ class OverallReports extends BaseWidget
                 TextColumn::make('headCoordinator.name')
                     ->label('Head Coordinator')
                     ->description(
-                        fn(Project $record): string => ($record->groomCoordinator->name ?? 'N/A') . ' & ' . ($record->brideCoordinator->name ?? 'N/A')
+                        fn(Project $record): string => (substr($record->groomCoordinator->name ?? 'N/A', 0, 8)) . ' & ' . (substr($record->brideCoordinator->name ?? 'N/A', 0, 8))
                     ),
                 TextColumn::make('status')
                     ->label('Status')
@@ -135,6 +137,7 @@ class OverallReports extends BaseWidget
                         }
                         return implode("<br>", $teams);
                     })
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->html(),
                 TextColumn::make('department_progress')
                     ->label('Task Per Department Progress')
@@ -142,9 +145,10 @@ class OverallReports extends BaseWidget
                         $percentages = app(DashboardService::class)->getCardCompletedPercentage($record->id);
                         return $percentages;
                     })
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->html(),
                 TextColumn::make('overall_progress')
-                    ->label('Overall Progress')
+                    ->label('Progress')
                     ->getStateUsing(function ($record) {
                         $percentages = app(\App\Services\ProjectService::class)->getProjectProgress($record);
 
