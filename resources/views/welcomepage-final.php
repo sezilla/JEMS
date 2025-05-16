@@ -191,6 +191,37 @@ html {
 body {
     overflow-x: hidden;
 }
+
+/* Responsive font sizes for banner_taital */
+@media (max-width: 1200px) {
+    .banner_taital {
+        font-size: 42px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .banner_taital {
+        font-size: 36px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .banner_taital {
+        font-size: 32px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .banner_taital {
+        font-size: 28px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .banner_taital {
+        font-size: 24px !important;
+    }
+}
 </style>
 
       <!-- <div class="header_section">
@@ -578,7 +609,7 @@ body {
                            </a>
                         </li>
                         <li>
-                           <a href="#">
+                           <a href="mailto:jhossaeventmanagement@gmail.com">
                            <span class="padding_left_10"><i class="fa fa-envelope" aria-hidden="true"></i></span>jhossaeventmanagement@gmail.com
                            </a>
                         </li>
