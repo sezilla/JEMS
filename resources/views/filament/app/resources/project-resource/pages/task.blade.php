@@ -229,6 +229,6 @@
     <livewire:project-progress-cards :project="$project" />
 
     {{-- <livewire:project-trello-tasks :project="$project" /> --}}
-    <livewire:project-task-table :project="$project" />
-    <livewire:project-task :project="$project" />
+    {{-- <livewire:project-task-table :project="$project" /> --}}
+    {{-- <livewire:project-task :project="$project" /> --}}
 </x-filament::page>

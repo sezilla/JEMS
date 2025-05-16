@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PriorityLevel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,12 +22,14 @@ class UserTask extends Model
         'due_date',
         'project_id',
         'card_name',
-        'attachment'
+        'attachment',
+        'priority_level'
     ];
 
     protected $casts = [
         'due_date' => 'date',
         'attachment' => 'array',
+        'priority_level' => PriorityLevel::class,
     ];
 
     public function users(): BelongsTo
