@@ -39,7 +39,7 @@ class UserTask extends Model
 
     public function scopeForUser($query, $user)
     {
-        if (Auth::check() && Auth::user()->hasRole('Coordinator')) {
+        if (Auth::check() && optional(Auth::user())->hasRole('Coordinator')) {
             return $query;
         }
 
@@ -49,5 +49,10 @@ class UserTask extends Model
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id');
     }
 }

@@ -204,15 +204,3 @@ Please communicate with the team before making any changes to avoid breaking the
 ## 📄 License
 
 This project is proprietary software. All rights reserved.
-
-old:
-
-```bash
-php artisan migrate:fresh
-php artisan db:seed
-php artisan shield:install --fresh
-php artisan shield:generate
-php artisan db:seed --class=Roles
-php artisan db:seed --class=PackageTaskSeeder
-php artisan db:seed --class=SkillTask
-```

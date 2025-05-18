@@ -74,7 +74,7 @@ class PendingList extends Component implements HasTable, HasForms
                         if ($data) {
 
                             try {
-                                $record->update(['status' => 'approved', 'approved_by' => Auth::user()->id]);
+                                $record->update(['status' => 'complete', 'approved_by' => Auth::user()->id]);
 
                                 $data->user_checklist = array_map(function ($card) use ($record) {
                                     $card['checklists'] = array_map(function ($checklist) use ($record) {

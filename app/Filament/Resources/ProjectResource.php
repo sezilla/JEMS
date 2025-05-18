@@ -53,6 +53,29 @@ class ProjectResource extends Resource
 
     protected static ?string $label = 'Events';
 
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'name',
+            'groom_name',
+            'bride_name',
+            'package.name',
+            'status',
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Groom' => $record->groom_name,
+            'Bride' => $record->bride_name,
+            'Date' => $record->end?->format('M d, Y'),
+            'Package' => $record->package->name,
+            'Status' => $record->status?->label(),
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -126,22 +149,22 @@ class ProjectResource extends Resource
                     ->collapsible()
                     ->columns(2)
                     ->schema([
-                        Forms\Components\TextInput::make('groom_name')
-                            ->label('Groom`s Name')
-                            ->required()
-                            ->columnSpan(1)
-                            ->maxLength(255),
                         Forms\Components\TextInput::make('bride_name')
                             ->label('Bride`s Name')
                             ->columnSpan(1)
                             ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('groom_name')
+                            ->label('Groom`s Name')
+                            ->required()
+                            ->columnSpan(1)
                             ->maxLength(255),
                         Forms\Components\MarkdownEditor::make('special_request')
                             ->label('Special Requests')
                             ->columnSpan('full'),
                         ColorPicker::make('theme_color')
                             ->default('#d095ed')
-                            ->label('Legends Color')
+                            ->label('Legend')
                             ->required()
                             ->rules([
                                 'required',

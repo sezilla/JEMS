@@ -28,9 +28,6 @@ use Filament\Tables\Columns\Layout\Split;
 
 
 
-
-
-
 class TeamResource extends Resource
 {
     protected static ?string $model = Team::class;
@@ -38,6 +35,14 @@ class TeamResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static ?string $navigationIcon = 'heroicon-o-squares-plus';
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Department' => $record->departments->pluck('name')->join(', '),
+        ];
+    }
 
     public static function form(Form $form): Form
     {
