@@ -29,6 +29,14 @@ class TaskCategoryResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
     protected static ?string $label = 'Task Duration';
 
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Description' => $record->description,
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

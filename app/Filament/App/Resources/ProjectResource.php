@@ -28,10 +28,34 @@ $user = Auth::user();
 
 class ProjectResource extends Resource
 {
-
     protected static ?string $model = Project::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return [
+            'name',
+            'groom_name',
+            'bride_name',
+            'package.name',
+            'status',
+        ];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Groom' => $record->groom_name,
+            'Bride' => $record->bride_name,
+            'Date' => $record->end?->format('M d, Y'),
+            'Package' => $record->package->name,
+            'Status' => $record->status?->label(),
+        ];
+    }
 
     public static function table(Table $table): Table
     {
@@ -231,13 +255,13 @@ class ProjectResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('completed')
                     ->label('Completed')
-                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.completed'))),
+                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::COMPLETED->value)),
                 Tables\Filters\Filter::make('canceled')
                     ->label('Canceled')
-                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.canceled'))),
+                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::CANCELLED->value)),
                 Tables\Filters\Filter::make('on_hold')
                     ->label('On Hold')
-                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
+                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::ON_HOLD->value)),
                 Tables\Filters\TrashedFilter::make()
                     ->label('Deleted')
             ])

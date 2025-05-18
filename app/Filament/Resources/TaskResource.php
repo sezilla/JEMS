@@ -30,6 +30,15 @@ class TaskResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-check';
 
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Department' => $record->department->name,
+            'Package' => $record->packages->pluck('name')->join(', '),
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

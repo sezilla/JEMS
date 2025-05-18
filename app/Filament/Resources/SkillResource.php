@@ -23,6 +23,14 @@ class SkillResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-light-bulb';
 
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Name' => $record->name,
+            'Department' => $record->department->name,
+        ];
+    }
+
     public static function form(Form $form): Form
     {
         return $form

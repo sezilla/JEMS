@@ -47,6 +47,32 @@ class ProjectTaskTable extends BaseWidget
 
     protected static ?string $heading = 'Event Tasks';
 
+    protected static ?string $recordTitleAttribute = 'task_name';
+
+    protected static bool $shouldCheckAccess = true;
+
+    public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->where('project_id', request()->route('record'));
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Task' => $record->task_name,
+            'Department' => $record->card_name,
+            'Due Date' => $record->due_date?->format('M d, Y'),
+            'Status' => ucfirst($record->status),
+            'Priority' => $record->priority_level?->value,
+            'Assigned To' => $record->users?->name,
+        ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['task_name', 'card_name', 'status', 'users.name'];
+    }
+
     public function table(Table $table): Table
     {
         $query = UserTask::forUser(Auth::user()->id)

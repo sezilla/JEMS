@@ -42,7 +42,7 @@ class UserResource extends Resource
         return [
             $record->roles->pluck('name')->join(', '),
             $record->teams->first()?->departments->first()?->name,
-            $record->teams->pluck('name')->join(', '),
+            $record->skills->pluck('name')->join(', '),
         ];
     }
 
