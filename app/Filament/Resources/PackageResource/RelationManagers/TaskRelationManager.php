@@ -43,7 +43,7 @@ class TaskRelationManager extends RelationManager
                     }),
 
                 Forms\Components\Select::make('task_category_id')
-                    ->label('Category')
+                    ->label('Duration')
                     ->relationship('category', 'name')
                     ->disabled(fn(Get $get) => $get('id') !== null)
                     ->required()
@@ -101,7 +101,7 @@ class TaskRelationManager extends RelationManager
                     ->options(function () {
                         return TaskCategory::pluck('name', 'id');
                     })
-                    ->label('Category')
+                    ->label('Duration')
                     ->relationship('category', 'name'),
             ])
             ->headerActions([
@@ -176,7 +176,7 @@ class TaskRelationManager extends RelationManager
                             ->disabled(fn(Task $record) => $record->exists),
 
                         Forms\Components\Select::make('task_category_id')
-                            ->label('Category')
+                            ->label('Duration')
                             ->relationship('category', 'name')
                             ->required()
                             ->preload()

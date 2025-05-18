@@ -56,7 +56,7 @@ class ProjectRelationManager extends RelationManager
                             TextColumn::make('name')
                                 ->label('Names')
                                 ->searchable()
-                                ->limit(16)
+                                ->limit(14)
                                 ->size(TextColumn\TextColumnSize::Large)
                                 ->getStateUsing(function ($record) {
                                     return $record->groom_name . ' & ' . $record->bride_name;
@@ -115,6 +115,7 @@ class ProjectRelationManager extends RelationManager
                                 ImageColumn::make('user.avatar_url')
                                     ->tooltip('Event Creator')
                                     ->label('Coordinator')
+                                    ->circular()
                                     ->width(20)
                                     ->height(20)
                                     ->grow(false),

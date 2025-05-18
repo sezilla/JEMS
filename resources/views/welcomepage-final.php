@@ -17,6 +17,8 @@
       <link rel="stylesheet" type="text/css" href="css/landingpage/bootstrap.min.css">
       <!-- style css -->
       <link rel="stylesheet" type="text/css" href="css/landingpage/style.css">
+      <!-- Fullscreen css -->
+      <link rel="stylesheet" type="text/css" href="css/landingpage/fullscreen.css">
       <!-- Responsive-->
       <link rel="stylesheet" href="css/landingpage/responsive.css">
       <!-- fevicon -->
@@ -52,7 +54,7 @@
                   <a class="nav-link" href="#services">Services</a>
                </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
+            <form class="form-inline my-2 my-lg-0 mobile-login">
                <!-- Dropdown for Login and Admin Login -->
                <div class="dropdown">
                   <button class="btn dropdown-toggle" type="button" id="loginDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -69,6 +71,158 @@
    </div>
 </div>
 
+<style>
+@media (max-width: 991px) {
+    .mobile-login {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .mobile-login .dropdown {
+        width: auto;
+    }
+    
+    .mobile-login .btn {
+        width: 100%;
+        min-width: 120px;
+    }
+    
+    .navbar-collapse {
+        text-align: center;
+    }
+    
+    .navbar-nav {
+        margin-bottom: 0;
+    }
+
+    /* Add footer logo mobile styles */
+    .footer-logo {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Add styles for dropdown in full screen */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    min-width: 160px;
+    z-index: 1000;
+    display: none;
+    float: left;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.form-inline {
+    position: relative;
+}
+
+/* Ensure dropdown items are visible and properly styled */
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1.5rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    color: #16181b;
+    text-decoration: none;
+    background-color: #f8f9fa;
+}
+
+/* Updated Footer logo styles */
+.footer-logo {
+    text-align: left;
+}
+
+.footer-logo img {
+    width: auto;
+    height: auto;
+    display: block;
+    transform: scale(2.3); /* Increase size without stretching */
+    transform-origin: left center; /* Keep the scaling from the left side */
+}
+
+@media (max-width: 991px) {
+    .footer-logo {
+        text-align: center;
+    }
+    
+    .footer-logo img {
+        margin: 0 auto;
+        transform: scale(1.5); /* Slightly smaller scale for mobile */
+        transform-origin: center center; /* Scale from center for mobile */
+    }
+}
+
+/* Fix for page scroll on reload */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* Responsive font sizes for banner_taital */
+@media (max-width: 1200px) {
+    .banner_taital {
+        font-size: 42px !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .banner_taital {
+        font-size: 36px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .banner_taital {
+        font-size: 32px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .banner_taital {
+        font-size: 28px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .banner_taital {
+        font-size: 24px !important;
+    }
+}
+</style>
 
       <!-- <div class="header_section">
          <div class="container">
@@ -92,7 +246,7 @@
                   <form class="form-inline my-2 my-lg-0">
                      <div class="login_bt"><a href="#">Login <span style="color: #222222;"><i class="fa fa-user" aria-hidden="true"></i></span></a></div>
                      <div class="fa fa-search form-control-feedback"></div>
-                  </form> -->
+                  </form>
                   <!-- <div class="absolute top-0 right-0 p-4 z-50" x-data="{ open: false }">
                      <div class="relative login_bt">
                         <a href="#" @click.prevent="open = !open" class="flex items-center gap-1 text-black dark:text-white">
@@ -187,7 +341,7 @@
                         <div class="row">
                            <div class="col-sm-6">
                               <h1 class="banner_taital">Catering</h1>
-                              <p class="banner_text">Plans and prepares food and beverages tailored to the client’s preferences. Ensures quality, presentation, and timely service of meals during events.</p>
+                              <p class="banner_text">Plans and prepares food and beverages tailored to the client's preferences. Ensures quality, presentation, and timely service of meals during events.</p>
                               <!-- <div class="started_text"><a href="#">Order Now</a></div> -->
                            </div>
                            <div class="col-sm-6">
@@ -437,24 +591,9 @@
             <div class="row">
                <div class="col-md-4">
                   <div class="contact_main">
-                     <!-- <h1 class="contact_taital">Contact Us</h1> -->
-                     <a class="navbar-brand"href="index.html"><img src="images/logo.webp"></a>
-                     
-                     <!-- <form action="/action_page.php">
-                        <div class="form-group">
-                           <input type="text" class="email-bt" placeholder="Name" name="Name">
-                        </div>
-                        <div class="form-group">
-                           <input type="text" class="email-bt" placeholder="Email" name="Name">
-                        </div>
-                        <div class="form-group">
-                           <input type="text" class="email-bt" placeholder="Phone Numbar" name="Email">
-                        </div>
-                        <div class="form-group">
-                           <textarea class="massage-bt" placeholder="Massage" rows="5" id="comment" name="Massage"></textarea>
-                        </div>
-                     </form>
-                     <div class="main_bt"><a href="#">SEND</a></div> -->
+                     <div class="footer-logo">
+                        <img src="images/logo.webp" alt="JEM Logo" class="footer-logo">
+                     </div>
                   </div>
                </div>
                <div class="col-md-8">
@@ -470,7 +609,7 @@
                            </a>
                         </li>
                         <li>
-                           <a href="#">
+                           <a href="mailto:jhossaeventmanagement@gmail.com">
                            <span class="padding_left_10"><i class="fa fa-envelope" aria-hidden="true"></i></span>jhossaeventmanagement@gmail.com
                            </a>
                         </li>

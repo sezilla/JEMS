@@ -50,14 +50,14 @@
 
                             $statusText = $status->label() ?? 'Unknown';
                         @endphp
-                        <div class="inline-flex">
-                            <x-filament::badge color="{{ $statusColor }}">
-                                <div class="flex gap-2">
-                                    <x-filament::icon :icon="$statusIcon" class="w-4 h-4" />
-                                    <span>{{ $statusText }}</span>
-                                </div>
-                            </x-filament::badge>
-                        </div>
+                    <div class="inline-flex">
+                        <x-filament::badge color="{{ $statusColor }}">
+                            <div class="flex gap-2">
+                                <x-filament::icon :icon="$statusIcon" class="w-4 h-4" />
+                                <span>{{ $statusText }}</span>
+                            </div>
+                        </x-filament::badge>
+                    </div>
                     </p>
                 </div>
                 <div>
@@ -229,6 +229,6 @@
     <livewire:project-progress-cards :project="$project" />
 
     {{-- <livewire:project-trello-tasks :project="$project" /> --}}
-
-    <livewire:project-task :project="$project" />
+    {{-- <livewire:project-task-table :project="$project" /> --}}
+    {{-- <livewire:project-task :project="$project" /> --}}
 </x-filament::page>

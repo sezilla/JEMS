@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\ProjectResource\Pages;
 use App\Models\Project;
 use Filament\Resources\Pages\Page;
 use App\Filament\App\Resources\ProjectResource;
+use App\Filament\App\Resources\ProjectResource\Widgets\ProjectTaskTable;
 
 class Task extends Page
 {
@@ -18,6 +19,15 @@ class Task extends Page
     public function mount($record)
     {
         $this->project = Project::find($record);
+    }
+
+    public function getFooterWidgets(): array
+    {
+        return [
+            ProjectTaskTable::make([
+                'project' => $this->project,
+            ]),
+        ];
     }
 
     public function toggleDescription()

@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\PriorityLevel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserTask extends Model
@@ -18,15 +21,33 @@ class UserTask extends Model
         'card_id',
         'due_date',
         'project_id',
-        'card_name'
+        'card_name',
+        'attachment',
+        'priority_level'
     ];
 
     protected $casts = [
         'due_date' => 'date',
+        'attachment' => 'array',
+        'priority_level' => PriorityLevel::class,
     ];
 
     public function users(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function scopeForUser($query, $user)
+    {
+        if (Auth::check() && Auth::user()->hasRole('Coordinator')) {
+            return $query;
+        }
+
+        return $query->where('user_id', $user);
+    }
+
+    public function approvedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }
