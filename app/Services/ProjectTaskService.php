@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Models\Project;
 use App\Models\UserTask;
 use App\Services\TrelloTask;
+use Filament\Notifications\Notification;
 
 class ProjectTaskService
 {
@@ -60,5 +62,20 @@ class ProjectTaskService
     public function deleteTask($cardId, $taskId)
     {
         $this->trelloTask->deleteCheckItemByCardId($cardId, $taskId);
+    }
+
+    public function checkTaskIfDueTomorrow()
+    {
+        $tomorrow = now()->addDay()->format('Y-m-d');
+
+        $tasks = $this->userTask->whereDate('due_date', $tomorrow)->get();
+
+        foreach ($tasks as $task) {
+            Notification::make()
+                ->title('Task Due Tomorrow')
+                ->body('Your task: "' . $task->task_name . '" is due tomorrow')
+                ->info()
+                ->sendToDatabase(User::find($task->user_id));
+        }
     }
 }
