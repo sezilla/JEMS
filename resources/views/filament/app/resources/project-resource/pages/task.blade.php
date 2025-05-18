@@ -76,7 +76,7 @@
                 <div>
                     <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Event Date</h3>
                     <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {{ \Carbon\Carbon::parse($project->end_date)->format('F d, Y') }}
+                        {{ \Carbon\Carbon::parse($project->end)->format('F d, Y') }}
                     </p>
                 </div>
 

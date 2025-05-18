@@ -367,4 +367,38 @@ class TrelloTask
             return null;
         }
     }
+
+    public function getCard($cardId)
+    {
+        $response = $this->client->get("cards/{$cardId}", [
+            'query' => $this->getAuthParams(),
+        ]);
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    public function getChecklist($cardId)
+    {
+        $response = $this->client->get("cards/{$cardId}/checklists", [
+            'query' => $this->getAuthParams(),
+        ]);
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    public function createChecklist($cardId, $checklistName)
+    {
+        $response = $this->client->post("cards/{$cardId}/checklists", [
+            'query' => array_merge($this->getAuthParams(), [
+                'name' => $checklistName,
+            ]),
+        ]);
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    public function deleteCheckItemByCardId($cardId, $checkItemId)
+    {
+        $response = $this->client->delete("cards/{$cardId}/checkItem/{$checkItemId}", [
+            'query' => $this->getAuthParams(),
+        ]);
+        return json_decode($response->getBody()->getContents(), true);
+    }
 }
