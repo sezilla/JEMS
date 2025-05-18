@@ -3,24 +3,25 @@
 namespace App\Filament\Resources\DepartmentResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\Department;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Select;
+use Filament\Support\Enums\Alignment;
+use Filament\Forms\Components\Section;
+use Filament\Support\Enums\FontWeight;
+
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Facades\Storage;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-
-use Filament\Tables\Columns\ImageColumn;
-use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\Section;
-use Filament\Tables\Columns\Layout\Stack;
-use Filament\Forms\Components\FileUpload;
-use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Filters\SelectFilter;
-use App\Models\Department;
+use Filament\Resources\RelationManagers\RelationManager;
+use App\Filament\Resources\TeamResource\Pages\CreateTeam;
 
 class TeamRelationManager extends RelationManager
 {
@@ -85,7 +86,7 @@ class TeamRelationManager extends RelationManager
                             ->label('Members')
                             ->preload()
                             ->searchable()
-                            ->visible(fn($livewire) => $livewire instanceof Pages\CreateTeam),
+                            ->visible(fn($livewire) => $livewire instanceof CreateTeam),
                     ])
 
             ])

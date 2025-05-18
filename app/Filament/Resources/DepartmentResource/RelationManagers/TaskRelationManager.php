@@ -27,7 +27,7 @@ class TaskRelationManager extends RelationManager
                     ->preload()
                     ->multiple(),
                 Forms\Components\Select::make('task_category_id')
-                    ->label('Category')
+                    ->label('Duration')
                     ->relationship('category', 'name')
                     ->required()
                     ->preload(),
@@ -44,6 +44,7 @@ class TaskRelationManager extends RelationManager
                     ->searchable()
                     ->badge(),
                 Tables\Columns\TextColumn::make('category.name')
+                    ->label('Duration')
                     ->searchable()
                     ->limit(15)
             ])
