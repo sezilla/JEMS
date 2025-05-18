@@ -141,7 +141,7 @@ class ProjectResource extends Resource
                             ->columnSpan('full'),
                         ColorPicker::make('theme_color')
                             ->default('#d095ed')
-                            ->label('Legends Color')
+                            ->label('Legend')
                             ->required()
                             ->rules([
                                 'required',

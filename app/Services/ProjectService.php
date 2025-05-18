@@ -255,7 +255,8 @@ class ProjectService
                         'check_item_name' => $item['name'],
                         'due_date' => $item['due'] ? date('Y-m-d', strtotime($item['due'])) : null,
                         'status' => $item['state'] ?? 'incomplete',
-                        'user_id' => null
+                        'user_id' => null,
+                        'priority' => null,
                     ];
 
                     // Create or update UserTask record
@@ -270,7 +271,8 @@ class ProjectService
                             'task_name' => $item['name'],
                             'due_date' => $item['due'] ? date('Y-m-d', strtotime($item['due'])) : null,
                             'status' => $item['state'] ?? 'incomplete',
-                            'user_id' => null
+                            'user_id' => null,
+                            'priority' => null,
                         ]
                     );
                 }
@@ -492,15 +494,17 @@ class ProjectService
                                 foreach ($checklist['check_items'] as &$checkItem) {
                                     if ($checkItem['check_item_id'] === $allocatedItem['check_item_id']) {
                                         $checkItem['user_id'] = $allocatedItem['user_id'];
+                                        $checkItem['priority'] = $allocatedItem['priority'] ?? null;
 
-                                        // Create or update UserTask with allocated user
+                                        // Create or update UserTask with allocated user and priority
                                         UserTask::updateOrCreate(
                                             [
                                                 'project_id' => $project->id,
                                                 'check_item_id' => $allocatedItem['check_item_id'],
                                             ],
                                             [
-                                                'user_id' => $allocatedItem['user_id'] ?? null
+                                                'user_id' => $allocatedItem['user_id'] ?? null,
+                                                'priority_level' => $allocatedItem['priority'] ?? null,
                                             ]
                                         );
 
