@@ -32,12 +32,12 @@ class AddUserProjectsMiddleware
 
         // Fetch projects associated with the authenticated user using the scope
         $user = Auth::user();
-        $projects = Project::forUser($user)->get(); // Use the scopeForUser here
+        $projects = Project::forUser($user)->where('status', config('project.project_status.active'))->get(); // Use the scopeForUser here
 
         foreach ($projects as $project) {
             $itemsList[] = NavigationItem::make($project->name)
                 ->icon('heroicon-o-document')
-                ->group('My Projects') // Ensure this matches the navigation group name
+                ->group('My Active Projects') // Ensure this matches the navigation group name
                 ->url(ProjectResource::getUrl('task', ['record' => $project->id]));
         }
 

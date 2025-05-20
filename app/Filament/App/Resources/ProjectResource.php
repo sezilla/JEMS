@@ -23,6 +23,7 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\App\Resources\ProjectResource\Pages;
+use Filament\Tables\Columns\TextColumn\TextColumnSize;
 
 $user = Auth::user();
 
@@ -60,14 +61,16 @@ class ProjectResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query) {
-                return Project::forUser(Auth::user());
-            })
-            ->recordUrl(
-                fn(Project $record): string => static::getUrl('task', ['record' => $record])
-            )
             ->columns([
                 Stack::make([
+                    TextColumn::make('name')
+                        ->label('Names')
+                        ->searchable()
+                        ->limit(34)
+                        ->size(TextColumn\TextColumnSize::Large)
+                        ->getStateUsing(function ($record) {
+                            return $record->groom_name . ' & ' . $record->bride_name;
+                        }),
                     Split::make([
                         ImageColumn::make('thumbnail_path')
                             ->disk('public')
@@ -75,85 +78,112 @@ class ProjectResource extends Resource
                             ->width(150)
                             ->height(200)
                             ->extraImgAttributes(['class' => 'rounded-md'])
-                            ->defaultImageUrl(url('https://placehold.co/150x200')),
+                            ->defaultImageUrl(url('https://placehold.co/150x200/EEE/gray?text=Event+Image&font=lato')),
                         Stack::make([
-                            TextColumn::make('name')
-                                ->label('Names')
-                                ->searchable()
-                                ->limit(14)
-                                ->size(TextColumn\TextColumnSize::Large)
-                                ->getStateUsing(function ($record) {
-                                    return $record->groom_name . ' & ' . $record->bride_name;
-                                }),
-                            TextColumn::make('description')
-                                ->limit(40)
-                                ->searchable()
-                                ->placeholder('No description'),
-                            Split::make([
+                            Stack::make([
+                                TextColumn::make('packege.name')
+                                    ->getStateUsing(function ($record) {
+                                        return 'Package';
+                                    })
+                                    ->size(TextColumnSize::Small)
+                                    ->weight(FontWeight::Thin)
+                                    ->formatStateUsing(function ($column, $state) {
+                                        return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
+                                    })
+                                    ->html(),
+                                Split::make([
+                                    TextColumn::make('package.name')
+                                        ->label('Package')
+                                        ->searchable()
+                                        ->limit(15)
+                                        ->badge()
+                                        ->color(
+                                            fn(string $state): string => match ($state) {
+                                                'Ruby' => 'ruby',
+                                                'Garnet' => 'garnet',
+                                                'Emerald' => 'emerald',
+                                                'Infinity' => 'infinity',
+                                                'Sapphire' => 'sapphire',
+                                                default => 'gray',
+                                            }
+                                        ),
 
-                                TextColumn::make('package.name')
-                                    ->label('Package')
-                                    ->searchable()
-                                    ->limit(15)
-                                    ->badge()
-                                    ->color(
-                                        fn(string $state): string => match ($state) {
-                                            'Ruby' => 'ruby',
-                                            'Garnet' => 'garnet',
-                                            'Emerald' => 'emerald',
-                                            'Infinity' => 'infinity',
-                                            'Sapphire' => 'sapphire',
-                                            default => 'gray',
-                                        }
-                                    ),
+                                    ColorColumn::make('theme_color')
+                                        ->label('Theme Color')
+                                        ->copyable()
+                                        ->copyMessage('Color code copied')
+                                        ->copyMessageDuration(1500),
 
-                                ColorColumn::make('theme_color')
-                                    ->label('Theme Color')
-                                    ->copyable()
-                                    ->copyMessage('Color code copied')
-                                    ->copyMessageDuration(1500),
+                                    IconColumn::make('status')
+                                        ->label('Status')
+                                        ->options([
+                                            'heroicon-o-clock' => ProjectStatus::ACTIVE,
+                                            'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
+                                            'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                            'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
+                                            'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
+                                        ])
+                                        ->colors([
+                                            'success' => ProjectStatus::COMPLETED,
+                                            'warning' => ProjectStatus::ARCHIVED,
+                                            'danger' => ProjectStatus::CANCELLED,
+                                            'secondary' => ProjectStatus::ON_HOLD,
+                                            'primary' => ProjectStatus::ACTIVE,
+                                        ])
+                                        ->size('md')
+                                        ->tooltip(fn($record) => $record->status?->label()),
 
-                                IconColumn::make('status')
-                                    ->label('Status')
-                                    ->options([
-                                        'heroicon-o-clock' => ProjectStatus::ACTIVE,
-                                        'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
-                                        'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
-                                        'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
-                                        'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
-                                    ])
-                                    ->colors([
-                                        'success' => ProjectStatus::COMPLETED,
-                                        'warning' => ProjectStatus::ARCHIVED,
-                                        'danger' => ProjectStatus::CANCELLED,
-                                        'secondary' => ProjectStatus::ON_HOLD,
-                                        'primary' => ProjectStatus::ACTIVE,
-                                    ])
-                                    ->size('sm'),
-
-                            ]),
-
-                            TextColumn::make('venue')
-                                ->placeholder('No location'),
-                            Split::make([
-                                ImageColumn::make('user.avatar_url')
-                                    ->tooltip('Event Creator')
-                                    ->label('Coordinator')
-                                    ->width(20)
-                                    ->height(20)
-                                    ->circular()
-                                    ->grow(false),
-                                TextColumn::make('user.name')
-                                    ->label('Coordinator')
-                                    ->searchable()
-                                    ->limit(15),
+                                ]),
                             ]),
                             Stack::make([
-                                TextColumn::make('start')
-                                    ->date()
-                                    // ->sortable()
+                                TextColumn::make('venue')
+                                    ->getStateUsing(function ($record) {
+                                        return 'Location';
+                                    })
+                                    ->size(TextColumnSize::Small)
+                                    ->weight(FontWeight::Thin)
                                     ->formatStateUsing(function ($column, $state) {
-                                        return '<span style="font-size: 70%; opacity: 0.7;">' . Carbon::parse($state)->format('m-d-Y') . '</span>';
+                                        return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
+                                    })
+                                    ->html(),
+                                TextColumn::make('venue')
+                                    ->limit(15)
+                                    ->placeholder('No location'),
+                            ]),
+                            Stack::make([
+                                TextColumn::make('user')
+                                    ->getStateUsing(function ($record) {
+                                        return 'Event Creator';
+                                    })
+                                    ->size(TextColumnSize::Small)
+                                    ->weight(FontWeight::Thin)
+                                    ->formatStateUsing(function ($column, $state) {
+                                        return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
+                                    })
+                                    ->html(),
+                                Split::make([
+                                    ImageColumn::make('user.avatar_url')
+                                        ->tooltip('Event Creator')
+                                        ->label('Coordinator')
+                                        ->circular()
+                                        ->width(20)
+                                        ->height(20)
+                                        ->grow(false),
+                                    TextColumn::make('user.name')
+                                        ->label('Coordinator')
+                                        ->searchable()
+                                        ->limit(15),
+                                ]),
+                            ]),
+                            Stack::make([
+                                TextColumn::make('end')
+                                    ->getStateUsing(function ($record) {
+                                        return 'Event Date';
+                                    })
+                                    ->size(TextColumnSize::Small)
+                                    ->weight(FontWeight::Thin)
+                                    ->formatStateUsing(function ($column, $state) {
+                                        return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
                                     })
                                     ->html(),
                                 TextColumn::make('end')
@@ -172,10 +202,10 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return 'Head coor';
                                 })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
                                 ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                    return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
                             TextColumn::make('headCoordinator.name')
@@ -190,10 +220,10 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return 'Bride coor';
                                 })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
                                 ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                    return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
                             TextColumn::make('brideCoordinator.name')
@@ -208,10 +238,10 @@ class ProjectResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return 'Groom coor';
                                 })
-                                ->size(TextColumn\TextColumnSize::ExtraSmall)
+                                ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
                                 ->formatStateUsing(function ($column, $state) {
-                                    return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                                    return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
                                 })
                                 ->html(),
                             TextColumn::make('groomCoordinator.name')
@@ -226,10 +256,10 @@ class ProjectResource extends Resource
                         ->getStateUsing(function ($record) {
                             return 'Teams';
                         })
-                        ->size(TextColumn\TextColumnSize::ExtraSmall)
+                        ->size(TextColumn\TextColumnSize::Small)
                         ->weight(FontWeight::Thin)
                         ->formatStateUsing(function ($column, $state) {
-                            return '<span style="font-size: 70%; opacity: 0.7;">' . $state . '</span>';
+                            return '<span style="font-size: 80%; opacity: 0.7;">' . $state . '</span>';
                         })
                         ->html(),
                     ImageColumn::make('teams.image')
@@ -239,10 +269,6 @@ class ProjectResource extends Resource
                         ->limit(6)
                         ->circular()
                         ->limitedRemainingText(),
-                    // TextColumn::make('start')
-                    //     ->label('Date Added')
-                    //     ->date()
-                    //     ->sortable(),
 
                 ])->space(3),
             ])->defaultSort('end', 'asc')
@@ -255,30 +281,17 @@ class ProjectResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('completed')
                     ->label('Completed')
-                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::COMPLETED->value)),
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.completed'))),
                 Tables\Filters\Filter::make('canceled')
                     ->label('Canceled')
-                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::CANCELLED->value)),
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.canceled'))),
                 Tables\Filters\Filter::make('on_hold')
                     ->label('On Hold')
-                    ->query(fn(Builder $query): Builder => $query->where('status', ProjectStatus::ON_HOLD->value)),
+                    ->query(fn(Builder $query): Builder => $query->where('status', config('project.project_status.on_hold'))),
                 Tables\Filters\TrashedFilter::make()
                     ->label('Deleted')
-            ])
-            ->actions([
-                // ForceDeleteAction::make()
-                // Tables\Actions\EditAction::make(),
-                // Tables\Actions\ViewAction::make()
-            ])
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
             ]);
     }
-
-
-
     public static function getRelations(): array
     {
         return [
