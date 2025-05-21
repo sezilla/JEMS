@@ -34,6 +34,7 @@ class ProjectResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
 
     protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $label = 'Events';
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -277,6 +278,7 @@ class ProjectResource extends Resource
                 'xl' => 3,
                 'sm' => 1,
             ])
+            ->recordUrl(fn($record) => route('filament.app.resources.projects.task', $record->id))
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 Tables\Filters\Filter::make('completed')
