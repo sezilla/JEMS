@@ -68,7 +68,7 @@ class PendingList extends Component implements HasTable, HasForms
                     ->sortable(),
                 TextColumn::make('users.name')
                     ->label('Assigned To'),
-                TextColumn::make('priority')
+                TextColumn::make('priority_level')
                     ->label('Priority')
                     ->getStateUsing(function (UserTask $record): string {
                         return $record->priority_level?->value ?? '';

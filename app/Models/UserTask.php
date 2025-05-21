@@ -43,7 +43,16 @@ class UserTask extends Model
             return $query;
         }
 
-        return $query->where('user_id', $user);
+        if (Auth::check() && optional(Auth::user())->hasAnyRole(['Team Leader', 'Member'])) {
+            $userModel = $user instanceof User ? $user : User::find($user);
+            $department = $userModel && $userModel->teams()->exists()
+                ? $userModel->teams()->first()->departments()->first()
+                : null;
+            $departmentName = $department ? $department->name : null;
+            return $query->where('card_name', $departmentName);
+        }
+
+        return $query->where('card_name', optional($user->team)->department_name);
     }
 
     public function approvedBy(): BelongsTo
