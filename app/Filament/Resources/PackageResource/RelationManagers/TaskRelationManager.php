@@ -106,6 +106,7 @@ class TaskRelationManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                    ->createAnother(false)
                     ->label('Create Task'),
 
                 Tables\Actions\CreateAction::make('addTask')

@@ -61,6 +61,7 @@ class UserRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make('addMember')
+                    ->createAnother(false)
                     ->label('Add Member')
                     ->action(function (array $data) {
                         // Attach the user as a member of the team
