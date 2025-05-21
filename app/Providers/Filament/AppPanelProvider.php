@@ -53,6 +53,12 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => '#b22d67',
 
+                'secondary' => Color::Slate,
+                'info' => Color::Purple,
+                'success' => Color::Green,
+                'warning' => Color::Orange,
+                'danger' => Color::Rose,
+
                 'ruby' => Color::Red,
                 'emerald' => Color::Emerald,
                 'garnet' => Color::Pink,
