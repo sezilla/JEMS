@@ -9,11 +9,12 @@
                 <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-sm">
                     @if ($project->thumbnail_path)
                         <img src="{{ Storage::url($project->thumbnail_path) }}" alt="{{ $project->name }}"
-                            class="object-cover w-full h-full">
+                            class="object-cover w-full h-full"
+                            style="width: 400px; height: 225px; max-width: 100%; max-height: 100%;" />
                     @else
-                        <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <x-filament::icon icon="heroicon-o-photo" class="w-8 h-8 text-gray-400" />
-                        </div>
+                        <img src="https://placehold.co/400x400/gray/transparent?text=Event+Image" alt="Event Image"
+                            class="object-cover w-full h-full"
+                            style="width: 400px; height: 225px; max-width: 100%; max-height: 100%;" />
                     @endif
                 </div>
             </div>

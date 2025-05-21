@@ -3,12 +3,13 @@
 namespace App\Filament\Resources\ProjectResource\Pages;
 
 use Filament\Actions;
+use Predis\Response\Status;
+use App\Enums\ProjectStatus;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\ProjectResource;
-use Predis\Response\Status;
 
 class EditProject extends EditRecord
 {
@@ -24,6 +25,7 @@ class EditProject extends EditRecord
         return [
             Actions\Action::make('onHold')
                 ->label('On hold')
+                ->visible(fn($record) => $record->status === ProjectStatus::ACTIVE)
                 ->action(function ($record) {
                     $this->authorize('update_project', $record);
 
@@ -38,6 +40,23 @@ class EditProject extends EditRecord
                 })
                 ->requiresConfirmation()
                 ->color('secondary'),
+            Actions\Action::make('activate')
+                ->label('Activate')
+                ->visible(fn($record) => $record->status !== ProjectStatus::ACTIVE)
+                ->action(function ($record) {
+                    $this->authorize('update_project', $record);
+
+                    $record->update([
+                        'status' => config('project.project_status.active'),
+                    ]);
+
+                    Notification::make()
+                        ->title('Project marked as on active')
+                        ->success()
+                        ->send();
+                })
+                ->requiresConfirmation()
+                ->color('info'),
             DeleteAction::make('cancelProject')
                 ->label('Cancel')
                 ->action(function ($record) {

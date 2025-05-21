@@ -123,7 +123,7 @@ class ProjectTaskTable extends BaseWidget
                     ->sortable(),
                 TextColumn::make('task_name')
                     ->label('Task')
-                    ->limit(30)
+                    ->limit(25)
                     ->searchable(),
                 TextColumn::make('due_date')
                     ->label('Due Date')
@@ -145,7 +145,7 @@ class ProjectTaskTable extends BaseWidget
                     ->searchable()
                     ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
                     ->sortable(),
-                TextColumn::make('priority')
+                TextColumn::make('priority_level')
                     ->label('Priority')
                     ->getStateUsing(function (UserTask $record): string {
                         return $record->priority_level?->value ?? '';
@@ -221,39 +221,14 @@ class ProjectTaskTable extends BaseWidget
                 SelectFilter::make('priority_level')
                     ->label('Priority')
                     ->options(PriorityLevel::class),
-            ], layout: FiltersLayout::AboveContent)->filtersFormColumns(3)
+            ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns([
+                'default' => 3,
+                'md' => 3,
+                'lg' => 3,
+                'xl' => 3,
+            ])
             ->actions([
-                Action::make('submitAsComplete')
-                    ->requiresConfirmation()
-                    ->label('Submit')
-                    ->color('success')
-                    ->icon('heroicon-o-check-circle')
-                    ->visible(
-                        fn(UserTask $record) => (optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']) && $record->status === 'incomplete')
-                    )
-                    ->slideOver()
-                    ->form([
-                        Repeater::make('attachment')
-                            ->label('Attachment')
-                            ->schema([
-                                TextInput::make('description')
-                                    ->label('Description'),
-                                FileUpload::make('attachment')
-                                    ->label('Attachment')
-                                    ->required(),
-                            ]),
-                    ])
-                    ->action(function (UserTask $record, array $data) {
-                        $record->update([
-                            'status' => 'pending',
-                            'attachment' => $data['attachment'] ?? $record->attachment,
-                        ]);
-                        Notification::make()
-                            ->title('Task Submitted')
-                            ->body('The task has been submitted.')
-                            ->success()
-                            ->send();
-                    }),
                 ActionGroup::make([
                     Action::make('submitAsComplete')
                         ->requiresConfirmation()
@@ -334,6 +309,7 @@ class ProjectTaskTable extends BaseWidget
                         ->modalWidth('lg')
                         ->modalHeading('Edit the task details')
                         ->modalSubmitActionLabel('Update Task')
+                        ->visible(fn() => optional(Auth::user())->hasAnyRole(['Coordinator', 'Team Leader']))
                         ->requiresConfirmation()
                         ->form(fn(Form $form): Form => $this->form($form))
                         ->slideOver()
@@ -499,7 +475,7 @@ class ProjectTaskTable extends BaseWidget
                                 ->success()
                                 ->send();
                         }),
-                ])->visible(fn() => optional(Auth::user())->hasAnyRole(['Coordinator', 'Team Leader'])),
+                ]),
             ]);
     }
 
@@ -585,6 +561,7 @@ class ProjectTaskTable extends BaseWidget
                 ->required(),
             Repeater::make('attachment')
                 ->label('Attachment')
+                ->disabled(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
                 ->schema([
                     TextInput::make('description')
                         ->label('Description'),

@@ -14,20 +14,21 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use App\Filament\Pages\Auth\LoginForm;
+use App\Filament\Widgets\ProjectStats;
 use App\Http\Middleware\managepackage;
 use App\Filament\Widgets\StatsOverview;
-use App\Filament\pages\Auth\CustomLogin;
 
+use App\Filament\pages\Auth\CustomLogin;
 use App\Filament\Widgets\UsersLineChart;
 use Filament\Navigation\NavigationGroup;
-use Filament\Http\Middleware\Authenticate;
 
+use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 // use Filament\Navigation\NavigationItem;
-use Illuminate\Routing\Middleware\SubstituteBindings;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -100,6 +101,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 StatsOverview::class,
                 UsersLineChart::class,
+                ProjectStats::class,
             ])
             ->middleware([
                 EncryptCookies::class,

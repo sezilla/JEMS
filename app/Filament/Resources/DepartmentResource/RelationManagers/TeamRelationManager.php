@@ -30,6 +30,7 @@ class TeamRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         return $form
+
             ->schema([
                 Section::make()
                     ->columnSpan(2)
@@ -115,7 +116,7 @@ class TeamRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()->createAnother(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
