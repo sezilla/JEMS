@@ -82,7 +82,7 @@ class ProjectResource extends Resource
             ->schema([
 
                 Section::make()
-                    ->description('Project details')
+                    ->description('Event details')
                     ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('name')
