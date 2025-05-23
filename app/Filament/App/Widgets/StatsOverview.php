@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsOverview extends BaseWidget
 {
+    protected static ?int $sort = 2;
     protected function getStats(): array
     {
         $user = Auth::user();

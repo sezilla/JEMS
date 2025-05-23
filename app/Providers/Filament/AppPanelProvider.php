@@ -4,22 +4,20 @@ namespace App\Providers\Filament;
 
 use Filament\Pages;
 use Filament\Panel;
-use App\Models\User;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
-use Filament\Navigation\Navigation;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
-use Filament\Navigation\NavigationItem;
-use App\Filament\pages\Auth\CustomLogin;
+use App\Filament\App\Widgets\UserInfo;
 use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
-
+use App\Filament\App\Widgets\StatsOverview;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use App\Filament\App\Widgets\ProjectStatsCoorView;
 use App\Http\Middleware\AddUserProjectsMiddleware;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
@@ -90,7 +88,11 @@ class AppPanelProvider extends PanelProvider
                 // Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([])
+            ->widgets([
+                ProjectStatsCoorView::class,
+                StatsOverview::class,
+                UserInfo::class,
+            ])
             ->viteTheme('resources/css/filament/app/theme.css')
             ->middleware([
                 EncryptCookies::class,
