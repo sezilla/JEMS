@@ -76,6 +76,13 @@ class OverallReports extends BaseWidget
                             $queryParams['status'] = $status;
                         }
 
+                        // Show notification before redirect
+                        \Filament\Notifications\Notification::make()
+                            ->title('Exporting Report')
+                            ->body('Your PDF report is being generated and will download shortly.')
+                            ->success()
+                            ->send();
+
                         // 4) Redirect to your PDF download route with the correct keys:
                         return redirect()->route('projects.report.download', $queryParams);
                     })
