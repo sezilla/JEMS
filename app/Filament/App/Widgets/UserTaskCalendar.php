@@ -21,10 +21,10 @@ class UserTaskCalendar extends FullCalendarWidget
                 fn(UserTask $event) => EventData::make()
                     ->id($event->id)
                     ->title($event->task_name ?? 'Untitled Task')
-                    ->start(date('Y-m-d', strtotime($event->due_date))) // Only date, no time
+                    ->start(date('Y-m-d', strtotime($event->due_date)))
                     ->backgroundColor($event->project->theme_color ?? 'primary')
                     ->borderColor($event->project->theme_color ?? 'primary')
-                    ->end(date('Y-m-d', strtotime($event->due_date))) // Only date, no time
+                    ->end(date('Y-m-d', strtotime($event->due_date)))
                     ->allDay(true)
                     ->url(
                         url: ProjectResource::getUrl(name: 'task', parameters: ['record' => $event->project->id]),
