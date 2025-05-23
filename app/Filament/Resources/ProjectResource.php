@@ -374,7 +374,7 @@ class ProjectResource extends Resource
                                         ->options([
                                             'heroicon-o-clock' => ProjectStatus::ACTIVE,
                                             'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
-                                            'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                            'heroicon-o-trash' => ProjectStatus::ARCHIVED,
                                             'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
                                             'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
                                         ])
