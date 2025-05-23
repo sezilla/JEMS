@@ -29,10 +29,10 @@ class ProjectCalendar extends FullCalendarWidget
                 fn(Project $event) => EventData::make()
                     ->id($event->id)
                     ->title($event->name)
-                    ->start($event->start)
+                    ->start(date('Y-m-d', strtotime($event->start)))
                     ->backgroundColor($event->theme_color)
                     ->borderColor($event->theme_color)
-                    ->end($event->end)
+                    ->end(date('Y-m-d', strtotime($event->end)))
                     ->url(
                         url: ProjectResource::getUrl(name: 'task', parameters: ['record' => $event]),
                         shouldOpenUrlInNewTab: false
