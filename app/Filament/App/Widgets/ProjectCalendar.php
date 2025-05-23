@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Filament\App\Widgets;
+namespace App\Filament\App\Widgets;
 
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +11,40 @@ use App\Models\Project;
 
 class ProjectCalendar extends FullCalendarWidget
 {
+    protected static ?string $heading = 'Events';
+    protected static ?int $sort = 2;
+
     public static function canView(): bool
     {
         // Only show it on custom pages, not the dashboard
         return request()->routeIs('filament.app.pages.calendar');
+    }
+
+    public function getConfig(): array
+    {
+        return [
+            'headerToolbar' => [
+                'left' => 'prev,next today',
+                'center' => 'title',
+                'right' => 'multiMonthYear,dayGridMonth,timeGridDay'
+            ],
+            'initialView' => 'dayGridMonth',
+            'views' => [
+                'multiMonthYear' => [
+                    'type' => 'multiMonth',
+                    'duration' => ['months' => 12],
+                    'buttonText' => 'Year',
+                    'titleFormat' => ['year' => 'numeric']
+                ],
+                'dayGridMonth' => [
+                    'buttonText' => 'Month',
+                    'dayMaxEventRows' => 4
+                ],
+                'timeGridDay' => [
+                    'buttonText' => 'Day'
+                ]
+            ]
+        ];
     }
 
     public function fetchEvents(array $fetchInfo): array
@@ -45,8 +75,16 @@ class ProjectCalendar extends FullCalendarWidget
     {
         return <<<JS
             function({ event, timeText, isStart, isEnd, isMirror, isPast, isFuture, isToday, el, view }) {
+                // Add project-specific styling
+                el.classList.add('project-event');
                 el.setAttribute("x-tooltip", "tooltip");
-                el.setAttribute("x-data", "{ tooltip: '"+event.title+"' }");
+                el.setAttribute("x-data", "{ tooltip: 'Project: "+event.title+"' }");
+                
+                // Add icon for project events
+                const icon = document.createElement('span');
+                icon.innerHTML = '📅 ';
+                icon.style.marginRight = '4px';
+                el.querySelector('.fc-event-title').prepend(icon);
             }
         JS;
     }
