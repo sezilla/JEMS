@@ -12,8 +12,10 @@ class UserInfo extends Widget
 
     public User $user;
 
-    public function mount()
+    public function getViewData(): array
     {
-        $this->user = Auth::user();
+        return [
+            'user' => Auth::user(),
+        ];
     }
 }

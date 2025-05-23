@@ -11,6 +11,10 @@ use Saade\FilamentFullCalendar\Widgets\FullCalendarWidget;
 
 class UserTaskCalendar extends FullCalendarWidget
 {
+    public static function canView(): bool
+    {
+        return request()->routeIs('filament.app.pages.calendar');
+    }
     public function fetchEvents(array $fetchInfo): array
     {
 
