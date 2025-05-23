@@ -20,7 +20,6 @@ class ProjectReportController extends Controller
 
     public function download(Request $request)
     {
-
         // dd($request->all());
         $query = Project::query()
             ->with(['package', 'headCoordinator', 'groomCoordinator', 'brideCoordinator', 'teams']);

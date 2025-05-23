@@ -94,7 +94,7 @@
     <tbody>
         @foreach($projects as $project)
         <tr>
-            <td>{{ $project->name }}</td>
+            <td>{{ $project->name ?? 'No Project Name' }}</td>
             <td>
                 {{ $project->package->name ?? 'N/A' }}<br>
                 <small>
@@ -107,24 +107,28 @@
                             'Sapphire' => '295,000 Php',
                         ];
                     @endphp
-                    {{ $prices[$project->package->name] ?? 'N/A' }}
+                    {{ $prices[$project->package->name] ?? 'Price Not Available' }}
                 </small>
             </td>
-            <td>{{ $project->venue }}</td>
+            <td>{{ $project->venue ?? 'No Venue' }}</td>
             <td>
-                {{ \Carbon\Carbon::parse($project->end)->format('F j, Y') }}<br>
-                <small>started at {{ \Carbon\Carbon::parse($project->start)->format('F j, Y') }}</small><br>
+                {{ $project->end ? \Carbon\Carbon::parse($project->end)->format('F j, Y') : 'No End Date' }}<br>
+                <small>started at {{ $project->start ? \Carbon\Carbon::parse($project->start)->format('F j, Y') : 'No Start Date' }}</small><br>
                 
             </td>
             <td>
-                {{ $project->headCoordinator->name ?? '-' }}<br>
-                <small>{{ $project->groomCoordinator->name ?? '-' }} & {{ $project->brideCoordinator->name ?? '-' }}</small>
+                {{ $project->headCoordinator->name ?? 'No Head Coordinator' }}<br>
+                <small>{{ $project->groomCoordinator->name ?? 'No Groom Coordinator' }} & {{ $project->brideCoordinator->name ?? 'No Bride Coordinator' }}</small>
             </td>
-            <td>{{ $project->statusText }}</td>
+            <td>{{ $project->statusText ?? 'No Status' }}</td>
             <td>
-                @foreach($project->teams as $team)
-                    {{ $team->name }}<br>
-                @endforeach
+                @if($project->teams->isNotEmpty())
+                    @foreach($project->teams as $team)
+                        {{ $team->name ?? 'Unnamed Team' }}<br>
+                    @endforeach
+                @else
+                    No Teams Assigned
+                @endif
             </td>
             <td>
                 @php
