@@ -21,7 +21,7 @@
                     @if ($errors->has('email'))
                     <div class="form-error">
                         {{ $errors->first('email') }}
-                    </div>
+                    </div>  
                     @endif
                     <label class="form-label" for="email">E-mail Address:</label>
                     <div class="input-field">
