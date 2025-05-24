@@ -25,6 +25,14 @@ class Department extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function admins()
+    {
+        return $this->belongsToMany(User::class, 'users_has_departments', 'department_id', 'user_id')
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'Department Admin');
+            });
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'users_has_departments', 'department_id', 'user_id');

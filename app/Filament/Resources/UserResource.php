@@ -12,8 +12,9 @@ use Filament\Resources\Resource;
 use Illuminate\Support\HtmlString;
 use Spatie\Permission\Models\Role;
 
-use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Auth;
 
+use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
 use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontFamily;
@@ -101,15 +102,25 @@ class UserResource extends Resource
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
 
                                 if ($selectedRole === 'Department Admin') {
-                                    $query->whereDoesntHave('users', function ($subQuery) {
-                                        $subQuery->whereHas('roles', function ($roleQuery) {
-                                            $roleQuery->where('name', 'Department Admin');
-                                        });
-                                    });
+                                    $query->with('admin');
                                 } elseif ($selectedRole === 'Coordinator') {
                                     $query->where('name', 'Coordination');
                                 }
                             })
+                            ->rules([
+                                function ($get) {
+                                    return function ($attribute, $value, $fail) use ($get) {
+                                        $selectedRole = Role::where('id', $get('roles'))->value('name');
+
+                                        if ($selectedRole === 'Department Admin') {
+                                            $department = Department::find($value);
+                                            if ($department && $department->admins()->exists()) {
+                                                $fail('This department already has an admin.');
+                                            }
+                                        }
+                                    };
+                                },
+                            ])
                             ->label('Department')
                             ->preload()
                             ->reactive()
@@ -119,12 +130,10 @@ class UserResource extends Resource
                             )
                             ->visible(fn($get) => Role::where('id', $get('roles'))->value('name') !== 'HR Admin'),
 
-
                         Select::make('teams')
                             ->relationship('teams', 'name', function ($query, $get) {
                                 $departments = $get('departments');
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
-                                $selectedTeamId = $get('teams');
 
                                 if ($departments) {
                                     if (!is_array($departments)) {
@@ -136,9 +145,9 @@ class UserResource extends Resource
                                     });
                                 }
 
-                                if ($selectedRole === 'Team Leader') {
-                                    $query->whereDoesntHave('leaders');
-                                }
+                                // if ($selectedRole === 'Team Leader') {
+                                //     $query->whereDoesntHave('leaders');
+                                // }
 
                                 if ($selectedRole === 'Coordinator') {
                                     $query->whereHas('departments', function ($query) {
@@ -156,9 +165,45 @@ class UserResource extends Resource
                             ->label('Team')
                             ->preload()
                             ->reactive()
-                            ->visible(fn($get, $livewire) =>
-                            !in_array(Role::where('id', $get('roles'))->value('name'), ['Department Admin', 'HR Admin'])
-                                && !(Role::where('id', $get('roles'))->value('name') === 'Team Leader' && $livewire instanceof Pages\EditUser)),
+                            ->visible(fn($get) =>
+                            !in_array(Role::where('id', $get('roles'))->value('name'), ['Department Admin', 'HR Admin', 'Team Leader'])),
+                        Select::make('teams')
+                            ->relationship('teams', 'name', function ($query, $get) {
+                                $departments = $get('departments');
+                                $selectedRole = Role::where('id', $get('roles'))->value('name');
+
+                                if ($departments) {
+                                    if (!is_array($departments)) {
+                                        $departments = [$departments];
+                                    }
+                                    $query->whereHas('departments', function ($q) use ($departments) {
+                                        $q->whereIn('id', $departments);
+                                    });
+                                }
+
+                                if ($selectedRole === 'Team Leader') {
+                                    $query->with('leaders');
+                                }
+                            })
+                            ->rules([
+                                function () {
+                                    return function ($attribute, $value, $fail) {
+
+                                        if ($value) {
+                                            $team = \App\Models\Team::find($value);
+                                            if ($team && $team->leaders()->exists()) {
+                                                $fail('This team already has a leader.');
+                                            }
+                                        }
+                                    };
+                                }
+                            ])
+                            ->default(fn($get) => $get('teams'))
+                            ->label('Team')
+                            ->preload()
+                            ->reactive()
+                            ->visible(fn($get) =>
+                            in_array(Role::where('id', $get('roles'))->value('name'), ['Team Leader'])),
                     ]),
             ]);
     }
