@@ -53,13 +53,25 @@
 
         /* Footer */
         .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; color: #666; border-top: 1px solid #ddd; padding: 5px 0; }
+
+        /* Status colors */
+        .status-info { color: #3b82f6; }
+        .status-primary { color: #6366f1; }
+        .status-warning { color: #f59e0b; }
+        .status-danger { color: #ef4444; }
+        .status-secondary { color: #64748b; }
+
+        /* Progress colors */
+        .progress-red { color: #ef4444; }
+        .progress-amber { color: #f59e0b; }
+        .progress-green { color: #10b981; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header with title + logo -->
         <div class="header">
-            <h1 class="main-title">Event Reports</h1>
+            <h1 class="main-title">Overall Reports of Projects</h1>
             <div class="subtitle">Jhossa Events Management</div>
         </div>
 
@@ -73,133 +85,111 @@
             @if($status)
                 <p><strong>Status Filter:</strong> {{ ucfirst($status) }}</p>
             @endif
-
         </div>
 
         <!-- Main data table -->
         <table class="main-table">
-    <thead>
-        <tr>
-            <th>Project Name</th>
-            <th>Package Name</th>
-            <th>Location</th>
-            <th>Wedding Date</th>
-            <th>Head Coordinator</th>
-            <th>Status</th>
-            <th>Teams Assigned</th>
-            <th>Task Per Department Progress</th>
-            <th>Overall Progress Percentage</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($projects as $project)
-        <tr>
-            <td>{{ $project->name ?? 'No Project Name' }}</td>
-            <td>
-                {{ $project->package->name ?? 'N/A' }}<br>
-                <small>
-                    @php
-                        $prices = [
-                            'Ruby' => '130,000 Php',
-                            'Garnet' => '165,000 Php',
-                            'Emerald' => '190,000 Php',
-                            'Infinity' => '250,000 Php',
-                            'Sapphire' => '295,000 Php',
-                        ];
-                    @endphp
-                    {{ $prices[$project->package->name] ?? 'Price Not Available' }}
-                </small>
-            </td>
-            <td>{{ $project->venue ?? 'No Venue' }}</td>
-            <td>
-                {{ $project->end ? \Carbon\Carbon::parse($project->end)->format('F j, Y') : 'No End Date' }}<br>
-                <small>started at {{ $project->start ? \Carbon\Carbon::parse($project->start)->format('F j, Y') : 'No Start Date' }}</small><br>
-                
-            </td>
-            <td>
-                {{ $project->headCoordinator->name ?? 'No Head Coordinator' }}<br>
-                <small>{{ $project->groomCoordinator->name ?? 'No Groom Coordinator' }} & {{ $project->brideCoordinator->name ?? 'No Bride Coordinator' }}</small>
-            </td>
-            <td>{{ $project->statusText ?? 'No Status' }}</td>
-            <td>
-                @if($project->teams->isNotEmpty())
-                    @foreach($project->teams as $team)
-                        {{ $team->name ?? 'Unnamed Team' }}<br>
-                    @endforeach
-                @else
-                    No Teams Assigned
-                @endif
-            </td>
-            <td>
-                @php
-                    $trelloService = app(\App\Services\TrelloTask::class);
-                    $listId = $trelloService->getBoardDepartmentsListId($project->trello_board_id);
-                    
-                    if ($listId) {
-                        $cards = $trelloService->getListCards($listId);
-                        $progress = [];
-                        
-                        foreach ($cards as $card) {
-                            $checklists = $trelloService->getCardChecklists($card['id']);
-                            $totalTasks = 0;
-                            $completedTasks = 0;
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Package Name</th>
+                    <th>Location</th>
+                    <th>Wedding Date</th>
+                    <th>Head Coordinator</th>
+                    <th>Status</th>
+                    <th>Teams Assigned</th>
+                    <th>Task Per Department Progress</th>
+                    <th>Overall Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($projects as $project)
+                <tr>
+                    <td>{{ $project->name ?? 'No Project Name' }}</td>
+                    <td>
+                        {{ $project->package->name ?? 'N/A' }}<br>
+                        <small>
+                            @php
+                                $prices = [
+                                    'Ruby' => '130,000 Php',
+                                    'Garnet' => '165,000 Php',
+                                    'Emerald' => '190,000 Php',
+                                    'Infinity' => '250,000 Php',
+                                    'Sapphire' => '295,000 Php',
+                                ];
+                            @endphp
+                            {{ $prices[$project->package->name] ?? 'Price Not Available' }}
+                        </small>
+                    </td>
+                    <td>{{ $project->venue ?? 'No Venue' }}</td>
+                    <td>
+                        {{ $project->end ? \Carbon\Carbon::parse($project->end)->format('F j, Y') : 'No End Date' }}<br>
+                        <small>started at {{ $project->start ? \Carbon\Carbon::parse($project->start)->format('F j, Y') : 'No Start Date' }}</small>
+                    </td>
+                    <td>
+                        {{ $project->headCoordinator->name ?? 'No Head Coordinator' }}<br>
+                        <small>{{ $project->groomCoordinator->name ?? 'No Groom Coordinator' }} & {{ $project->brideCoordinator->name ?? 'No Bride Coordinator' }}</small>
+                    </td>
+                    <td>
+                        @php
+                            $status = $project->status instanceof \App\Enums\ProjectStatus
+                                ? $project->status
+                                : \App\Enums\ProjectStatus::tryFrom((int) $project->status);
                             
-                            foreach ($checklists as $checklist) {
-                                $items = $trelloService->getChecklistItems($checklist['id']);
-                                $totalTasks += count($items);
-                                $completedTasks += count(array_filter($items, fn($item) => ($item['state'] ?? 'incomplete') === 'complete'));
+                            $statusClass = match($status) {
+                                \App\Enums\ProjectStatus::ACTIVE => 'status-info',
+                                \App\Enums\ProjectStatus::COMPLETED => 'status-primary',
+                                \App\Enums\ProjectStatus::ARCHIVED => 'status-warning',
+                                \App\Enums\ProjectStatus::CANCELLED => 'status-danger',
+                                \App\Enums\ProjectStatus::ON_HOLD => 'status-secondary',
+                                default => ''
+                            };
+                        @endphp
+                        <span class="{{ $statusClass }}">{{ $status?->label() ?? 'Unknown' }}</span>
+                    </td>
+                    <td>
+                        @php
+                            $teams = $project->teams->pluck('name')->toArray();
+                            if ($project->package->name === 'Ruby') {
+                                $teams = array_filter($teams, function ($team) {
+                                    return $team !== 'Photo&Video';
+                                });
                             }
+                            echo implode("<br>", $teams);
+                        @endphp
+                    </td>
+                    <td>
+                        @php
+                            $percentages = app(\App\Services\DashboardService::class)->getCardCompletedPercentage($project->id);
+                            echo $percentages;
+                        @endphp
+                    </td>
+                    <td>
+                        @php
+                            $percentages = app(\App\Services\ProjectService::class)->getProjectProgress($project);
                             
-                            if ($totalTasks === 0) {
-                                $progress[] = $card['name'] . ': No tasks';
-                                continue;
+                            if (empty($percentages)) {
+                                echo 'No data available';
+                            } else {
+                                $total = array_sum($percentages);
+                                $count = count($percentages);
+                                $average = $count > 0 ? round($total / $count) : 0;
+                                
+                                $progressClass = 'progress-green';
+                                if ($average < 30) {
+                                    $progressClass = 'progress-red';
+                                } elseif ($average < 70) {
+                                    $progressClass = 'progress-amber';
+                                }
+                                
+                                echo "<span class='{$progressClass}' style='font-weight: bold;'>{$average}%</span>";
                             }
-                            
-                            $percentage = round(($completedTasks / $totalTasks) * 100);
-                            $color = $percentage >= 80 ? 'green' : ($percentage >= 50 ? 'orange' : 'red');
-                            $progress[] = "<span style='color: {$color}'>{$card['name']}: {$percentage}%</span>";
-                        }
-                        
-                        echo implode("<br>", $progress);
-                    } else {
-                        echo 'No Trello board found';
-                    }
-                @endphp
-            </td>
-            <td>
-                @php
-                    if ($listId) {
-                        $cards = $trelloService->getListCards($listId);
-                        $totalTasks = 0;
-                        $completedTasks = 0;
-                        
-                        foreach ($cards as $card) {
-                            $checklists = $trelloService->getCardChecklists($card['id']);
-                            
-                            foreach ($checklists as $checklist) {
-                                $items = $trelloService->getChecklistItems($checklist['id']);
-                                $totalTasks += count($items);
-                                $completedTasks += count(array_filter($items, fn($item) => ($item['state'] ?? 'incomplete') === 'complete'));
-                            }
-                        }
-                        
-                        if ($totalTasks === 0) {
-                            echo 'No tasks found';
-                        } else {
-                            $percentage = round(($completedTasks / $totalTasks) * 100);
-                            $color = $percentage >= 80 ? 'green' : ($percentage >= 50 ? 'orange' : 'red');
-                            echo "<span style='color: {$color}'>{$percentage}%</span>";
-                        }
-                    } else {
-                        echo 'No Trello board found';
-                    }
-                @endphp
-            </td>
-        </tr>
-        @endforeach
-    </tbody>
-</table>
-
+                        @endphp
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
 
     <!-- Fixed footer with page number and generated by -->
