@@ -253,7 +253,7 @@ class OverallReports extends BaseWidget
                         Grid::make(2)
                             ->label('View Event Details')
                             ->schema([
-                                Section::make('Project Overview')
+                                Section::make('Event Overview')
                                     ->label('Event Overview')
                                     ->schema([
                                         Grid::make(2)
