@@ -136,7 +136,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             'HR Admin',
             'Department Admin',
             'Coordinator',
-            'Team Leader'
+            'Team Leader',
+            'Member'
         ]);
     }
 
