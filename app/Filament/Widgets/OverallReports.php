@@ -40,7 +40,7 @@ class OverallReports extends BaseWidget
     protected static ?string $model = Project::class;
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?string $heading = 'Overall Reports of Projects';
+    protected static ?string $heading = 'Overall Reports of Events';
 
     public function table(Table $table): Table
     {
@@ -96,7 +96,7 @@ class OverallReports extends BaseWidget
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Project Name')
+                    ->label('Event Name')
                     ->url(fn(Project $record): string => ProjectResource::getUrl('edit', ['record' => $record]))
                     ->searchable()
                     ->limit(20),
