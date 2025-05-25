@@ -62,7 +62,6 @@ class TaskResource extends Resource
                         Forms\Components\Select::make('department_id')
                             ->label('Department')
                             ->relationship('department', 'name')
-                            ->sortable()
                             ->required()
                             ->preload()
                             ->columnSpan(1),
@@ -70,7 +69,6 @@ class TaskResource extends Resource
                         Forms\Components\Select::make('task_category_id')
                             ->label('Duration')
                             ->relationship('category', 'name')
-                            ->sortable()
                             ->required()
                             ->preload()
                             ->columnSpan(1),
@@ -129,6 +127,7 @@ class TaskResource extends Resource
                             Tables\Columns\TextColumn::make('department.name')
                                 // ->searchable()
                                 ->limit(25)
+                                ->sortable()
                                 ->badge()
                                 ->alignment(Alignment::End)
                                 ->color(
@@ -176,6 +175,7 @@ class TaskResource extends Resource
                                 ->getStateUsing(function ($record) {
                                     return 'Prep Timeline';
                                 })
+                                ->sortable()
                                 ->size(TextColumn\TextColumnSize::ExtraSmall)
                                 ->weight(FontWeight::Thin)
                                 ->formatStateUsing(function ($column, $state) {
