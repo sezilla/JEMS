@@ -35,7 +35,9 @@ class DashboardService
 
     public function getProjectCount()
     {
-        return Project::forUser(Auth::id())->count();
+        return Auth::user()->teams->sum(function ($team) {
+            return $team->projects->count();
+        });
     }
 
     public function getAssignedTasksCount()
