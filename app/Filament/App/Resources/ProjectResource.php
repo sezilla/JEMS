@@ -24,6 +24,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\App\Resources\ProjectResource\Pages;
 use Filament\Tables\Columns\TextColumn\TextColumnSize;
+use App\Filament\App\Resources\ProjectResource\Pages\task;
 
 $user = Auth::user();
 
@@ -62,6 +63,9 @@ class ProjectResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->query(
+                Project::forUser(Auth::user())
+            )
             ->columns([
                 Stack::make([
                     TextColumn::make('name')
@@ -279,6 +283,9 @@ class ProjectResource extends Resource
                 'xl' => 3,
                 'sm' => 1,
             ])
+            ->recordUrl(fn($record) => route(task::getRouteName(), [
+                'record' => $record,
+            ]))
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 Tables\Filters\Filter::make('completed')
