@@ -102,7 +102,7 @@ class UserResource extends Resource
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
 
                                 if ($selectedRole === 'Department Admin') {
-                                    $query->with('admin');
+                                    $query->with('admins');
                                 } elseif ($selectedRole === 'Coordinator') {
                                     $query->where('name', 'Coordination');
                                 }
