@@ -35,7 +35,7 @@ class ProjectStatsCoorView extends BaseWidget
 {
     protected int | string | array $columnSpan = 'full';
     protected static ?int $sort = 3;
-    protected static ?string $heading = 'Projects assigned to you';
+    protected static ?string $heading = 'Events assigned to you';
     public function table(Table $table): Table
     {
         return $table
@@ -137,13 +137,15 @@ class ProjectStatsCoorView extends BaseWidget
             ])
             ->actions([
                 ViewAction::make()
+
                     ->label('View')
                     ->icon('heroicon-m-eye')
                     ->color('primary')
                     ->infolist(fn(Project $record) => [
                         Grid::make(2)
+                            ->label('View Event Details')
                             ->schema([
-                                Section::make('Project Overview')
+                                Section::make('Event Overview')
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
@@ -159,7 +161,7 @@ class ProjectStatsCoorView extends BaseWidget
                                                 Grid::make(1)
                                                     ->schema([
                                                         TextEntry::make('name')
-                                                            ->label('Project Name')
+                                                            ->label('Event Name')
                                                             ->weight(FontWeight::Bold)
                                                             ->size(TextEntry\TextEntrySize::Large),
 

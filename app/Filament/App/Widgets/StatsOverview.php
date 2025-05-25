@@ -15,8 +15,8 @@ class StatsOverview extends BaseWidget
         $user = Auth::user();
 
         return [
-            Stat::make('Projects', app(DashboardService::class)->getProjectCount() ?? 0)
-                ->description('Total number of Projects assigned to your team')
+            Stat::make('Events', app(DashboardService::class)->getProjectCount() ?? 0)
+                ->description('Total number of Events assigned to your team')
                 ->descriptionIcon('heroicon-o-clipboard-document-check')
                 ->color('info'),
 

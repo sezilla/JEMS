@@ -26,7 +26,7 @@ class StatsOverview extends BaseWidget
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->pluck('total') // Get the total column as an array
-            ->toArray(); 
+            ->toArray();
 
         // If there are fewer than 7 days of data, fill in with zeroes
         $userRegistrationsChart = array_pad($userRegistrationsLast7Days, 7, 0);
@@ -42,7 +42,7 @@ class StatsOverview extends BaseWidget
         // If there are fewer than 7 days of data, fill in with zeroes
         $projectsChart = array_pad($projectsCreatedLast7Days, 7, 0);
 
-        
+
 
         return [
             Stat::make('Users', $userCount)
@@ -55,8 +55,8 @@ class StatsOverview extends BaseWidget
                 ])
                 ->chart($userRegistrationsChart),
 
-            Stat::make('Projects', $projectCount)
-                ->description('Total number of Projects')
+            Stat::make('Events', $projectCount)
+                ->description('Total number of Events')
                 ->descriptionIcon('heroicon-o-clipboard-document-check')
                 ->color('info')
                 ->chart($projectsChart),
