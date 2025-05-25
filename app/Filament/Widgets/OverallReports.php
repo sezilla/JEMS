@@ -245,7 +245,7 @@ class OverallReports extends BaseWidget
                     }),
             ])
             ->actions([
-                ViewAction::make()
+                ViewAction::make('View Event')
                     ->label('View')
                     ->icon('heroicon-m-eye')
                     ->color('primary')
