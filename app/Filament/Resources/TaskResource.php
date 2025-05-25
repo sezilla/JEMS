@@ -62,6 +62,7 @@ class TaskResource extends Resource
                         Forms\Components\Select::make('department_id')
                             ->label('Department')
                             ->relationship('department', 'name')
+                            ->sortable()
                             ->required()
                             ->preload()
                             ->columnSpan(1),
@@ -69,6 +70,7 @@ class TaskResource extends Resource
                         Forms\Components\Select::make('task_category_id')
                             ->label('Duration')
                             ->relationship('category', 'name')
+                            ->sortable()
                             ->required()
                             ->preload()
                             ->columnSpan(1),

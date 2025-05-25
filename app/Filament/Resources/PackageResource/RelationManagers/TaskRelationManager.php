@@ -75,6 +75,7 @@ class TaskRelationManager extends RelationManager
             ->columns([
                 Tables\Columns\TextColumn::make('department.name')
                     ->badge()
+                    ->sortable()
                     ->color(
                         fn(string $state): string => match ($state) {
                             'Catering' => 'Catering',
@@ -86,7 +87,8 @@ class TaskRelationManager extends RelationManager
                             default => 'gray',
                         }
                     ),
-                Tables\Columns\TextColumn::make('category.name'),
+                Tables\Columns\TextColumn::make('category.name')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
