@@ -110,6 +110,7 @@ class TaskRelationManager extends RelationManager
                     ->label('Create Task'),
 
                 Tables\Actions\CreateAction::make('addTask')
+                    ->createAnother(false)
                     ->label('Add Task')
                     // ->visible(fn() => auth()->user()->can('addTask', PackageTask::class))
                     ->action(function (array $data) {
