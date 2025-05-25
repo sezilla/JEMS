@@ -88,6 +88,7 @@ class TaskRelationManager extends RelationManager
                         }
                     ),
                 Tables\Columns\TextColumn::make('category.name')
+                    ->label('Duration')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('name'),
             ])

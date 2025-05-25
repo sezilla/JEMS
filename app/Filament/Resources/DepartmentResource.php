@@ -65,14 +65,14 @@ class DepartmentResource extends Resource
                             ->imageEditor()
                             ->disk('public')
                             ->directory('departments'),
-                        Forms\Components\Select::make('teams')
-                            ->multiple()
-                            ->columnSpan('1')
-                            ->relationship('teams', 'name')
-                            ->label('Teams')
-                            ->preload()
-                            ->searchable()
-                            ->visible(fn($livewire) => $livewire instanceof Pages\CreateDepartment),
+                        // Forms\Components\Select::make('teams')
+                        //     ->multiple()
+                        //     ->columnSpan('1')
+                        //     ->relationship('teams', 'name')
+                        //     ->label('Teams')
+                        //     ->preload()
+                        //     ->searchable()
+                        //     ->visible(fn($livewire) => $livewire instanceof Pages\CreateDepartment),
                     ])
             ])
             ->columns(3);
