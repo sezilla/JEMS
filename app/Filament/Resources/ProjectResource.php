@@ -249,6 +249,7 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
+                            ->required()
                             ->label('Bride`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
@@ -261,6 +262,7 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
+                            ->required()
                             ->label('Groom`s Coordinator Assistant')
                             ->searchable()
                             ->preload()

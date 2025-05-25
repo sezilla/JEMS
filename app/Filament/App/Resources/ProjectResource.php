@@ -82,7 +82,7 @@ class ProjectResource extends Resource
                             ->defaultImageUrl(url('https://placehold.co/150x200/EEE/gray?text=Event+Image&font=lato')),
                         Stack::make([
                             Stack::make([
-                                TextColumn::make('packege.name')
+                                TextColumn::make('package.name')
                                     ->getStateUsing(function ($record) {
                                         return 'Package';
                                     })
@@ -120,7 +120,7 @@ class ProjectResource extends Resource
                                         ->options([
                                             'heroicon-o-clock' => ProjectStatus::ACTIVE,
                                             'heroicon-o-check-circle' => ProjectStatus::COMPLETED,
-                                            'heroicon-o-trash-circle' => ProjectStatus::ARCHIVED,
+                                            'heroicon-o-trash' => ProjectStatus::ARCHIVED,
                                             'heroicon-o-x-circle' => ProjectStatus::CANCELLED,
                                             'heroicon-o-pause-circle' => ProjectStatus::ON_HOLD,
                                         ])
@@ -134,7 +134,8 @@ class ProjectResource extends Resource
                                         ->size('md')
                                         ->tooltip(fn($record) => $record->status?->label()),
 
-                                ]),
+                                ])
+                                    ->extraAttributes(['class' => 'flex flex-wrap gap-2 items-center']),
                             ]),
                             Stack::make([
                                 TextColumn::make('venue')
@@ -219,7 +220,7 @@ class ProjectResource extends Resource
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
-                                    return 'Bride coor';
+                                    return 'Bride`s coor';
                                 })
                                 ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
@@ -237,7 +238,7 @@ class ProjectResource extends Resource
                         Stack::make([
                             TextColumn::make('groomCoordinator.name')
                                 ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
+                                    return 'Groom`s coor';
                                 })
                                 ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
@@ -278,7 +279,6 @@ class ProjectResource extends Resource
                 'xl' => 3,
                 'sm' => 1,
             ])
-            ->recordUrl(fn($record) => route('filament.app.resources.projects.task', $record->id))
             ->paginated([12, 24, 48, 96, 'all'])
             ->filters([
                 Tables\Filters\Filter::make('completed')
@@ -294,6 +294,7 @@ class ProjectResource extends Resource
                     ->label('Deleted')
             ]);
     }
+
     public static function getRelations(): array
     {
         return [
