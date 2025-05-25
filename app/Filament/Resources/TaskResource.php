@@ -184,6 +184,7 @@ class TaskResource extends Resource
                                 ->html(),
                             Tables\Columns\TextColumn::make('category.name')
                                 // ->searchable()
+                                ->sortable()
                                 ->limit(30),
                         ])
                     ]),
