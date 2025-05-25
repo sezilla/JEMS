@@ -26,44 +26,44 @@ class ListProjects extends ListRecords
         return [
             'All' => Tab::make()
                 ->badge(Project::count()),
-    
-            'This Week' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) =>
-                    $query->whereBetween('end', [
-                        now()->startOfWeek(),
-                        now()->endOfWeek()
-                    ])
-                )
-                ->badge(fn () => Project::whereBetween('end', [
-                    now()->startOfWeek(),
-                    now()->endOfWeek()
-                ])->count()),
 
-    
+            // 'This Week' => Tab::make()
+            //     ->modifyQueryUsing(fn (Builder $query) =>
+            //         $query->whereBetween('end', [
+            //             now()->startOfWeek(),
+            //             now()->endOfWeek()
+            //         ])
+            //     )
+            //     ->badge(fn () => Project::whereBetween('end', [
+            //         now()->startOfWeek(),
+            //         now()->endOfWeek()
+            //     ])->count()),
+
             'This Month' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) =>
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
                     $query->whereBetween('end', [
-                        now()->startOfMonth(), 
+                        now()->startOfMonth(),
                         now()->endOfMonth()
                     ])
                 )
-                ->badge(fn () => Project::whereBetween('end', [
-                    now()->startOfMonth(), 
+                ->badge(fn() => Project::whereBetween('end', [
+                    now()->startOfMonth(),
                     now()->endOfMonth()
                 ])->count()),
-    
+
             'This Year' => Tab::make()
-                ->modifyQueryUsing(fn (Builder $query) =>
+                ->modifyQueryUsing(
+                    fn(Builder $query) =>
                     $query->whereBetween('end', [
-                        now()->startOfYear(), 
+                        now()->startOfYear(),
                         now()->endOfYear()
                     ])
                 )
-                ->badge(fn () => Project::whereBetween('end', [
-                    now()->startOfYear(), 
+                ->badge(fn() => Project::whereBetween('end', [
+                    now()->startOfYear(),
                     now()->endOfYear()
                 ])->count()),
         ];
     }
-    
 }

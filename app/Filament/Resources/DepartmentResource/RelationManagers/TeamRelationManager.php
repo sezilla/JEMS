@@ -20,6 +20,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\TeamResource\Pages\ViewTeam;
 use Filament\Resources\RelationManagers\RelationManager;
 use App\Filament\Resources\TeamResource\Pages\CreateTeam;
 
@@ -112,6 +113,9 @@ class TeamRelationManager extends RelationManager
                     ->label('Members')
                     ->stacked(),
             ])
+            ->recordUrl(fn($record) => route(ViewTeam::getRouteName(), [
+                'record' => $record,
+            ]))
             ->filters([
                 //
             ])

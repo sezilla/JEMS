@@ -102,7 +102,7 @@ class UserResource extends Resource
                                 $selectedRole = Role::where('id', $get('roles'))->value('name');
 
                                 if ($selectedRole === 'Department Admin') {
-                                    $query->with('admin');
+                                    $query->with('admins');
                                 } elseif ($selectedRole === 'Coordinator') {
                                     $query->where('name', 'Coordination');
                                 }
@@ -298,11 +298,10 @@ class UserResource extends Resource
                     ->label('Department')
                     ->relationship('departments', 'name'),
                 SelectFilter::make('roles')
-                    ->options(function () {
-                        return Role::where('name', '!=', 'super admin')->pluck('name', 'id');
-                    })
                     ->label('Role')
-                    ->relationship('roles', 'name'),
+                    ->relationship('roles', 'name', function ($query) {
+                        $query->where('name', '!=', config('filament-shield.super_admin.name'));
+                    }),
             ])
             ->actions([
                 // Tables\Actions\ViewAction::make(),

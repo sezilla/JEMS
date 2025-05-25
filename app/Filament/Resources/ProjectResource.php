@@ -213,7 +213,7 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Bride Coordinator')
+                            ->label('Bride`s Coordinator')
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -225,7 +225,7 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Groom Coordinator')
+                            ->label('Groom`s Coordinator')
                             ->required()
                             ->searchable()
                             ->preload(),
@@ -249,7 +249,8 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Bride Coordinator Assistant')
+                            ->required()
+                            ->label('Bride`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
                             ->nullable(),
@@ -261,7 +262,8 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->label('Groom Coordinator Assistant')
+                            ->required()
+                            ->label('Groom`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
                             ->nullable(),
@@ -336,7 +338,7 @@ class ProjectResource extends Resource
                             ->defaultImageUrl(url('https://placehold.co/150x200/EEE/gray?text=Event+Image&font=lato')),
                         Stack::make([
                             Stack::make([
-                                TextColumn::make('packege.name')
+                                TextColumn::make('package.name')
                                     ->getStateUsing(function ($record) {
                                         return 'Package';
                                     })
@@ -388,7 +390,8 @@ class ProjectResource extends Resource
                                         ->size('md')
                                         ->tooltip(fn($record) => $record->status?->label()),
 
-                                ]),
+                                ])
+                                    ->extraAttributes(['class' => 'flex flex-wrap gap-2 items-center']),
                             ]),
                             Stack::make([
                                 TextColumn::make('venue')
@@ -473,7 +476,7 @@ class ProjectResource extends Resource
                         Stack::make([
                             TextColumn::make('brideCoordinator.name')
                                 ->getStateUsing(function ($record) {
-                                    return 'Bride coor';
+                                    return 'Bride`s coor';
                                 })
                                 ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)
@@ -491,7 +494,7 @@ class ProjectResource extends Resource
                         Stack::make([
                             TextColumn::make('groomCoordinator.name')
                                 ->getStateUsing(function ($record) {
-                                    return 'Groom coor';
+                                    return 'Groom`s coor';
                                 })
                                 ->size(TextColumnSize::Small)
                                 ->weight(FontWeight::Thin)

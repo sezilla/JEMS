@@ -276,7 +276,7 @@ class ProjectStatsCoorView extends BaseWidget
                                         Grid::make(3)
                                             ->schema([
                                                 TextEntry::make('headCoordinator.name')
-                                                    ->label('Head Coordinator')
+                                                    ->label('Coordinators')
                                                     ->icon('heroicon-m-user-circle')
                                                     ->iconPosition(IconPosition::Before),
 
