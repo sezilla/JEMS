@@ -46,7 +46,7 @@ class ProjectStatsCoorView extends BaseWidget
             ->columns([
                 TextColumn::make('name')
                     ->limit(25)
-                    ->label('Project Name')
+                    ->label('Event Name')
                     ->url(fn($record): string => \App\Filament\App\Resources\ProjectResource::getUrl('task', ['record' => $record]))
                     ->searchable(),
                 TextColumn::make('end')
@@ -137,8 +137,7 @@ class ProjectStatsCoorView extends BaseWidget
             ])
             ->actions([
                 ViewAction::make('View Event')
-
-                    ->label('View Event')
+                    ->label('View')
                     ->icon('heroicon-m-eye')
                     ->color('primary')
                     ->infolist(fn(Project $record) => [
@@ -324,7 +323,8 @@ class ProjectStatsCoorView extends BaseWidget
                                             ])
                                             ->grid(3)->columnSpan('full'),
                                     ]),
-                            ]),
+                            ])->label('Event Details'),
+
                     ]),
             ]);
     }
