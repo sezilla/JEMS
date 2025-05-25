@@ -131,14 +131,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     //wirechat 
     public function canCreateChats(): bool
     {
-        return $this->hasVerifiedEmail() && $this->hasAnyRole([
-            'super admin',
-            'HR Admin',
-            'Department Admin',
-            'Coordinator',
-            'Team Leader',
-            'Member'
-        ]);
+        return $this->hasVerifiedEmail();
     }
 
     public function canCreateGroups(): bool
