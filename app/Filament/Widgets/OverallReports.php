@@ -251,8 +251,10 @@ class OverallReports extends BaseWidget
                     ->color('primary')
                     ->infolist(fn(Project $record) => [
                         Grid::make(2)
+                            ->label('View Event Details')
                             ->schema([
                                 Section::make('Project Overview')
+                                    ->label('Event Overview')
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
@@ -268,7 +270,7 @@ class OverallReports extends BaseWidget
                                                 Grid::make(1)
                                                     ->schema([
                                                         TextEntry::make('name')
-                                                            ->label('Project Name')
+                                                            ->label('Event Name')
                                                             ->weight(FontWeight::Bold)
                                                             ->size(TextEntry\TextEntrySize::Large),
 
