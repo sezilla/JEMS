@@ -128,6 +128,7 @@ class TaskResource extends Resource
                                 // ->searchable()
                                 ->limit(25)
                                 ->sortable()
+                                ->searchable()
                                 ->badge()
                                 ->alignment(Alignment::End)
                                 ->color(
@@ -157,6 +158,7 @@ class TaskResource extends Resource
                             // ->searchable()
                             // ->limit(25)
                             ->badge()
+                            ->searchable()
                             ->width('10%')
                             ->color(
                                 fn(string $state): string => match ($state) {
@@ -184,6 +186,7 @@ class TaskResource extends Resource
                                 ->html(),
                             Tables\Columns\TextColumn::make('category.name')
                                 // ->searchable()
+                                ->sortable()
                                 ->limit(30),
                         ])
                     ]),
