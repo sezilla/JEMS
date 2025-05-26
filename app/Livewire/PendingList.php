@@ -227,11 +227,13 @@ class PendingList extends Component implements HasTable, HasForms
                                             ->success()
                                             ->send();
 
-                                        Notification::make()
-                                            ->title('Your Task has been Approved')
-                                            ->body('The task: ' . $record->task_name . ' has been approved.')
-                                            ->success()
-                                            ->sendToDatabase(User::find($record->user_id));
+                                        if ($record->user_id) {
+                                            Notification::make()
+                                                ->title('Your Task has been Approved')
+                                                ->body('The task: ' . $record->task_name . ' has been approved.')
+                                                ->success()
+                                                ->sendToDatabase(User::find($record->user_id));
+                                        }
                                     } catch (\Exception $e) {
                                         Notification::make()
                                             ->title('Error')
@@ -337,11 +339,13 @@ class PendingList extends Component implements HasTable, HasForms
                                         ->body('The task has been approved.')
                                         ->success()
                                         ->send();
-                                    Notification::make()
-                                        ->title('Your Task has been Approved')
-                                        ->body('The task: ' . $record->task_name . ' has been approved.')
-                                        ->success()
-                                        ->sendToDatabase(User::find($record->user_id));
+                                    if ($record->user_id) {
+                                        Notification::make()
+                                            ->title('Your Task has been Approved')
+                                            ->body('The task: ' . $record->task_name . ' has been approved.')
+                                            ->success()
+                                            ->sendToDatabase(User::find($record->user_id));
+                                    }
                                 } catch (\Exception $e) {
                                     Notification::make()
                                         ->title('Task Not Found')
