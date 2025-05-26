@@ -183,6 +183,8 @@ class ProjectResource extends Resource
                             ->columnSpan(1),
 
                         FileUpload::make('thumbnail_path')
+                            ->image()
+                            ->imageEditor()
                             ->disk('public')
                             ->columnSpan(1)
                             ->label('Thumbnail')
