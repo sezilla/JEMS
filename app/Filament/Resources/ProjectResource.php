@@ -242,7 +242,7 @@ class ProjectResource extends Resource
                             ->label('Head Coordinator Assistant')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->required(), // Make required, remove ->nullable()
 
                         Forms\Components\Select::make('bride_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
@@ -251,11 +251,10 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->required()
                             ->label('Bride`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->required(), // Make required, remove ->nullable()
 
                         Forms\Components\Select::make('groom_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
@@ -264,11 +263,10 @@ class ProjectResource extends Resource
                                     $q->where('name', 'Coordinator');
                                 });
                             })
-                            ->required()
                             ->label('Groom`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->required(), // Make required, remove ->nullable()
 
                     ]),
 
