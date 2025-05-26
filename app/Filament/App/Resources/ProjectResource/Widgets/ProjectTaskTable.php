@@ -502,7 +502,7 @@ class ProjectTaskTable extends BaseWidget
             Select::make('user_id')
                 ->searchable()
                 ->preload()
-                ->relationship('users', 'name')
+                // ->relationship('users', 'name')
                 ->label('Assign To')
                 ->options(function ($get) {
                     $selectedDepartment = $get('card_name');
@@ -510,25 +510,25 @@ class ProjectTaskTable extends BaseWidget
                         return [];
                     }
 
-                    $users = collect();
+                    // $users = collect();
 
-                    if ($selectedDepartment === 'Coordination') {
-                        $coordinatorIds = collect([
-                            $this->project->head_coordinator,
-                            $this->project->groom_coordinator,
-                            $this->project->bride_coordinator,
-                            $this->project->head_coor_assistant,
-                            $this->project->groom_coor_assistant,
-                            $this->project->bride_coor_assistant
-                        ])->filter()->unique();
+                    // // if ($selectedDepartment === 'Coordination') {
+                    // //     $coordinatorIds = collect([
+                    // //         $this->project->head_coordinator,
+                    // //         $this->project->groom_coordinator,
+                    // //         $this->project->bride_coordinator,
+                    // //         $this->project->head_coor_assistant,
+                    // //         $this->project->groom_coor_assistant,
+                    // //         $this->project->bride_coor_assistant
+                    // //     ])->filter()->unique();
 
-                        if ($coordinatorIds->isNotEmpty()) {
-                            $users = $users->merge(
-                                \App\Models\User::whereIn('id', $coordinatorIds)
-                                    ->pluck('name', 'id')
-                            );
-                        }
-                    }
+                    // //     if ($coordinatorIds->isNotEmpty()) {
+                    // //         $users = $users->merge(
+                    // //             \App\Models\User::whereIn('id', $coordinatorIds)
+                    // //                 ->pluck('name', 'id')
+                    // //         );
+                    // //     }
+                    // // }
                     $teamUsers = $this->project->teams()
                         ->whereHas('departments', function ($query) use ($selectedDepartment) {
                             $query->where('name', $selectedDepartment);
@@ -538,9 +538,10 @@ class ProjectTaskTable extends BaseWidget
                         ->pluck('users')
                         ->flatten()
                         ->unique('id')
-                        ->pluck('name', 'id');
+                        ->pluck('name', 'id')
+                        ->toArray();
 
-                    return $users->merge($teamUsers)->unique();
+                    return $teamUsers;
                 })
                 ->required()
                 ->disabled(fn() => optional(Auth::user())->hasRole('Member')),
