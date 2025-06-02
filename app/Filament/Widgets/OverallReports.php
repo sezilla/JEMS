@@ -74,6 +74,18 @@ class OverallReports extends BaseWidget
 
                         if ($status) {
                             $queryParams['status'] = $status;
+                            
+                            // Set the title based on status
+                            $queryParams['title'] = match($status) {
+                                'completed' => 'Completed Events Reports',
+                                'active' => 'Current Active Events',
+                                'archived' => 'All Archived Events',
+                                'cancelled' => 'All Cancelled Events',
+                                'on_hold' => 'On Hold Events',
+                                default => 'Overall Reports of Events'
+                            };
+                        } else {
+                            $queryParams['title'] = 'Overall Reports of Events';
                         }
 
                         // Show notification before redirect

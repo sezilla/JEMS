@@ -27,6 +27,7 @@ class ProjectReportController extends Controller
         $start  = $request->query('start');
         $end    = $request->query('end');
         $status = $request->query('status');
+        $title  = $request->query('title', 'Overall Reports of Events');
 
         if ($status !== null) {
             $statusInt = config('project.project_status')[$status] ?? null;
@@ -47,7 +48,7 @@ class ProjectReportController extends Controller
         $projects = $query->get()
             ->each(fn($project) => $project->statusText = $this->getStatusText($project->status));
 
-        $pdf = Pdf::loadView('pdf.reports', compact('projects', 'start', 'end', 'status'));
+        $pdf = Pdf::loadView('pdf.reports', compact('projects', 'start', 'end', 'status', 'title'));
 
         return $pdf->download('overall_project_report.pdf');
     }

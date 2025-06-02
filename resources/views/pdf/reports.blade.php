@@ -71,7 +71,7 @@
     <div class="container">
         <!-- Header with title + logo -->
         <div class="header">
-            <h1 class="main-title">Overall Reports of Projects</h1>
+            <h1 class="main-title">{{ $title ?? 'Overall Reports of Events' }}</h1>
             <div class="subtitle">Jhossa Events Management</div>
         </div>
 
