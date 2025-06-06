@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use App\Enums\PriorityLevel;
 use App\Livewire\ProjectTask;
 use Filament\Infolists\Infolist;
+use App\Events\TaskStatusUpdated;
 use Filament\Tables\Actions\Action;
 use App\Services\ProjectTaskService;
 use Illuminate\Support\Facades\Auth;
@@ -294,7 +295,7 @@ class ProjectTaskTable extends BaseWidget
                                         ->sendToDatabase($coordinator);
                                 }
                             }
-
+                            event(new TaskStatusUpdated($record->project_id));
                             Notification::make()
                                 ->title('Task Submitted')
                                 ->body('The task has been submitted.')

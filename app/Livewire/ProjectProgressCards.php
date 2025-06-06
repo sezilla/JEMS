@@ -30,7 +30,10 @@ class ProjectProgressCards extends Component
         $this->loading = false;
     }
 
-    protected $listeners = ['refreshProgress' => 'loadProgress'];
+    protected $listeners = [
+        'refreshProgress' => 'loadProgress',
+        'echo:project.{project.id},ProjectProgressUpdated' => 'loadProgress',
+    ];
 
     public function render()
     {
