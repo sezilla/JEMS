@@ -385,7 +385,7 @@ class PendingList extends Component implements HasTable, HasForms
                                 ->first();
 
                             if ($data) {
-                                $record->update(['status' => 'rejected']);
+                                $record->update(['status' => 'incomplete']);
 
                                 $data->user_checklist = array_map(function ($card) use ($record) {
                                     $card['checklists'] = array_map(function ($checklist) use ($record) {
