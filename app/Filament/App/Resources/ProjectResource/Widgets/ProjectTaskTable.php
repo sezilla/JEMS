@@ -134,23 +134,23 @@ class ProjectTaskTable extends BaseWidget
                     ->toggleable()
                     ->searchable()
                     ->sortable(),
-                SelectColumn::make('priority_level')
-                    ->label('Priority')
-                    ->options([
-                        PriorityLevel::P0->value => 'P0',
-                        PriorityLevel::P1->value => 'P1',
-                        PriorityLevel::P2->value => 'P2',
-                    ])
-                    ->sortable()
-                    ->searchable()
-                    ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
-                    ->sortable(),
+                // SelectColumn::make('priority_level')
+                //     ->label('Priority')
+                //     ->options([
+                //         PriorityLevel::P0->value => 'P0',
+                //         PriorityLevel::P1->value => 'P1',
+                //         PriorityLevel::P2->value => 'P2',
+                //     ])
+                //     ->sortable()
+                //     ->searchable()
+                //     ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
+                //     ->sortable(),
                 TextColumn::make('priority_level')
                     ->label('Priority')
                     ->getStateUsing(function (UserTask $record): string {
                         return $record->priority_level?->value ?? '';
                     })
-                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
+                    // ->visible(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
                     ->sortable()
                     ->searchable()
                     ->badge()
