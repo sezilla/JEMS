@@ -241,7 +241,7 @@ class ProjectTaskTable extends BaseWidget
                                 ->label('Attachment')
                                 ->schema([
                                     TextInput::make('description')
-                                        ->label('Description'),
+                                        ->label('Remarks'),
                                     FileUpload::make('attachment')
                                         ->label('Attachment')
                                         ->required(),
@@ -565,7 +565,7 @@ class ProjectTaskTable extends BaseWidget
                 ->disabled(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
                 ->schema([
                     TextInput::make('description')
-                        ->label('Description'),
+                        ->label('Remarks'),
                     FileUpload::make('attachment')
                         ->label('File'),
                 ]),
