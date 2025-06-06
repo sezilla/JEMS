@@ -169,7 +169,8 @@ class DummyUserSeeder extends Seeder
             // Calculate which team this coordinator should be assigned to
             $teamIndex = floor($index / $coordinatorsPerTeam);
             if ($teamIndex < $coordinationTeams->count()) {
-                $user->teams()->attach($coordinationTeams[$teamIndex]->id);
+                $user->team_id = $coordinationTeams[$teamIndex]->id;
+                $user->save();
             }
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
@@ -192,7 +193,12 @@ class DummyUserSeeder extends Seeder
             $user->departments()->attach($departmentId);
 
             // Assign to specific team based on index
-            $user->teams()->attach($cateringTeams[$index]->id);
+            $user->team_id = $cateringTeams[$index]->id;
+            $user->save();
+            // Set leader_id on the team
+            $team = $cateringTeams[$index];
+            $team->leader_id = $user->id;
+            $team->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -213,7 +219,12 @@ class DummyUserSeeder extends Seeder
             $user->departments()->attach($departmentId);
 
             // Assign to specific team based on index
-            $user->teams()->attach($hair_and_makeupTeams[$index]->id);
+            $user->team_id = $hair_and_makeupTeams[$index]->id;
+            $user->save();
+            // Set leader_id on the team
+            $team = $hair_and_makeupTeams[$index];
+            $team->leader_id = $user->id;
+            $team->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -234,7 +245,12 @@ class DummyUserSeeder extends Seeder
             $user->departments()->attach($departmentId);
 
             // Assign to specific team based on index
-            $user->teams()->attach($photo_and_videoTeams[$index]->id);
+            $user->team_id = $photo_and_videoTeams[$index]->id;
+            $user->save();
+            // Set leader_id on the team
+            $team = $photo_and_videoTeams[$index];
+            $team->leader_id = $user->id;
+            $team->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -255,7 +271,12 @@ class DummyUserSeeder extends Seeder
             $user->departments()->attach($departmentId);
 
             // Assign to specific team based on index
-            $user->teams()->attach($designingTeams[$index]->id);
+            $user->team_id = $designingTeams[$index]->id;
+            $user->save();
+            // Set leader_id on the team
+            $team = $designingTeams[$index];
+            $team->leader_id = $user->id;
+            $team->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -276,7 +297,12 @@ class DummyUserSeeder extends Seeder
             $user->departments()->attach($departmentId);
 
             // Assign to specific team based on index
-            $user->teams()->attach($entertainmentTeams[$index]->id);
+            $user->team_id = $entertainmentTeams[$index]->id;
+            $user->save();
+            // Set leader_id on the team
+            $team = $entertainmentTeams[$index];
+            $team->leader_id = $user->id;
+            $team->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -300,7 +326,8 @@ class DummyUserSeeder extends Seeder
 
             // Assign to specific team based on index (5 members per team)
             $teamIndex = floor($index / 5);
-            $user->teams()->attach($cateringTeams[$teamIndex]->id);
+            $user->team_id = $cateringTeams[$teamIndex]->id;
+            $user->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -322,7 +349,8 @@ class DummyUserSeeder extends Seeder
 
             // Assign to specific team based on index (5 members per team)
             $teamIndex = floor($index / 5);
-            $user->teams()->attach($hair_and_makeupTeams[$teamIndex]->id);
+            $user->team_id = $hair_and_makeupTeams[$teamIndex]->id;
+            $user->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -344,7 +372,8 @@ class DummyUserSeeder extends Seeder
 
             // Assign to specific team based on index (5 members per team)
             $teamIndex = floor($index / 5);
-            $user->teams()->attach($photo_and_videoTeams[$teamIndex]->id);
+            $user->team_id = $photo_and_videoTeams[$teamIndex]->id;
+            $user->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -366,7 +395,8 @@ class DummyUserSeeder extends Seeder
 
             // Assign to specific team based on index (5 members per team)
             $teamIndex = floor($index / 5);
-            $user->teams()->attach($designingTeams[$teamIndex]->id);
+            $user->team_id = $designingTeams[$teamIndex]->id;
+            $user->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();
@@ -388,7 +418,8 @@ class DummyUserSeeder extends Seeder
 
             // Assign to specific team based on index (5 members per team)
             $teamIndex = floor($index / 5);
-            $user->teams()->attach($entertainmentTeams[$teamIndex]->id);
+            $user->team_id = $entertainmentTeams[$teamIndex]->id;
+            $user->save();
 
             $departmentSkills = $departmentSkillsMap[$departmentKey];
             $randomSkills = collect($departmentSkills)->shuffle()->take(3)->all();

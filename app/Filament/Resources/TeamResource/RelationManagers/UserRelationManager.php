@@ -21,20 +21,6 @@ class UserRelationManager extends RelationManager
 {
     protected static string $relationship = 'members';
 
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Select::make('user_id')
-                    ->label('Member')
-                    ->options(User::whereDoesntHave('teams', function ($query) {
-                        $query->where('teams.id', $this->ownerRecord->id);
-                    })->pluck('name', 'id'))
-                    ->required()
-                    ->label('Select Member')
-            ]);
-    }
-
     public function table(Table $table): Table
     {
         return $table
@@ -64,8 +50,8 @@ class UserRelationManager extends RelationManager
                     ->createAnother(false)
                     ->label('Add Member')
                     ->action(function (array $data) {
-                        // Attach the user as a member of the team
-                        $this->ownerRecord->members()->attach($data['user_id']);
+                        // Assign the user(s) to the team by updating their team_id
+                        User::whereIn('id', (array) $data['user_id'])->update(['team_id' => $this->ownerRecord->id]);
 
                         // Notify the user
                         Notification::make()
@@ -78,15 +64,12 @@ class UserRelationManager extends RelationManager
                             ->label('Select Member')
                             ->options(function () {
                                 $team = $this->ownerRecord;
-
                                 $departmentIds = $team->departments->pluck('id');
 
                                 return User::whereHas('departments', function ($query) use ($departmentIds) {
                                     $query->whereIn('departments.id', $departmentIds);
                                 })
-                                    ->whereDoesntHave('teams', function ($query) use ($team) {
-                                        $query->where('teams.id', $team->id);
-                                    })
+                                    ->whereNull('team_id')
                                     ->pluck('name', 'id');
                             })
                             ->required()
@@ -100,8 +83,8 @@ class UserRelationManager extends RelationManager
                 Tables\Actions\DeleteAction::make()
                     ->label('Remove')
                     ->action(function (User $record) {
-                        // Detach the user from the team instead of deleting the user
-                        $this->ownerRecord->members()->detach($record->id);
+                        // Remove the user from the team by setting team_id to null
+                        $record->update(['team_id' => null]);
 
                         // Optional notification for successful removal
                         Notification::make()

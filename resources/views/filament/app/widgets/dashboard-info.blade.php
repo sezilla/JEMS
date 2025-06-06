@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
         @php
             $user = Auth::user();
             $department = $user?->departments?->first();
-            $team = $user?->teams?->first();
+            $team = $user?->teams; // Fix: get the correct team model
         @endphp
         
         <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900 rounded-xl p-6 border-l-4 border-primary-500">
@@ -141,7 +141,7 @@ use Illuminate\Support\Facades\Storage;
                                     <div class="w-1 h-1 bg-blue-400 rounded-full"></div>
                                 </div>
                                 <p class="text-base font-bold text-gray-900 dark:text-white truncate">
-                                    {{ $user?->teams?->pluck('name')->implode(', ') ?? 'Not Assigned' }}
+                                    {{ $team?->name ?? 'Not Assigned' }}
                                 </p>
                                 @if($team && $team->description)
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">
