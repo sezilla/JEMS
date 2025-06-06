@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\TaskActionController;
+use App\Http\Controllers\UserActionController;
 use App\Http\Controllers\ProjectReportController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -60,3 +61,6 @@ Route::middleware('auth')->group(function () {
         return back()->with('message', 'Verification link sent!');
     })->middleware(['throttle:6,1'])->name('verification.send');
 });
+
+// Add route for clearing old tasks via notification action
+Route::get('/user/clear-old-tasks', [UserActionController::class, 'clearOldTasks'])->name('user.clearOldTasks');

@@ -6,6 +6,7 @@ use App\Models\Team;
 use App\Models\User;
 use App\Models\Project;
 use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action;
 
 class UserService
 {
@@ -52,7 +53,33 @@ class UserService
                 ->title('Team Change Notification')
                 ->info()
                 ->body("The team for user {$user->name} has been changed from team {$oldTeamName} to team {$newTeamName}.")
+                ->actions([
+                    Action::make('clear')
+                        ->label('Clear old Task')
+                        ->icon('heroicon-o-arrow-path')
+                        ->action(function () use ($user, $oldTeamId) {
+                            app(self::class)->clearUserOldTasks($user->id, $oldTeamId);
+                        }),
+                ])
                 ->sendToDatabase(User::find($coordinator));
+        }
+    }
+
+    public function clearUserOldTasks(int $userId, int $oldTeamId)
+    {
+        $oldTeamProjects = Project::whereHas('teams', function ($query) use ($oldTeamId) {
+            $query->where('teams.id', $oldTeamId);
+        })->get();
+
+        $user = User::find($userId);
+        $userTasks = [];
+        foreach ($oldTeamProjects as $project) {
+            $tasks = $user->tasks()->where('project_id', $project->id)->get();
+            foreach ($tasks as $task) {
+                $userTasks[] = $task;
+                $task->user_id = null;
+                $task->save();
+            }
         }
     }
 }
