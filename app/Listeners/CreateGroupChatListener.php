@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\ProgressUpdated;
 use Exception;
 use App\Models\User;
 use App\Services\ProjectService;
@@ -22,20 +23,22 @@ class CreateGroupChatListener implements ShouldQueue
 
     protected $projectService;
 
-    /**
-     * Create the event listener.
-     */
     public function __construct(ProjectService $projectService)
     {
         $this->projectService = $projectService;
     }
 
-    /**
-     * Handle the event.
-     */
     public function handle(ProjectCreatedEvent $event): void
     {
         $project = $event->project;
+
+        event(new ProgressUpdated(
+            0,
+            'Creating chat',
+            'Creating group conversation...',
+            $project->id,
+            $project->user_id
+        ));
 
         $coordinatorIds = collect([
             $project->head_coordinator,
@@ -47,18 +50,15 @@ class CreateGroupChatListener implements ShouldQueue
         ]);
 
         $coordinationTeams = $project->coordinationTeam()->get();
-
-        $coordinationUserIds = $coordinationTeams
-            ->flatMap(function ($team) {
-                return $team->users->pluck('id');
-            });
+        $coordinationUserIds = $coordinationTeams->flatMap(function ($team) {
+            return $team->users->pluck('id');
+        });
 
         $coordinatorIds = $coordinatorIds
             ->merge($coordinationUserIds)
             ->filter()
             ->unique()
             ->values();
-
 
         Log::info('Filtered coordinator IDs', ['ids' => $coordinatorIds->toArray()]);
 
@@ -70,15 +70,18 @@ class CreateGroupChatListener implements ShouldQueue
                     'type' => ConversationType::GROUP,
                     'current_time' => now()
                 ]);
+
                 $conversation = Conversation::create([
                     'type' => ConversationType::GROUP,
                     'updated_at' => now(),
                     'created_at' => now(),
                 ]);
+
                 $group = $conversation->group()->create([
                     'name' => "{$project->groom_name} & {$project->bride_name} Project Coordinators",
                     'description' => "Coordination group for {$project->groom_name} and {$project->bride_name}'s project"
                 ]);
+
                 $headCoordinator = $coordinatorIds->first();
                 $coordinatorIds->each(function ($userId) use ($conversation, $headCoordinator) {
                     $user = User::find($userId);
@@ -93,6 +96,7 @@ class CreateGroupChatListener implements ShouldQueue
                         Log::warning("User ID {$userId} not found.");
                     }
                 });
+
                 DB::commit();
 
                 Message::create([
@@ -117,7 +121,7 @@ class CreateGroupChatListener implements ShouldQueue
                 Notification::make()
                     ->success()
                     ->title('Group chat Created')
-                    ->body('Group chat created successfully for: ' . $project->name . 'for Coordinators')
+                    ->body('Group chat created successfully for: ' . $project->name . ' for Coordinators')
                     ->sendToDatabase(User::find($project->user()));
 
                 Log::info('Project coordinator group conversation created', [
@@ -125,6 +129,15 @@ class CreateGroupChatListener implements ShouldQueue
                     'conversation_id' => $conversation->id,
                     'participants' => $coordinatorIds->toArray()
                 ]);
+
+                // Mark as completed
+                event(new ProgressUpdated(
+                    25,
+                    'Completed',
+                    'Group chat created successfully',
+                    $project->id,
+                    $project->user_id
+                ));
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Failed to create project coordinator group', [
@@ -133,9 +146,26 @@ class CreateGroupChatListener implements ShouldQueue
                     'exception' => $e,
                 ]);
 
-                // Mark the job as failed but don't stop the queue worker
+                // Send error progress update
+                event(new ProgressUpdated(
+                    -2,
+                    'Error',
+                    'Failed to create group chat: ' . $e->getMessage(),
+                    $project->id,
+                    $project->user_id
+                ));
+
                 $this->fail($e);
             }
+        } else {
+            // No coordinators to add, mark as completed
+            event(new ProgressUpdated(
+                25,
+                'Completed',
+                'No coordinators to add to group chat',
+                $project->id,
+                $project->user_id
+            ));
         }
     }
 }
