@@ -83,7 +83,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // Add route for clearing old tasks via notification action
-Route::get('/user/clear-old-tasks', [UserActionController::class, 'clearOldTasks'])->name('user.clearOldTasks');
+Route::get('/user/clear-old-tasks', [UserActionController::class, 'clearOldTasks'])
+    ->name('user.clear-old-tasks')
+    ->middleware('auth');
 
 // Test route for broadcasting
 Route::get('/test-broadcast', function () {

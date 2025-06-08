@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Project;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
+use App\Http\Controllers\UserActionController;
 
 class UserService
 {
@@ -52,14 +53,17 @@ class UserService
             Notification::make()
                 ->title('Team Change Notification')
                 ->info()
-                ->body("The team for user {$user->name} has been changed from team {$oldTeamName} to team {$newTeamName}.")
+                ->body("The team for user {$user->name} on event {$project->name} has been changed from team {$oldTeamName} to team {$newTeamName}.")
                 ->actions([
                     Action::make('clear')
                         ->label('Clear old Task')
                         ->icon('heroicon-o-arrow-path')
-                        ->action(function () use ($user, $oldTeamId) {
-                            app(self::class)->clearUserOldTasks($user->id, $oldTeamId);
-                        }),
+                        ->markAsRead()
+                        ->url(route('user.clear-old-tasks', ['user_id' => $user->id, 'old_team_id' => $oldTeamId])),
+                    Action::make('keep')
+                        ->label('Keep old tasks')
+                        ->icon('heroicon-o-check-circle')
+                        ->markAsRead(),
                 ])
                 ->sendToDatabase(User::find($coordinator));
         }
