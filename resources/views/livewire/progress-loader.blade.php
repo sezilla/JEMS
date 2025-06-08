@@ -1,10 +1,12 @@
 @php
     $projectId = $projectId ?? null;
+    $allowedRoles = ['super admin', 'Hr Admin', 'Department Admin'];
+    $hasAllowedRole = auth()->check() && auth()->user()->hasAnyRole($allowedRoles);
 @endphp
 
 <div
     x-data="{
-        visible: {{ $projectId ? 'true' : 'false' }},
+        visible: {{ $projectId && $hasAllowedRole ? 'true' : 'false' }},
         progress: 0,
         status: 'idle',
         message: '',
