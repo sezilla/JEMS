@@ -364,6 +364,35 @@ class ProjectTaskTable extends BaseWidget
                                 ->send();
                             return $record;
                         }),
+                    Action::make('updateDueDate')
+                        ->label('Update Due Date')
+                        ->color('warning')
+                        ->icon('heroicon-m-calendar')
+                        ->modalHeading('Edit Task')
+                        ->modalWidth('lg')
+                        ->form([
+                            DatePicker::make('due_date')
+                                ->label('Due Date')
+                                ->required(),
+                            TextInput::make('remarks')
+                                ->label('Remarks or Reason'),
+                        ])
+                        ->action(function (UserTask $record, array $data) {
+                            $record->updateDueHistories()->create([
+                                'old_due_date' => $record->due_date,
+                                'new_due_date' => $data['due_date'],
+                                'user_id' => Auth::user()->id,
+                                'remarks' => $data['remarks'],
+                            ]);
+                            $record->update([
+                                'due_date' => $data['due_date'],
+                            ]);
+                            Notification::make()
+                                ->title('Due Date Updated')
+                                ->body('The due date has been updated.')
+                                ->success()
+                                ->send();
+                        }),
                     ViewAction::make()
                         ->label('View')
                         ->color('primary')
@@ -441,13 +470,56 @@ class ProjectTaskTable extends BaseWidget
                                         ]),
                                     Fieldset::make('Additional Information')
                                         ->schema([
-                                            TextEntry::make('created_at')
-                                                ->label('Created At')
-                                                ->dateTime(),
-                                            TextEntry::make('updated_at')
-                                                ->label('Updated At')
-                                                ->dateTime(),
+                                            Grid::make(2)
+                                                ->schema([
+                                                    TextEntry::make('created_at')
+                                                        ->label('Created At')
+                                                        ->dateTime(),
+                                                    TextEntry::make('updated_at')
+                                                        ->label('Updated At')
+                                                        ->dateTime(),
+                                                ]),
+                                            
                                         ]),
+                                    Fieldset::make('Due Date Update History')
+                                            ->schema([
+                                                RepeatableEntry::make('updateDueHistories')
+                                                    ->label('')
+                                                    ->schema([
+                                                        Grid::make(2)
+                                                            ->schema([
+                                                                TextEntry::make('old_due_date')
+                                                                    ->label('Previous Due Date')
+                                                                    ->date()
+                                                                    ->badge()
+                                                                    ->color('warning'),
+                                                                TextEntry::make('new_due_date')
+                                                                    ->label('New Due Date')
+                                                                    ->date()
+                                                                    ->badge()
+                                                                    ->color('success'),
+                                                            ]),
+                                                        Grid::make(1)
+                                                            ->schema([
+                                                                TextEntry::make('remarks')
+                                                                    ->label('Remarks')
+                                                                    ->markdown(),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextEntry::make('user.name')
+                                                                            ->label('Updated By')
+                                                                            ->badge(),
+                                                                        TextEntry::make('created_at')
+                                                                            ->label('Updated At')
+                                                                            ->dateTime()
+                                                                            ->badge()
+                                                                            ->color('gray'),
+                                                                    ]),
+                                                            ]),
+                                                    ])
+                                                    ->columns(1)
+                                                    ->columnSpan('full'),
+                                            ]),
                                 ]),
                         ]),
                     DeleteAction::make('delete')

@@ -6,6 +6,7 @@ use App\Enums\PriorityLevel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserTask extends Model
@@ -63,5 +64,10 @@ class UserTask extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function updateDueHistories(): HasMany
+    {
+        return $this->hasMany(UpdateDueHistory::class, 'user_task_id');
     }
 }
