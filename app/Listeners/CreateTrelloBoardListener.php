@@ -34,12 +34,19 @@ class CreateTrelloBoardListener implements ShouldQueue
         $this->progressService->updateProgress(
             $project->id,
             25,
-            'Creating board',
-            'Creating Trello board for event'
+            'Creating Trello Board',
+            'Setting up your project board...'
         );
 
         try {
             $this->projectService->createTrelloBoardForProject($project);
+
+            $this->progressService->updateProgress(
+                $project->id,
+                45,
+                'Creating Trello Board',
+                'Setting up board structure...'
+            );
 
             Notification::make()
                 ->success()
@@ -47,12 +54,11 @@ class CreateTrelloBoardListener implements ShouldQueue
                 ->body('The Trello board has been created for your project.')
                 ->sendToDatabase($project->user);
 
-            // Mark as completed
             $this->progressService->updateProgress(
                 $project->id,
                 50,
-                'Completed',
-                'Trello board created successfully'
+                'Trello Board Created',
+                'Project board created successfully'
             );
 
             TrelloBoardCreatedEvent::dispatch($project);

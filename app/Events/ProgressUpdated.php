@@ -4,55 +4,52 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PublicChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ProgressUpdated implements ShouldBroadcast
+class ProjectProgressUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $projectId;
     public $progress;
     public $status;
     public $message;
-    public $projectId;
-    public $userId;
+    public $is_completed;
+    public $has_error;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(
-        int $progress,
-        string $status,
-        string $message = '',
-        $projectId = null,
-        $userId = null
-    ) {
-        $this->progress = $progress;
-        $this->status = $status;
-        $this->message = $message;
+    public function __construct($projectId, array $data)
+    {
         $this->projectId = $projectId;
-        $this->userId = $userId;
+        $this->progress = $data['progress'] ?? 0;
+        $this->status = $data['status'] ?? 'Processing';
+        $this->message = $data['message'] ?? '';
+        $this->is_completed = $data['is_completed'] ?? false;
+        $this->has_error = $data['has_error'] ?? false;
 
-        Log::info('ProgressUpdated event created', [
+        Log::info('ProjectProgressUpdated event created', [
+            'projectId' => $this->projectId,
             'progress' => $this->progress,
             'status' => $this->status,
-            'projectId' => $this->projectId,
-            'userId' => $this->userId
+            'message' => $this->message,
+            'is_completed' => $this->is_completed,
+            'has_error' => $this->has_error
         ]);
     }
 
     /**
      * Get the channels the event should broadcast on.
      */
-    public function broadcastOn()
+    public function broadcastOn(): array
     {
         $channel = "project.progress.{$this->projectId}";
-        Log::info('Broadcasting on public channel', ['channel' => $channel]);
-        return new Channel($channel);
+        Log::info('Broadcasting ProjectProgressUpdated on channel', ['channel' => $channel]);
+        return [new Channel($channel)];
     }
 
     /**
@@ -69,14 +66,15 @@ class ProgressUpdated implements ShouldBroadcast
     public function broadcastWith(): array
     {
         $data = [
+            'projectId' => $this->projectId,
             'progress' => $this->progress,
             'status' => $this->status,
             'message' => $this->message,
-            'projectId' => $this->projectId,
-            'userId' => $this->userId,
+            'is_completed' => $this->is_completed,
+            'has_error' => $this->has_error,
         ];
 
-        Log::info('Broadcasting data', $data);
+        Log::info('Broadcasting ProjectProgressUpdated data', $data);
         return $data;
     }
 

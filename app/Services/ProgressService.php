@@ -12,41 +12,45 @@ class ProgressService
     public function updateProgress($projectId, $progress, $status = 'Processing', $message = '')
     {
         try {
+            // Determine completion and error states
+            $isCompleted = $progress >= 100;
+            $hasError = $progress === -2;
+
+            // Create or update progress record
             $progressRecord = ProjectProgress::updateOrCreate(
                 ['project_id' => $projectId],
                 [
                     'progress' => $progress,
                     'status' => $status,
                     'message' => $message,
-                    'is_completed' => $progress >= 100,
-                    'has_error' => $progress === -2
+                    'is_completed' => $isCompleted,
+                    'has_error' => $hasError
                 ]
             );
 
-            // Clear cache to force fresh data
+            // Clear and update cache
             Cache::forget("project_progress_{$projectId}");
-            
-            // Cache the updated progress
             $this->cacheProgress($projectId, $progressRecord);
 
-            // Broadcast the progress update - removed toOthers() to include current user
-            broadcast(new ProjectProgressUpdated($projectId, [
+            // Prepare broadcast data
+            $broadcastData = [
                 'progress' => $progress,
                 'status' => $status,
                 'message' => $message,
-                'is_completed' => $progress >= 100,
-                'has_error' => $progress === -2
-            ]));
+                'is_completed' => $isCompleted,
+                'has_error' => $hasError
+            ];
 
-            Log::info('Progress broadcast sent', [
+            // Broadcast the progress update
+            broadcast(new ProjectProgressUpdated($projectId, $broadcastData));
+
+            Log::info('Progress updated and broadcasted', [
                 'projectId' => $projectId,
-                'progress' => $progress,
-                'status' => $status,
-                'message' => $message
+                'data' => $broadcastData
             ]);
 
-            // If progress is 100% or has error, schedule deletion
-            if ($progress >= 100 || $progress === -2) {
+            // Schedule cleanup for completed or error states
+            if ($isCompleted || $hasError) {
                 $this->scheduleDeletion($projectId);
             }
 
@@ -54,6 +58,9 @@ class ProgressService
         } catch (\Exception $e) {
             Log::error('Error updating progress', [
                 'projectId' => $projectId,
+                'progress' => $progress,
+                'status' => $status,
+                'message' => $message,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -64,13 +71,13 @@ class ProgressService
     public function getProgress($projectId)
     {
         try {
-            // Try to get from cache first
+            // Try cache first
             $cachedProgress = Cache::get("project_progress_{$projectId}");
             if ($cachedProgress) {
                 return $cachedProgress;
             }
 
-            // If not in cache, get from database
+            // Get from database
             $progress = ProjectProgress::where('project_id', $projectId)->first();
             if ($progress) {
                 $this->cacheProgress($projectId, $progress);
@@ -91,9 +98,37 @@ class ProgressService
         try {
             Cache::forget("project_progress_{$projectId}");
             Cache::forget("delete_progress_{$projectId}");
-            return ProjectProgress::where('project_id', $projectId)->delete();
+
+            $result = ProjectProgress::where('project_id', $projectId)->delete();
+
+            Log::info('Progress deleted', ['projectId' => $projectId]);
+
+            return $result;
         } catch (\Exception $e) {
             Log::error('Error deleting progress', [
+                'projectId' => $projectId,
+                'error' => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    public function resetProgress($projectId)
+    {
+        try {
+            $this->deleteProgress($projectId);
+
+            broadcast(new ProjectProgressUpdated($projectId, [
+                'progress' => 0,
+                'status' => 'idle',
+                'message' => '',
+                'is_completed' => false,
+                'has_error' => false
+            ]));
+
+            return true;
+        } catch (\Exception $e) {
+            Log::error('Error resetting progress', [
                 'projectId' => $projectId,
                 'error' => $e->getMessage()
             ]);
@@ -108,9 +143,9 @@ class ProgressService
 
     protected function scheduleDeletion($projectId)
     {
-        // Schedule deletion after 5 minutes using Laravel's job dispatch
+        // Use Laravel's job system for cleanup
         dispatch(function () use ($projectId) {
-            sleep(300); // 5 minutes
+            Log::info('Scheduled deletion executing for project', ['projectId' => $projectId]);
             $this->deleteProgress($projectId);
         })->delay(now()->addMinutes(5));
     }
@@ -126,6 +161,7 @@ class ProgressService
     {
         return ProjectProgress::completed()
             ->orderBy('created_at', 'desc')
+            ->take(10) // Limit to recent completions
             ->get();
     }
 
@@ -133,6 +169,23 @@ class ProgressService
     {
         return ProjectProgress::error()
             ->orderBy('created_at', 'desc')
+            ->take(10) // Limit to recent errors
             ->get();
+    }
+
+    /**
+     * Update progress with indeterminate state
+     */
+    public function updateIndeterminateProgress($projectId, $status = 'Processing', $message = '')
+    {
+        return $this->updateProgress($projectId, -1, $status, $message);
+    }
+
+    /**
+     * Update progress with error state
+     */
+    public function updateErrorProgress($projectId, $message = 'An error occurred')
+    {
+        return $this->updateProgress($projectId, -2, 'Error', $message);
     }
 }

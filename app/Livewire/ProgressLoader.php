@@ -7,12 +7,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Services\ProgressService;
 use App\Models\ProjectProgress;
-use App\Events\ProjectProgressUpdated;
 use Livewire\Attributes\On;
 
 class ProgressLoader extends Component
 {
-    public $isVisible = true;
+    public $isVisible = false;
     public $progress = 0;
     public $status = 'idle';
     public $message = '';
@@ -33,11 +32,10 @@ class ProgressLoader extends Component
     {
         $this->projectId = $this->getProjectId();
         $this->userId = Auth::id();
-        
+
         if ($this->projectId) {
             $this->channel = "project.progress.{$this->projectId}";
-            $this->isVisible = true;
-            
+
             // Load initial progress from database
             $progressRecord = $this->progressService->getProgress($this->projectId);
             if ($progressRecord) {
@@ -46,12 +44,16 @@ class ProgressLoader extends Component
                 $this->message = $progressRecord->message;
                 $this->isCompleted = $progressRecord->is_completed;
                 $this->hasError = $progressRecord->has_error;
+
+                // Show if there's active progress
+                $this->isVisible = !$progressRecord->is_completed && !$progressRecord->has_error;
             }
-            
+
             Log::info('ProgressLoader mounted', [
                 'projectId' => $this->projectId,
                 'userId' => $this->userId,
-                'channel' => $this->channel
+                'channel' => $this->channel,
+                'initialProgress' => $this->progress
             ]);
         }
     }
@@ -61,16 +63,13 @@ class ProgressLoader extends Component
         if (!$this->projectId) {
             return [];
         }
-        
+
         return [
             "echo:project.progress.{$this->projectId},ProgressUpdated" => 'handleBroadcastUpdate',
-            'progress-updated' => 'updateProgress',
-            'hide-progress' => 'hideLoader',
-            'show-progress' => 'showLoader',
-            'reset-progress' => 'resetProgress'
         ];
     }
 
+    #[On('handleBroadcastUpdate')]
     public function handleBroadcastUpdate($event)
     {
         Log::info('Received broadcast update', [
@@ -79,35 +78,29 @@ class ProgressLoader extends Component
             'channel' => $this->channel
         ]);
 
-        // Update local state directly from broadcast event
-        $this->updateProgress([
-            'progress' => $event['progress'] ?? 0,
-            'status' => $event['status'] ?? 'idle',
-            'message' => $event['message'] ?? '',
-            'is_completed' => $event['is_completed'] ?? false,
-            'has_error' => $event['has_error'] ?? false
-        ]);
+        // Extract data from event
+        $progress = $event['progress'] ?? 0;
+        $status = $event['status'] ?? 'Processing';
+        $message = $event['message'] ?? '';
+        $isCompleted = $event['is_completed'] ?? false;
+        $hasError = $event['has_error'] ?? false;
+
+        // Update component state
+        $this->updateComponentState($progress, $status, $message, $isCompleted, $hasError);
     }
 
-    protected function updateProgress($data)
+    protected function updateComponentState($progress, $status, $message, $isCompleted, $hasError)
     {
-        Log::info('Updating progress - Input data', ['data' => $data]);
-        
-        $progress = $data['progress'] ?? 0;
-        $status = $data['status'] ?? 'idle';
-        $message = $data['message'] ?? '';
-        $isCompleted = $data['is_completed'] ?? false;
-        $hasError = $data['has_error'] ?? false;
-
-        Log::info('Parsed progress values', [
-            'raw_progress' => $progress,
+        Log::info('Updating component state', [
+            'progress' => $progress,
             'status' => $status,
             'message' => $message,
             'isCompleted' => $isCompleted,
             'hasError' => $hasError
         ]);
 
-        if (!$this->isVisible && $progress > 0) {
+        // Show progress bar if there's actual progress and not completed
+        if ($progress > 0 && !$isCompleted && !$hasError) {
             $this->isVisible = true;
         }
 
@@ -116,17 +109,33 @@ class ProgressLoader extends Component
         $this->hasError = $hasError;
         $this->isCompleted = $isCompleted;
 
+        // Handle special progress values
         if ($progress === -1) {
+            // Indeterminate progress
             $this->progress = null;
         } elseif ($progress === -2) {
+            // Error state
             $this->hasError = true;
             $this->progress = 0;
-            $this->status = 'error';
+            $this->status = 'Error';
+            $this->isVisible = true;
         } else {
+            // Normal progress (0-100)
             $this->progress = max(0, min(100, (int) $progress));
         }
 
-        Log::info('Final progress state', [
+        // Handle completion
+        if ($progress >= 100 && !$this->hasError) {
+            $this->isCompleted = true;
+            $this->progress = 100;
+            $this->status = 'Completed';
+            $this->isVisible = true;
+
+            // Auto-hide after 3 seconds
+            $this->dispatch('auto-hide-progress');
+        }
+
+        Log::info('Final component state', [
             'progress' => $this->progress,
             'status' => $this->status,
             'message' => $this->message,
@@ -134,35 +143,27 @@ class ProgressLoader extends Component
             'hasError' => $this->hasError,
             'isVisible' => $this->isVisible
         ]);
-
-        if ($progress >= 100 && !$this->hasError) {
-            $this->isCompleted = true;
-            $this->progress = 100;
-            $this->status = 'completed';
-            $this->dispatch('auto-hide-progress');
-        }
-
-        // Force component re-render
-        $this->dispatch('$refresh');
     }
 
+    #[On('hide-progress')]
     public function hideLoader()
     {
         $this->isVisible = false;
     }
 
+    #[On('show-progress')]
     public function showLoader()
     {
         $this->isVisible = true;
     }
 
+    #[On('reset-progress')]
     public function resetProgress()
     {
         if ($this->projectId) {
             $this->progressService->deleteProgress($this->projectId);
-            cache()->forget("project_progress_{$this->projectId}");
         }
-        
+
         $this->progress = 0;
         $this->status = 'idle';
         $this->message = '';
@@ -173,34 +174,6 @@ class ProgressLoader extends Component
 
     public function render()
     {
-        // Only refresh from database if no recent updates
-        if ($this->projectId && !$this->isCompleted && !$this->hasError) {
-            $progressRecord = $this->progressService->getProgress($this->projectId);
-            if ($progressRecord && $progressRecord->updated_at > now()->subSeconds(5)) {
-                Log::info('Loading progress from database', [
-                    'progress' => $progressRecord->progress,
-                    'status' => $progressRecord->status,
-                    'message' => $progressRecord->message
-                ]);
-                
-                $this->progress = $progressRecord->progress;
-                $this->status = $progressRecord->status;
-                $this->message = $progressRecord->message;
-                $this->isCompleted = $progressRecord->is_completed;
-                $this->hasError = $progressRecord->has_error;
-            }
-        }
-
-        Log::info('Rendering ProgressLoader', [
-            'projectId' => $this->projectId,
-            'progress' => $this->progress,
-            'status' => $this->status,
-            'message' => $this->message,
-            'isVisible' => $this->isVisible,
-            'isCompleted' => $this->isCompleted,
-            'hasError' => $this->hasError
-        ]);
-
         return view('livewire.progress-loader');
     }
 
