@@ -65,10 +65,14 @@ class TeamResource extends Resource
                             ->afterStateUpdated(fn(callable $set) => $set('leader_id', null)), // Reset leader_id when department changes
 
                         Select::make('leader_id')
-                            ->relationship('leaders', 'name', function ($query, $get) {
+                            ->relationship('leader', 'name', function ($query, $get) {
                                 $query->whereHas('departments', function ($q) use ($get) {
                                     $q->where('id', $get('departments'));
-                                })->whereDoesntHave('teams');
+                                })
+                                    ->whereNull('team_id') // Only users without a team
+                                    ->whereHas('roles', function ($q) {
+                                        $q->where('name', 'Team Leader');
+                                    });
                             })
                             ->label('Team Leader')
                             ->preload()
@@ -123,9 +127,9 @@ class TeamResource extends Resource
                                 ->weight(FontWeight::Bold),
                             TextColumn::make('departments.name')
                                 ->limit(15),
-                            ImageColumn::make('leaders.avatar_url')
+                            ImageColumn::make('leader.avatar_url')
                                 ->circular(),
-                            TextColumn::make('leaders.name')
+                            TextColumn::make('leader.name')
                                 ->label('Team Leaders'),
                         ]),
 

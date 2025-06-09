@@ -35,9 +35,8 @@ class DashboardService
 
     public function getProjectCount()
     {
-        return Auth::user()->teams->sum(function ($team) {
-            return $team->projects->count();
-        });
+        $team = Auth::user()->teams; // This is a Team model or null
+        return $team ? $team->projects->count() : 0;
     }
 
     public function getAssignedTasksCount()

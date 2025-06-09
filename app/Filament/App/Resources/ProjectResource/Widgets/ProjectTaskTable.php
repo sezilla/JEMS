@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use App\Enums\PriorityLevel;
 use App\Livewire\ProjectTask;
 use Filament\Infolists\Infolist;
+use App\Events\TaskStatusUpdated;
 use Filament\Tables\Actions\Action;
 use App\Services\ProjectTaskService;
 use Illuminate\Support\Facades\Auth;
@@ -134,23 +135,23 @@ class ProjectTaskTable extends BaseWidget
                     ->toggleable()
                     ->searchable()
                     ->sortable(),
-                SelectColumn::make('priority_level')
-                    ->label('Priority')
-                    ->options([
-                        PriorityLevel::P0->value => 'P0',
-                        PriorityLevel::P1->value => 'P1',
-                        PriorityLevel::P2->value => 'P2',
-                    ])
-                    ->sortable()
-                    ->searchable()
-                    ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
-                    ->sortable(),
+                // SelectColumn::make('priority_level')
+                //     ->label('Priority')
+                //     ->options([
+                //         PriorityLevel::P0->value => 'P0',
+                //         PriorityLevel::P1->value => 'P1',
+                //         PriorityLevel::P2->value => 'P2',
+                //     ])
+                //     ->sortable()
+                //     ->searchable()
+                //     ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
+                //     ->sortable(),
                 TextColumn::make('priority_level')
                     ->label('Priority')
                     ->getStateUsing(function (UserTask $record): string {
                         return $record->priority_level?->value ?? '';
                     })
-                    ->visible(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
+                    // ->visible(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
                     ->sortable()
                     ->searchable()
                     ->badge()
@@ -235,16 +236,20 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Submit')
                         ->color('success')
                         ->icon('heroicon-o-check-circle')
+                        ->tooltip('Submit your completed task with attachments for approval')
                         ->slideOver()
                         ->form([
                             Repeater::make('attachment')
                                 ->label('Attachment')
+                                ->addActionLabel('Add more attachment')
                                 ->schema([
                                     TextInput::make('description')
-                                        ->label('Description'),
+                                        ->label('Remarks')
+                                        ->helperText('Add remarks to explain the purpose of this attachment'),
                                     FileUpload::make('attachment')
                                         ->label('Attachment')
-                                        ->required(),
+                                        ->required()
+                                        ->helperText('Upload a file related to your task completion'),
                                 ]),
                         ])
                         ->action(function (UserTask $record, array $data) {
@@ -294,7 +299,7 @@ class ProjectTaskTable extends BaseWidget
                                         ->sendToDatabase($coordinator);
                                 }
                             }
-
+                            event(new TaskStatusUpdated($record->project_id));
                             Notification::make()
                                 ->title('Task Submitted')
                                 ->body('The task has been submitted.')
@@ -305,6 +310,7 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Edit')
                         ->color('warning')
                         ->icon('heroicon-m-pencil-square')
+                        ->tooltip('Edit task details like name, due date, and priority')
                         ->modalHeading('Edit Task')
                         ->modalWidth('lg')
                         ->modalHeading('Edit the task details')
@@ -363,10 +369,41 @@ class ProjectTaskTable extends BaseWidget
                                 ->send();
                             return $record;
                         }),
+                    Action::make('updateDueDate')
+                        ->label('Update Due Date')
+                        ->color('warning')
+                        ->icon('heroicon-m-calendar')
+                        ->tooltip('Change the task due date and add remarks for the change')
+                        ->modalHeading('Edit Task')
+                        ->modalWidth('lg')
+                        ->form([
+                            DatePicker::make('due_date')
+                                ->label('Due Date')
+                                ->required(),
+                            TextInput::make('remarks')
+                                ->label('Remarks or Reason'),
+                        ])
+                        ->action(function (UserTask $record, array $data) {
+                            $record->updateDueHistories()->create([
+                                'old_due_date' => $record->due_date,
+                                'new_due_date' => $data['due_date'],
+                                'user_id' => Auth::user()->id,
+                                'remarks' => $data['remarks'],
+                            ]);
+                            $record->update([
+                                'due_date' => $data['due_date'],
+                            ]);
+                            Notification::make()
+                                ->title('Due Date Updated')
+                                ->body('The due date has been updated.')
+                                ->success()
+                                ->send();
+                        }),
                     ViewAction::make()
                         ->label('View')
                         ->color('primary')
                         ->icon('heroicon-m-eye')
+                        ->tooltip('View complete task details including attachments and history')
                         ->infolist(fn(UserTask $record) => [
                             Grid::make(2)
                                 ->schema([
@@ -440,19 +477,63 @@ class ProjectTaskTable extends BaseWidget
                                         ]),
                                     Fieldset::make('Additional Information')
                                         ->schema([
-                                            TextEntry::make('created_at')
-                                                ->label('Created At')
-                                                ->dateTime(),
-                                            TextEntry::make('updated_at')
-                                                ->label('Updated At')
-                                                ->dateTime(),
+                                            Grid::make(2)
+                                                ->schema([
+                                                    TextEntry::make('created_at')
+                                                        ->label('Created At')
+                                                        ->dateTime(),
+                                                    TextEntry::make('updated_at')
+                                                        ->label('Updated At')
+                                                        ->dateTime(),
+                                                ]),
+                                            
                                         ]),
+                                    Fieldset::make('Due Date Update History')
+                                            ->schema([
+                                                RepeatableEntry::make('updateDueHistories')
+                                                    ->label('')
+                                                    ->schema([
+                                                        Grid::make(2)
+                                                            ->schema([
+                                                                TextEntry::make('old_due_date')
+                                                                    ->label('Previous Due Date')
+                                                                    ->date()
+                                                                    ->badge()
+                                                                    ->color('warning'),
+                                                                TextEntry::make('new_due_date')
+                                                                    ->label('New Due Date')
+                                                                    ->date()
+                                                                    ->badge()
+                                                                    ->color('success'),
+                                                            ]),
+                                                        Grid::make(1)
+                                                            ->schema([
+                                                                TextEntry::make('remarks')
+                                                                    ->label('Remarks')
+                                                                    ->markdown(),
+                                                                Grid::make(2)
+                                                                    ->schema([
+                                                                        TextEntry::make('user.name')
+                                                                            ->label('Updated By')
+                                                                            ->badge(),
+                                                                        TextEntry::make('created_at')
+                                                                            ->label('Updated At')
+                                                                            ->dateTime()
+                                                                            ->badge()
+                                                                            ->color('gray'),
+                                                                    ]),
+                                                            ]),
+                                                    ])
+                                                    ->columns(1)
+                                                    ->columnSpan('full'),
+                                            ]),
                                 ]),
                         ]),
                     DeleteAction::make('delete')
                         ->label('Delete')
                         ->color('danger')
                         ->icon('heroicon-m-trash')
+                        ->tooltip('Remove this task from the project')
                         ->requiresConfirmation()
                         ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
                         ->action(function (UserTask $record) {
@@ -475,7 +556,8 @@ class ProjectTaskTable extends BaseWidget
                                 ->success()
                                 ->send();
                         }),
-                ]),
+                ])
+                ->tooltip('Access task action: Submit, Edit, Update Due Date, View, and Delete')
             ]);
     }
 
@@ -565,7 +647,7 @@ class ProjectTaskTable extends BaseWidget
                 ->disabled(fn() => optional(Auth::user())->hasAnyRole(['Team Leader', 'Member']))
                 ->schema([
                     TextInput::make('description')
-                        ->label('Description'),
+                        ->label('Remarks'),
                     FileUpload::make('attachment')
                         ->label('File'),
                 ]),

@@ -15,15 +15,22 @@ class Team extends Model
         'name',
         'description',
         'image',
+        'leader_id',
     ];
 
-
-    public function leaders()
+    public function leader()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id')
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'Team Leader');
-            });
+        return $this->belongsTo(User::class, 'leader_id');
+    }
+
+    public function setLeader(User $user)
+    {
+        $this->leader_id = $user->id;
+        $this->save();
+
+        // Optionally set the user's team_id to this team's id
+        $user->team_id = $this->id;
+        $user->save();
     }
 
     public function departments()
@@ -33,14 +40,12 @@ class Team extends Model
 
     public function members()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
-        // ->whereHas('roles', function ($query) {
-        //     $query->where('name', 'Member');
-        // });;
+        return $this->hasMany(User::class);
     }
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'users_has_teams', 'team_id', 'user_id');
+        return $this->hasMany(User::class);
     }
 
     public function projects()

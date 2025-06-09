@@ -40,7 +40,7 @@ class OverallReports extends BaseWidget
     protected static ?string $model = Project::class;
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?string $heading = 'Overall Reports of Events';
+    protected static ?string $heading = 'Event Reports';
 
     public function table(Table $table): Table
     {
@@ -51,17 +51,17 @@ class OverallReports extends BaseWidget
                     ->icon('heroicon-o-document-text')
                     ->requiresConfirmation()
                     ->action(function (OverallReports $livewire) {
-                        // 1) Grab the full filters state:
+
                         $filters = $livewire->getTableFiltersForm()->getState();
 
-                        // 2) Unpack the wedding_date_range array:
+
                         $range  = $filters['wedding_date_range'] ?? [];
 
                         $from   = $range['wedding_date_from']  ?? null;
                         $until  = $range['wedding_date_until'] ?? null;
                         $status = $range['status']             ?? null;
 
-                        // 3) Build query params:
+
                         $queryParams = [];
 
                         if ($from) {
@@ -74,6 +74,17 @@ class OverallReports extends BaseWidget
 
                         if ($status) {
                             $queryParams['status'] = $status;
+                            
+                            $queryParams['title'] = match($status) {
+                                'completed' => 'Completed Events Reports',
+                                'active' => 'Current Active Events',
+                                'archived' => 'All Archived Events',
+                                'cancelled' => 'All Cancelled Events',
+                                'on_hold' => 'On Hold Events',
+                                default => 'Overall Reports of Events'
+                            };
+                        } else {
+                            $queryParams['title'] = 'Overall Reports of Events';
                         }
 
                         // Show notification before redirect
@@ -248,6 +259,7 @@ class OverallReports extends BaseWidget
                 ViewAction::make('View Event')
                     ->label('View')
                     ->icon('heroicon-m-eye')
+                    ->tooltip('View the event details')
                     ->color('primary')
                     ->infolist(fn(Project $record) => [
                         Grid::make(2)

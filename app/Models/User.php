@@ -4,21 +4,22 @@ namespace App\Models;
 
 use Filament\Panel;
 use App\Models\Conversation;
+use App\Services\UserService;
 use Namu\WireChat\Traits\Chatable;
-use Spatie\Permission\Traits\HasRoles;
 
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Storage;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use BezhanSalleh\FilamentShield\Facades\FilamentShield;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Collection;
 
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
@@ -42,7 +43,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         'password',
         'avatar_url',
         'custom_fields',
-        'email_verified_at'
+        'email_verified_at',
+        'team_id',
     ];
 
     //wirechat
@@ -69,7 +71,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
 
     public function teams()
     {
-        return $this->belongsToMany(Team::class, 'users_has_teams', 'user_id', 'team_id');
+        return $this->belongsTo(Team::class, 'team_id');
     }
 
     public function skills()
@@ -143,5 +145,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             'Coordinator',
             'Team Leader'
         ]);
+    }
+
+    public static function booted(): void
+    {
+        parent::booted();
+
+        static::updated(function ($user) {
+            // Notify the team about the user update
+            $userService = app(UserService::class);
+            $userService->handleUserUpdate($user);
+        });
     }
 }

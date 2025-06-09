@@ -11,6 +11,7 @@ use App\Enums\PriorityLevel;
 use App\Services\TrelloTask;
 use App\Models\ChecklistUser;
 use Illuminate\Support\Facades\Auth;
+use App\Events\ProjectProgressUpdated;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Infolists\Components\Grid;
 use Filament\Tables\Actions\ViewAction;
@@ -38,6 +39,15 @@ class PendingList extends Component implements HasTable, HasForms
     public function makeFilamentTranslatableContentDriver(): ?TranslatableContentDriver
     {
         return null;
+    }
+
+    protected $listeners = [
+        'echo:project.{project.id},TaskStatusUpdated' => 'refreshTable',
+    ];
+
+    public function refreshTable()
+    {
+        $this->dispatch('refresh');
     }
 
     public function mount($project)
@@ -175,7 +185,7 @@ class PendingList extends Component implements HasTable, HasForms
                                                     ->width('100%')
                                                     ->extraImgAttributes(['class' => 'rounded-md']),
                                                 TextEntry::make('description')
-                                                    ->label('Description'),
+                                                    ->label('Remarks'),
                                             ]),
                                     ]),
                                 Fieldset::make('Additional Information')
@@ -234,6 +244,8 @@ class PendingList extends Component implements HasTable, HasForms
                                                 ->success()
                                                 ->sendToDatabase(User::find($record->user_id));
                                         }
+                                        cache()->forget("project_{$record->project_id}_progress");
+                                        event(new ProjectProgressUpdated($record->project_id));
                                     } catch (\Exception $e) {
                                         Notification::make()
                                             ->title('Error')
@@ -346,6 +358,8 @@ class PendingList extends Component implements HasTable, HasForms
                                             ->success()
                                             ->sendToDatabase(User::find($record->user_id));
                                     }
+                                    cache()->forget("project_{$record->project_id}_progress");
+                                    event(new ProjectProgressUpdated($record->project_id));
                                 } catch (\Exception $e) {
                                     Notification::make()
                                         ->title('Task Not Found')
@@ -371,7 +385,7 @@ class PendingList extends Component implements HasTable, HasForms
                                 ->first();
 
                             if ($data) {
-                                $record->update(['status' => 'rejected']);
+                                $record->update(['status' => 'incomplete']);
 
                                 $data->user_checklist = array_map(function ($card) use ($record) {
                                     $card['checklists'] = array_map(function ($checklist) use ($record) {
