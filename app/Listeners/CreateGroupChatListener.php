@@ -162,7 +162,7 @@ class CreateGroupChatListener implements ShouldQueue
             $this->progressService->updateProgress(
                 $project->id,
                 25,
-                'Completed',
+                'Group chat created',
                 'No coordinators to add to group chat'
             );
         }
