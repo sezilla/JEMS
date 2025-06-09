@@ -139,6 +139,7 @@ class ProjectStatsCoorView extends BaseWidget
                 ViewAction::make('View Event')
                     ->label('View')
                     ->icon('heroicon-m-eye')
+                    ->tooltip('View the event details')
                     ->color('primary')
                     ->infolist(fn(Project $record) => [
                         Grid::make(2)

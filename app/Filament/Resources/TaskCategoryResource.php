@@ -46,10 +46,12 @@ class TaskCategoryResource extends Resource
                         TextInput::make('name')
                             ->label('Name')
                             ->required()
+                            ->placeholder('Enter the task category name')
                             ->columnSpan(1),
                         MarkdownEditor::make('description')
                             ->required()
                             ->maxLength(1000)
+                            ->placeholder('Enter the task category description')
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);

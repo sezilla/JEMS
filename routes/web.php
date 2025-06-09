@@ -9,6 +9,26 @@ use App\Http\Controllers\UserActionController;
 use App\Http\Controllers\ProjectReportController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
+use Filament\Facades\Filament;
+
+// Add broadcasting routes
+Route::post('/broadcasting/auth', function (\Illuminate\Http\Request $request) {
+    return Broadcast::auth($request);
+})->middleware(['web', 'auth']);
+
+Route::post('/admin/broadcasting/auth', function (\Illuminate\Http\Request $request) {
+    return Broadcast::auth($request);
+})->middleware(['web', 'auth']);
+
+Route::post('/admin/projects/broadcasting/auth', function (\Illuminate\Http\Request $request) {
+    return Broadcast::auth($request);
+})->middleware(['web', 'auth']);
+
+Route::post('/admin/projects/{projectId}/broadcasting/auth', function (\Illuminate\Http\Request $request, $projectId) {
+    return Broadcast::auth($request);
+})->middleware(['web', 'auth']);
 
 Route::get('/', function () {
     return view('welcomepage-final');
@@ -63,4 +83,44 @@ Route::middleware('auth')->group(function () {
 });
 
 // Add route for clearing old tasks via notification action
-Route::get('/user/clear-old-tasks', [UserActionController::class, 'clearOldTasks'])->name('user.clearOldTasks');
+Route::get('/user/clear-old-tasks', [UserActionController::class, 'clearOldTasks'])
+    ->name('user.clear-old-tasks')
+    ->middleware('auth');
+
+// Test route for broadcasting
+Route::get('/test-broadcast', function () {
+    Log::info('Dispatching test broadcast event');
+    
+    $projectId = request()->query('project_id');
+    $route = request()->route();
+    
+    if (!$projectId && $route) {
+        // Check for project ID in route parameters
+        $project = $route->parameter('project');
+        if ($project) {
+            $projectId = is_object($project) ? $project->id : $project;
+        }
+        // Check for record ID in Filament resource routes
+        else {
+            $record = $route->parameter('record');
+            if ($record) {
+                $projectId = is_object($record) ? $record->id : $record;
+            }
+        }
+    }
+
+    Log::info('Using project ID for test broadcast', [
+        'projectId' => $projectId,
+        'route' => $route ? $route->getName() : null,
+        'query' => request()->query()
+    ]);
+    
+    if (!$projectId) {
+        return 'No project ID found. Please provide a project_id in the URL or visit a project page.';
+    }
+    
+    $event = new App\Events\ProgressUpdated(50, 'Testing', 'Testing broadcast', $projectId, 1);
+    event($event);
+    Log::info('Test broadcast event dispatched');
+    return 'Event dispatched! Check the logs for details.';
+});

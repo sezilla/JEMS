@@ -15,10 +15,12 @@ class ProjectProgressUpdated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $projectId;
+    public $data;
 
-    public function __construct($projectId)
+    public function __construct($projectId, $data = [])
     {
         $this->projectId = $projectId;
+        $this->data = $data;
     }
 
     /**
@@ -29,7 +31,27 @@ class ProjectProgressUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('project.' . $this->projectId),
+            new Channel('project.progress.' . $this->projectId),
         ];
+    }
+
+    /**
+     * Get the data to broadcast.
+     *
+     * @return array
+     */
+    public function broadcastWith(): array
+    {
+        return $this->data;
+    }
+
+    /**
+     * Get the broadcast event name.
+     *
+     * @return string
+     */
+    public function broadcastAs(): string
+    {
+        return 'ProgressUpdated';
     }
 }

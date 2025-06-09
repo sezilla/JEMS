@@ -2,18 +2,26 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Models\User;
 use Filament\Tables;
 use App\Models\UserTask;
 use Filament\Pages\Page;
 use Filament\Tables\Table;
 use App\Enums\PriorityLevel;
+use App\Events\TaskStatusUpdated;
+use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Repeater;
 use Filament\Infolists\Components\Grid;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Split;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Infolists\Components\Fieldset;
 use Filament\Infolists\Components\TextEntry;
@@ -21,6 +29,7 @@ use Filament\Infolists\Components\ImageEntry;
 use App\Filament\App\Resources\ProjectResource;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Notifications\Actions\Action as NotificationAction;
 
 class MyTask extends Page implements HasTable
 {
@@ -119,6 +128,7 @@ class MyTask extends Page implements HasTable
                 ViewAction::make()
                     ->label('View')
                     ->color('primary')
+                    ->tooltip('View the task details')
                     ->icon('heroicon-m-eye')
                     ->infolist(fn(UserTask $record) => [
                         Grid::make(2)
@@ -200,9 +210,121 @@ class MyTask extends Page implements HasTable
                                             ->label('Updated At')
                                             ->dateTime(),
                                     ]),
+                                Fieldset::make('Due Date Update History')
+                                    ->schema([
+                                        RepeatableEntry::make('updateDueHistories')
+                                            ->label('')
+                                            ->schema([
+                                                Grid::make(2)
+                                                    ->schema([
+                                                        TextEntry::make('old_due_date')
+                                                            ->label('Previous Due Date')
+                                                            ->date()
+                                                            ->badge()
+                                                            ->color('warning'),
+                                                        TextEntry::make('new_due_date')
+                                                            ->label('New Due Date')
+                                                            ->date()
+                                                            ->badge()
+                                                            ->color('success'),
+                                                    ]),
+                                                Grid::make(1)
+                                                    ->schema([
+                                                        TextEntry::make('remarks')
+                                                            ->label('Remarks')
+                                                            ->markdown(),
+                                                        Grid::make(2)
+                                                            ->schema([
+                                                                TextEntry::make('user.name')
+                                                                    ->label('Updated By')
+                                                                    ->badge(),
+                                                                TextEntry::make('created_at')
+                                                                    ->label('Updated At')
+                                                                    ->dateTime()
+                                                                    ->badge()
+                                                                    ->color('gray'),
+                                                            ]),
+                                                    ]),
+                                            ])
+                                            ->columns(1)
+                                            ->columnSpan('full'),
+                                    ]),
                             ]),
                     ]),
-            ])
+                    Action::make('submitAsComplete')
+                        ->requiresConfirmation()
+                        ->label('Submit')
+                        ->color('success')
+                        ->tooltip('Submit the task as complete')
+                        ->icon('heroicon-o-check-circle')
+                        ->slideOver()
+                        ->form([
+                            Repeater::make('attachment')
+                                ->label('Attachment')
+                                ->schema([
+                                    TextInput::make('description')
+                                        ->label('Remarks'),
+                                    FileUpload::make('attachment')
+                                        ->label('Attachment')
+                                        ->required(),
+                                ]),
+                        ])
+                        ->action(function (UserTask $record, array $data) {
+                            $record->update([
+                                'status' => 'pending',
+                                'attachment' => $data['attachment'] ?? $record->attachment,
+                            ]);
+
+                            $coordinatorUsers = collect();
+                            if ($this->project->head_coordinator) {
+                                $coordinatorUsers->push(User::find($this->project->head_coordinator));
+                            }
+                            if ($this->project->head_coor_assistant) {
+                                $coordinatorUsers->push(User::find($this->project->head_coor_assistant));
+                            }
+                            if ($this->project->groom_coordinator) {
+                                $coordinatorUsers->push(User::find($this->project->groom_coordinator));
+                            }
+                            if ($this->project->bride_coordinator) {
+                                $coordinatorUsers->push(User::find($this->project->bride_coordinator));
+                            }
+                            if ($this->project->groom_coor_assistant) {
+                                $coordinatorUsers->push(User::find($this->project->groom_coor_assistant));
+                            }
+                            if ($this->project->bride_coor_assistant) {
+                                $coordinatorUsers->push(User::find($this->project->bride_coor_assistant));
+                            }
+                            $coordinatorTeams = $this->project->coordinationTeam()->with('users')->get();
+                            foreach ($coordinatorTeams as $team) {
+                                $coordinatorUsers = $coordinatorUsers->merge($team->users);
+                            }
+
+                            $coordinatorUsers = $coordinatorUsers->filter()->unique('id')->values();
+
+                            foreach ($coordinatorUsers as $coordinator) {
+                                if ($coordinator) {
+                                    Notification::make()
+                                        ->title('New Pending Task for Approval')
+                                        ->body('A Task from "' . $this->project->name . '" has been submitted as Completed and is pending for approval.')
+                                        ->info()
+                                        ->actions([
+                                            NotificationAction::make('view')
+                                                ->label('View Task')
+                                                ->icon('heroicon-o-eye')
+                                                ->url(ProjectResource::getUrl('task', ['record' => $this->project->id]))
+                                        ])
+                                        ->sendToDatabase($coordinator);
+                                }
+                            }
+                            event(new TaskStatusUpdated($record->project_id));
+                            Notification::make()
+                                ->title('Task Submitted')
+                                ->body('The task has been submitted.')
+                                ->success()
+                                ->send();
+                        }),
+                ])
+            
             ->emptyStateHeading('No Pending Tasks')
             ->emptyStateDescription('There are no tasks pending for approval at this time.');;
     }

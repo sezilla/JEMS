@@ -2,7 +2,9 @@
 
 namespace App\Listeners;
 
+use App\Events\ProgressUpdated;
 use App\Services\ProjectService;
+use App\Services\ProgressService;
 use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
 use App\Events\TrelloBoardIsFinalEvent;
@@ -15,13 +17,15 @@ class AssignScheduleToTaskListener implements ShouldQueue
     use InteractsWithQueue;
 
     protected $projectService;
+    protected $progressService;
 
     /**
      * Create the event listener.
      */
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ProgressService $progressService)
     {
         $this->projectService = $projectService;
+        $this->progressService = $progressService;
     }
 
     /**
@@ -31,6 +35,13 @@ class AssignScheduleToTaskListener implements ShouldQueue
     {
         $project = $event->project;
         $user = $event->project->user;
+
+        $this->progressService->updateProgress(
+            $project->id,
+            35,
+            'Assigning Schedules 3/4',
+            'Assigning task schedules to project tasks',
+        );
 
         try {
             Log::info('Starting assignTaskSchedules');
@@ -46,6 +57,13 @@ class AssignScheduleToTaskListener implements ShouldQueue
                 ->title('Task Schedules Assigned')
                 ->body('The task schedules for your project have been successfully assigned.')
                 ->sendToDatabase($user);
+
+            $this->progressService->updateProgress(
+                $project->id,
+                60,
+                'Task Schedules Assigned 3/4',
+                'Task schedules assigned successfully',
+            );
 
             // Dispatch next event in the workflow
             DueDateAssignedEvent::dispatch($project);

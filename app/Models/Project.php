@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 // use app\Models\
 
@@ -264,5 +265,10 @@ class Project extends Model
     public function checklist()
     {
         return $this->hasOne(ChecklistUser::class);
+    }
+
+    public function progress(): HasOne
+    {
+        return $this->hasOne(ProjectProgress::class);
     }
 }

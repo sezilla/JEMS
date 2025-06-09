@@ -42,15 +42,18 @@ class SkillResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->label('Name')
                             ->required()
+                            ->placeholder('Enter the skill name')
                             ->maxLength(255),
                         Forms\Components\Select::make('department_id')
                             ->label('Department')
                             ->relationship('department', 'name')
                             ->preload()
                             ->required()
+                            ->placeholder('Select the department')
                             ->multiple(),
                         Forms\Components\MarkdownEditor::make('description')
                             ->required()
+                            ->placeholder('Enter the skill description')
                             ->columnSpanFull(),
                     ]),
                 Section::make('Task Information')
