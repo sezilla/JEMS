@@ -236,16 +236,20 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Submit')
                         ->color('success')
                         ->icon('heroicon-o-check-circle')
+                        ->tooltip('Submit your completed task with attachments for approval')
                         ->slideOver()
                         ->form([
                             Repeater::make('attachment')
                                 ->label('Attachment')
+                                ->addActionLabel('Add more attachment')
                                 ->schema([
                                     TextInput::make('description')
-                                        ->label('Remarks'),
+                                        ->label('Remarks')
+                                        ->helperText('Add remarks to explain the purpose of this attachment'),
                                     FileUpload::make('attachment')
                                         ->label('Attachment')
-                                        ->required(),
+                                        ->required()
+                                        ->helperText('Upload a file related to your task completion'),
                                 ]),
                         ])
                         ->action(function (UserTask $record, array $data) {
@@ -306,6 +310,7 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Edit')
                         ->color('warning')
                         ->icon('heroicon-m-pencil-square')
+                        ->tooltip('Edit task details like name, due date, and priority')
                         ->modalHeading('Edit Task')
                         ->modalWidth('lg')
                         ->modalHeading('Edit the task details')
@@ -368,6 +373,7 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Update Due Date')
                         ->color('warning')
                         ->icon('heroicon-m-calendar')
+                        ->tooltip('Change the task due date and add remarks for the change')
                         ->modalHeading('Edit Task')
                         ->modalWidth('lg')
                         ->form([
@@ -397,6 +403,7 @@ class ProjectTaskTable extends BaseWidget
                         ->label('View')
                         ->color('primary')
                         ->icon('heroicon-m-eye')
+                        ->tooltip('View complete task details including attachments and history')
                         ->infolist(fn(UserTask $record) => [
                             Grid::make(2)
                                 ->schema([
@@ -526,6 +533,7 @@ class ProjectTaskTable extends BaseWidget
                         ->label('Delete')
                         ->color('danger')
                         ->icon('heroicon-m-trash')
+                        ->tooltip('Remove this task from the project')
                         ->requiresConfirmation()
                         ->visible(fn() => optional(Auth::user())->hasRole('Coordinator'))
                         ->action(function (UserTask $record) {
@@ -548,7 +556,8 @@ class ProjectTaskTable extends BaseWidget
                                 ->success()
                                 ->send();
                         }),
-                ]),
+                ])
+                ->tooltip('Access task action: Submit, Edit, Update Due Date, View, and Delete')
             ]);
     }
 

@@ -96,22 +96,26 @@ class ProjectResource extends Resource
                             ->preload()
                             ->searchable()
                             ->options(Package::all()->pluck('name', 'id'))
-                            ->disabled(fn($record) => $record !== null),
+                            ->disabled(fn($record) => $record !== null)
+                            ->helperText('Select a package'),
                         Forms\Components\MarkdownEditor::make('description')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->placeholder('Describe the event details, requirements, and any specific notes...'),
 
 
                         Forms\Components\DatePicker::make('start')
                             ->columnSpan(1)
                             ->label('Start Date')
                             ->required()
-                            ->default(now()->toDateString()),
+                            ->default(now()->toDateString())
+                            ->helperText('Select the start date of the event planning'),
                         Forms\Components\DatePicker::make('end')
                             ->columnSpan(1)
                             ->label('Event Date')
                             ->required()
                             ->default(Carbon::now()->addYear()->toDateString())
                             ->after('start')
+                            ->helperText('Select the day of the Wedding')
                             ->rules([
                                 function () {
                                     return function ($attribute, $value, $fail) {
@@ -121,7 +125,7 @@ class ProjectResource extends Resource
                                             $endDate = Carbon::parse($value);
 
                                             if ($endDate->lessThan($startDate->addMonths(4))) {
-                                                $fail('The event date must be at least 4 months after the start date.');
+                                                $fail('The event date must be at least  months after the start date.');
                                             }
                                         }
                                     };
@@ -140,7 +144,8 @@ class ProjectResource extends Resource
 
                         Forms\Components\TextInput::make('venue')
                             ->label('Location')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Enter the event location')
                     ])
                     ->columns(3),
 
@@ -153,19 +158,23 @@ class ProjectResource extends Resource
                             ->label('Bride`s Name')
                             ->columnSpan(1)
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Enter bride\'s name'),
                         Forms\Components\TextInput::make('groom_name')
                             ->label('Groom`s Name')
                             ->required()
                             ->columnSpan(1)
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Enter groom\'s name'),
                         Forms\Components\MarkdownEditor::make('special_request')
                             ->label('Special Requests')
-                            ->columnSpan('full'),
+                            ->columnSpan('full')
+                            ->placeholder('List any special requirements or requests for the event...'),
                         ColorPicker::make('theme_color')
                             ->default('#d095ed')
                             ->label('Legend')
                             ->required()
+                            ->helperText('Choose a color to represent this event in the calendar')
                             ->rules([
                                 'required',
                                 'string',
@@ -188,7 +197,10 @@ class ProjectResource extends Resource
                             ->disk('public')
                             ->columnSpan(1)
                             ->label('Thumbnail')
-                            ->directory('thumbnails'),
+                            ->directory('thumbnails')
+                            ->helperText('Upload a representative image for the event (recommended size: 800x600)')
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg'])
+                            ->maxSize(5120),
                     ]),
 
                 Section::make()
@@ -241,8 +253,7 @@ class ProjectResource extends Resource
                             })
                             ->label('Head Coordinator Assistant')
                             ->searchable()
-                            ->preload()
-                            ->required(), // Make required, remove ->nullable()
+                            ->preload(),
 
                         Forms\Components\Select::make('bride_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
@@ -254,7 +265,7 @@ class ProjectResource extends Resource
                             ->label('Bride`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
-                            ->required(), // Make required, remove ->nullable()
+                            ->required(),
 
                         Forms\Components\Select::make('groom_coor_assistant')
                             ->options(User::all()->pluck('name', 'id'))
@@ -266,7 +277,7 @@ class ProjectResource extends Resource
                             ->label('Groom`s Coordinator Assistant')
                             ->searchable()
                             ->preload()
-                            ->required(), // Make required, remove ->nullable()
+                            ->required(),
 
                     ]),
 

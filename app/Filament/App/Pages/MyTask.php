@@ -128,6 +128,7 @@ class MyTask extends Page implements HasTable
                 ViewAction::make()
                     ->label('View')
                     ->color('primary')
+                    ->tooltip('View the task details')
                     ->icon('heroicon-m-eye')
                     ->infolist(fn(UserTask $record) => [
                         Grid::make(2)
@@ -254,6 +255,7 @@ class MyTask extends Page implements HasTable
                         ->requiresConfirmation()
                         ->label('Submit')
                         ->color('success')
+                        ->tooltip('Submit the task as complete')
                         ->icon('heroicon-o-check-circle')
                         ->slideOver()
                         ->form([
