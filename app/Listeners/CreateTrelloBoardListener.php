@@ -33,8 +33,8 @@ class CreateTrelloBoardListener implements ShouldQueue
 
         $this->progressService->updateProgress(
             $project->id,
-            25,
-            'Creating board',
+            15,
+            'Creating board 2/4',
             'Creating Trello board for event'
         );
 
@@ -50,8 +50,8 @@ class CreateTrelloBoardListener implements ShouldQueue
             // Mark as completed
             $this->progressService->updateProgress(
                 $project->id,
-                50,
-                'Completed',
+                30,
+                'Board Created 2/4',
                 'Trello board created successfully'
             );
 

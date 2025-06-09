@@ -13,9 +13,13 @@
         hasError: @entangle('hasError'),
         isCompleted: @entangle('isCompleted'),
         autoHideTimer: null,
+        refreshInterval: null,
         
         init() {
             console.log('Initializing progress loader for project:', '{{ $projectId }}');
+            
+            // Start auto-refresh every 5 seconds
+            this.startAutoRefresh();
             
             // Listen for Livewire events
             this.$wire.on('progress-updated', (data) => {
@@ -47,6 +51,38 @@
                 console.warn('Echo is not available');
             }
             @endif
+
+            // Cleanup on destroy
+            this.$watch('visible', (value) => {
+                if (!value) {
+                    this.stopAutoRefresh();
+                }
+            });
+        },
+        
+        startAutoRefresh() {
+            // Clear existing interval
+            if (this.refreshInterval) {
+                clearInterval(this.refreshInterval);
+            }
+            
+            // Start new interval - refresh every 5 seconds
+            this.refreshInterval = setInterval(() => {
+                if (this.visible && !this.isCompleted && !this.hasError) {
+                    console.log('Auto-refreshing progress data...');
+                    this.$wire.$refresh();
+                }
+            }, 5000);
+            
+            console.log('Auto-refresh started (every 5 seconds)');
+        },
+        
+        stopAutoRefresh() {
+            if (this.refreshInterval) {
+                clearInterval(this.refreshInterval);
+                this.refreshInterval = null;
+                console.log('Auto-refresh stopped');
+            }
         },
         
         updateProgress(data) {
@@ -67,11 +103,25 @@
                 // Handle completion
                 if (data.progress >= 100 && !this.hasError) {
                     this.isCompleted = true;
+                    this.stopAutoRefresh(); // Stop refreshing when completed
                     if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
                     this.autoHideTimer = setTimeout(() => {
                         this.visible = false;
                     }, 3000);
                 }
+                
+                // Stop refreshing on error
+                if (this.hasError) {
+                    this.stopAutoRefresh();
+                }
+            }
+        },
+        
+        // Cleanup function
+        destroy() {
+            this.stopAutoRefresh();
+            if (this.autoHideTimer) {
+                clearTimeout(this.autoHideTimer);
             }
         }
     }"
@@ -124,13 +174,30 @@
             </div>
         </div>
         
-        {{-- Progress Bar --}}
-        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden"
-             x-data="{ 
-                progress: @entangle('progress')
-             }">
-            <div class="bg-blue-500 h-2.5 transition-all duration-300 ease-out"
+        {{-- Progress Bar with Animation --}}
+        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden relative">
+            {{-- Main Progress Bar --}}
+            <div class="h-2.5 transition-all duration-500 ease-out rounded-full"
+                 :class="{
+                     'bg-blue-500': !hasError && !isCompleted,
+                     'bg-green-500': isCompleted && !hasError,
+                     'bg-red-500': hasError
+                 }"
                  :style="'width: ' + (progress || 0) + '%'"></div>
+            
+            {{-- Animated Shimmer Effect for Active Progress --}}
+            <div x-show="progress !== null && progress < 100 && !hasError && !isCompleted"
+                 class="absolute top-0 left-0 h-full w-full">
+                <div class="h-full bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"
+                     :style="'width: ' + (progress || 0) + '%'"></div>
+            </div>
+            
+            {{-- Sliding Animation for Active Progress --}}
+            <div x-show="progress !== null && progress < 100 && !hasError && !isCompleted"
+                 class="absolute top-0 left-0 h-full overflow-hidden"
+                 :style="'width: ' + (progress || 0) + '%'">
+                <div class="h-full w-8 bg-gradient-to-r from-transparent via-blue-300 to-transparent animate-slide-right"></div>
+            </div>
         </div>
         
         {{-- Message --}}
@@ -142,6 +209,37 @@
              x-transition:enter-end="opacity-100"></div>
     </div>
 </div>
+
+@push('styles')
+<style>
+    @keyframes slide-right {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(400%);
+        }
+    }
+    
+    .animate-slide-right {
+        animation: slide-right 2s ease-in-out infinite;
+    }
+    
+    /* Pulse animation for the shimmer effect */
+    @keyframes pulse-glow {
+        0%, 100% {
+            opacity: 0.3;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+    
+    .animate-pulse {
+        animation: pulse-glow 1.5s ease-in-out infinite;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -167,6 +265,11 @@
         } else {
             console.warn('Echo is not available - check if Laravel Echo is properly configured');
         }
+    });
+    
+    // Cleanup intervals when page unloads
+    window.addEventListener('beforeunload', () => {
+        // Alpine.js will handle cleanup through the destroy method
     });
 </script>
 @endpush

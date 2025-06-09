@@ -135,8 +135,8 @@ class CreateGroupChatListener implements ShouldQueue
                 // Mark as completed
                 $this->progressService->updateProgress(
                     $project->id,
-                    25,
-                    'Completed',
+                    10,
+                    'Group chat created 1/4',
                     'Group chat created successfully'
                 );
             } catch (\Exception $e) {

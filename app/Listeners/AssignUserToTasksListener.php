@@ -33,8 +33,8 @@ class AssignUserToTasksListener implements ShouldQueue
 
         $this->progressService->updateProgress(
             $project->id,
-            75,
-            'Assigning Tasks',
+            70,
+            'Assigning Tasks to Users 4/4',
             'Assigning task to users for event'
         );
 
