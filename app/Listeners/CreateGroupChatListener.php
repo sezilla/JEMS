@@ -6,6 +6,7 @@ use App\Events\ProgressUpdated;
 use Exception;
 use App\Models\User;
 use App\Services\ProjectService;
+use App\Services\ProgressService;
 use Namu\WireChat\Models\Message;
 use Illuminate\Support\Facades\DB;
 use App\Events\ProjectCreatedEvent;
@@ -22,23 +23,24 @@ class CreateGroupChatListener implements ShouldQueue
     use InteractsWithQueue;
 
     protected $projectService;
+    protected $progressService;
 
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ProgressService $progressService)
     {
         $this->projectService = $projectService;
+        $this->progressService = $progressService;
     }
 
     public function handle(ProjectCreatedEvent $event): void
     {
         $project = $event->project;
 
-        event(new ProgressUpdated(
+        $this->progressService->updateProgress(
+            $project->id,
             0,
             'Creating chat',
-            'Creating group conversation...',
-            $project->id,
-            $project->user_id
-        ));
+            'Creating group conversation...'
+        );
 
         $coordinatorIds = collect([
             $project->head_coordinator,
@@ -131,13 +133,12 @@ class CreateGroupChatListener implements ShouldQueue
                 ]);
 
                 // Mark as completed
-                event(new ProgressUpdated(
+                $this->progressService->updateProgress(
+                    $project->id,
                     25,
                     'Completed',
-                    'Group chat created successfully',
-                    $project->id,
-                    $project->user_id
-                ));
+                    'Group chat created successfully'
+                );
             } catch (\Exception $e) {
                 DB::rollBack();
                 Log::error('Failed to create project coordinator group', [
@@ -147,25 +148,23 @@ class CreateGroupChatListener implements ShouldQueue
                 ]);
 
                 // Send error progress update
-                event(new ProgressUpdated(
+                $this->progressService->updateProgress(
+                    $project->id,
                     -2,
                     'Error',
-                    'Failed to create group chat: ' . $e->getMessage(),
-                    $project->id,
-                    $project->user_id
-                ));
+                    'Failed to create group chat: ' . $e->getMessage()
+                );
 
                 $this->fail($e);
             }
         } else {
             // No coordinators to add, mark as completed
-            event(new ProgressUpdated(
+            $this->progressService->updateProgress(
+                $project->id,
                 25,
                 'Completed',
-                'No coordinators to add to group chat',
-                $project->id,
-                $project->user_id
-            ));
+                'No coordinators to add to group chat'
+            );
         }
     }
 }

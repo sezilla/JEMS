@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\ProgressUpdated;
 use App\Traits\UpdatesProgress;
 use App\Services\ProjectService;
+use App\Services\ProgressService;
 use App\Traits\BroadcastsProgress;
 use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
@@ -17,10 +18,12 @@ class AssignUserToTasksListener implements ShouldQueue
     use InteractsWithQueue;
 
     protected $projectService;
+    protected $progressService;
 
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ProgressService $progressService)
     {
         $this->projectService = $projectService;
+        $this->progressService = $progressService;
     }
 
     public function handle(DueDateAssignedEvent $event): void
@@ -28,13 +31,12 @@ class AssignUserToTasksListener implements ShouldQueue
         $project = $event->project;
         $user = $event->project->user;
 
-        event(new ProgressUpdated(
+        $this->progressService->updateProgress(
+            $project->id,
             75,
             'Assigning Tasks',
-            'Assigning task to users for event',
-            $project->id,
-            $project->user_id
-        ));
+            'Assigning task to users for event'
+        );
 
         try {
             $this->projectService->allocateUser($project);
@@ -47,13 +49,12 @@ class AssignUserToTasksListener implements ShouldQueue
                 ->sendToDatabase($user);
 
             // Mark as completed
-            event(new ProgressUpdated(
+            $this->progressService->updateProgress(
+                $project->id,
                 100,
                 'Completed',
-                'All tasks have been successfully assigned to users.',
-                $project->id,
-                $project->user_id
-            ));
+                'All tasks have been successfully assigned to users.'
+            );
         } catch (\Exception $e) {
             Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage(), [
                 'project_id' => $project->id,

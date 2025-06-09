@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\ProgressUpdated;
 use App\Traits\UpdatesProgress;
 use App\Services\ProjectService;
+use App\Services\ProgressService;
 use App\Traits\BroadcastsProgress;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
@@ -18,23 +19,24 @@ class CreateTrelloBoardListener implements ShouldQueue
     use InteractsWithQueue;
 
     protected $projectService;
+    protected $progressService;
 
-    public function __construct(ProjectService $projectService)
+    public function __construct(ProjectService $projectService, ProgressService $progressService)
     {
         $this->projectService = $projectService;
+        $this->progressService = $progressService;
     }
 
     public function handle(ProjectCreatedEvent $event): void
     {
         $project = $event->project;
 
-        event(new ProgressUpdated(
+        $this->progressService->updateProgress(
+            $project->id,
             25,
             'Creating board',
-            'Creating Trello board for event',
-            $project->id,
-            $project->user_id
-        ));
+            'Creating Trello board for event'
+        );
 
         try {
             $this->projectService->createTrelloBoardForProject($project);
@@ -46,13 +48,12 @@ class CreateTrelloBoardListener implements ShouldQueue
                 ->sendToDatabase($project->user);
 
             // Mark as completed
-            event(new ProgressUpdated(
+            $this->progressService->updateProgress(
+                $project->id,
                 50,
                 'Completed',
-                'Trello board created successfully',
-                $project->id,
-                $project->user_id
-            ));
+                'Trello board created successfully'
+            );
 
             TrelloBoardCreatedEvent::dispatch($project);
         } catch (\Exception $e) {
@@ -62,13 +63,12 @@ class CreateTrelloBoardListener implements ShouldQueue
             ]);
 
             // Send error progress update
-            event(new ProgressUpdated(
+            $this->progressService->updateProgress(
+                $project->id,
                 -2,
                 'Error',
-                'Failed to create Trello board: ' . $e->getMessage(),
-                $project->id,
-                $project->user_id
-            ));
+                'Failed to create Trello board: ' . $e->getMessage()
+            );
 
             Notification::make()
                 ->danger()

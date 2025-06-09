@@ -6,36 +6,73 @@
 
 <div
     x-data="{
-        visible: {{ $projectId && $hasAllowedRole ? 'true' : 'false' }},
-        progress: 0,
-        status: 'idle',
-        message: '',
-        hasError: false,
-        isCompleted: false,
+        visible: @entangle('isVisible'),
+        progress: @entangle('progress'),
+        status: @entangle('status'),
+        message: @entangle('message'),
+        hasError: @entangle('hasError'),
+        isCompleted: @entangle('isCompleted'),
         autoHideTimer: null,
+        
         init() {
             console.log('Initializing progress loader for project:', '{{ $projectId }}');
             
-            // Listen for Echo events
-            Echo.channel('project.progress.{{ $projectId }}')
-                .listen('ProgressUpdated', (e) => {
-                    console.log('Received progress update:', e);
-                    
-                    this.progress = e.progress;
-                    this.status = e.status || 'Processing';
-                    this.message = e.message || '';
-                    this.visible = true;
-                    this.hasError = false;
-                    this.isCompleted = false;
+            // Listen for Livewire events
+            this.$wire.on('progress-updated', (data) => {
+                console.log('Received progress update:', data);
+                this.updateProgress(data[0] || data);
+            });
 
-                    if (e.progress >= 100) {
-                        this.isCompleted = true;
-                        if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
-                        this.autoHideTimer = setTimeout(() => {
-                            this.visible = false;
-                        }, 3000);
-                    }
-                });
+            // Listen for auto-hide event
+            this.$wire.on('auto-hide-progress', () => {
+                if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
+                this.autoHideTimer = setTimeout(() => {
+                    this.visible = false;
+                }, 3000);
+            });
+
+            // Echo listener for real-time updates
+            @if($projectId)
+            if (typeof window.Echo !== 'undefined') {
+                console.log('Setting up Echo listener for channel: project.progress.{{ $projectId }}');
+                
+                window.Echo.channel('project.progress.{{ $projectId }}')
+                    .listen('ProgressUpdated', (e) => {
+                        console.log('Received Echo ProgressUpdated event:', e);
+                        this.updateProgress(e);
+                        // Also trigger Livewire refresh
+                        this.$wire.$refresh();
+                    });
+            } else {
+                console.warn('Echo is not available');
+            }
+            @endif
+        },
+        
+        updateProgress(data) {
+            console.log('Updating progress with data:', data);
+            
+            if (typeof data === 'object' && data !== null) {
+                this.progress = data.progress ?? this.progress;
+                this.status = data.status || 'Processing';
+                this.message = data.message || '';
+                this.hasError = data.has_error ?? false;
+                this.isCompleted = data.is_completed ?? false;
+                
+                // Show progress bar if there's actual progress
+                if (data.progress > 0) {
+                    this.visible = true;
+                }
+
+                // Handle completion
+                if (data.progress >= 100 && !this.hasError) {
+                    this.isCompleted = true;
+                    if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
+                    this.autoHideTimer = setTimeout(() => {
+                        this.visible = false;
+                    }, 3000);
+                }
+            }
         }
     }"
     x-show="visible"
@@ -46,8 +83,9 @@
     x-transition:leave-start="opacity-100 scale-100"
     x-transition:leave-end="opacity-0 scale-95"
     class="w-1/3 z-50"
+    wire:key="progress-loader-{{ $projectId }}"
 >
-    <div class="space-y-3">
+    <div class="">
         {{-- Header with status and percentage --}}
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
@@ -63,7 +101,7 @@
                     </svg>
                 </div>
                 <div x-show="!hasError && !isCompleted && progress === null">
-                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-500"></div>
                 </div>
                 
                 {{-- Status Text --}}
@@ -71,7 +109,7 @@
                     :class="{
                         'text-red-600': hasError,
                         'text-green-600': isCompleted && !hasError,
-                        'text-blue-600': !hasError && !isCompleted
+                        'text-pink-600': !hasError && !isCompleted
                     }"
                     x-text="hasError ? 'Error' : (isCompleted ? 'Completed' : status)">
                 </span>
@@ -87,25 +125,21 @@
         </div>
         
         {{-- Progress Bar --}}
-        <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-            {{-- Error state --}}
-            <div x-show="hasError" class="bg-red-500 h-2 w-full transition-all duration-500"></div>
-            
-            {{-- Completed state --}}
-            <div x-show="isCompleted && !hasError" class="bg-green-500 h-2 w-full transition-all duration-500"></div>
-            
-            {{-- Indeterminate state --}}
-            <div x-show="progress === null && !hasError && !isCompleted" 
-                 class="bg-blue-500 h-2 animate-pulse" style="width: 40%;"></div>
-            
-            {{-- Progress state --}}
-            <div x-show="progress !== null && progress >= 0 && progress < 100 && !hasError"
-                 class="bg-blue-500 h-2 transition-all duration-700 ease-out"
-                 :style="'width: ' + Math.max(5, progress) + '%'"></div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden"
+             x-data="{ 
+                progress: @entangle('progress')
+             }">
+            <div class="bg-blue-500 h-2.5 transition-all duration-300 ease-out"
+                 :style="'width: ' + (progress || 0) + '%'"></div>
         </div>
         
         {{-- Message --}}
-        <div x-show="message" class="text-xs text-gray-600" x-text="message"></div>
+        <div x-show="message" 
+             class="text-xs text-gray-600 mt-1" 
+             x-text="message"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"></div>
     </div>
 </div>
 
@@ -113,6 +147,26 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         console.log('ProgressLoader DOM loaded');
+        
+        // Debug Echo connection
+        if (typeof window.Echo !== 'undefined') {
+            console.log('Echo is available');
+            
+            // Log connection status
+            window.Echo.connector.pusher.connection.bind('connected', () => {
+                console.log('Echo connected to Reverb');
+            });
+            
+            window.Echo.connector.pusher.connection.bind('disconnected', () => {
+                console.log('Echo disconnected from Reverb');
+            });
+            
+            window.Echo.connector.pusher.connection.bind('error', (error) => {
+                console.error('Echo connection error:', error);
+            });
+        } else {
+            console.warn('Echo is not available - check if Laravel Echo is properly configured');
+        }
     });
 </script>
 @endpush
