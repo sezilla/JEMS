@@ -124,3 +124,6 @@ Route::get('/test-broadcast', function () {
     Log::info('Test broadcast event dispatched');
     return 'Event dispatched! Check the logs for details.';
 });
+
+Route::get('/test-progress', [App\Http\Controllers\ProgressTestController::class, 'testSingleProgress']);
+Route::get('/test-progress-sequence', [App\Http\Controllers\ProgressTestController::class, 'testProgress']);

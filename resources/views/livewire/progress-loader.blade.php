@@ -1,44 +1,29 @@
-@php
-    $projectId = $projectId ?? null;
-    $allowedRoles = ['super admin', 'Hr Admin', 'Department Admin'];
-    $hasAllowedRole = auth()->check() && auth()->user()->hasAnyRole($allowedRoles);
-@endphp
-
 <div
     x-data="{
-        visible: {{ $projectId && $hasAllowedRole ? 'true' : 'false' }},
-        progress: 0,
-        status: 'idle',
-        message: '',
-        hasError: false,
-        isCompleted: false,
+        visible: @entangle('isVisible'),
+        progress: @entangle('progress'),
+        status: @entangle('status'),
+        message: @entangle('message'),
+        hasError: @entangle('hasError'),
+        isCompleted: @entangle('isCompleted'),
         autoHideTimer: null,
+        
         init() {
-            console.log('Initializing progress loader for project:', '{{ $projectId }}');
+            console.log('Progress loader initialized for project:', '{{ $projectId }}');
             
-            // Listen for Echo events
-            Echo.channel('project.progress.{{ $projectId }}')
-                .listen('ProgressUpdated', (e) => {
-                    console.log('Received progress update:', e);
-                    
-                    this.progress = e.progress;
-                    this.status = e.status || 'Processing';
-                    this.message = e.message || '';
-                    this.visible = true;
-                    this.hasError = false;
-                    this.isCompleted = false;
-
-                    if (e.progress >= 100) {
-                        this.isCompleted = true;
-                        if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
-                        this.autoHideTimer = setTimeout(() => {
-                            this.visible = false;
-                        }, 3000);
-                    }
-                });
+            // Watch for completion to auto-hide
+            this.$watch('isCompleted', (value) => {
+                if (value && !this.hasError) {
+                    console.log('Progress completed, auto-hiding in 3 seconds');
+                    if (this.autoHideTimer) clearTimeout(this.autoHideTimer);
+                    this.autoHideTimer = setTimeout(() => {
+                        $wire.call('hideLoader');
+                    }, 3000);
+                }
+            });
         }
     }"
-    x-show="visible"
+    x-show="visible && {{ $projectId && $hasAllowedRole ? 'true' : 'false' }}"
     x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 scale-95"
     x-transition:enter-end="opacity-100 scale-100"
@@ -112,7 +97,53 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('ProgressLoader DOM loaded');
+        console.log('ProgressLoader DOM loaded for project: {{ $projectId }}');
+        
+        @if($projectId && $hasAllowedRole)
+            if (typeof Echo !== 'undefined') {
+                console.log('Setting up Echo listener for channel: project.progress.{{ $projectId }}');
+                
+                Echo.channel('project.progress.{{ $projectId }}')
+                    .listen('ProgressUpdated', (e) => {
+                        console.log('=== DIRECT ECHO RECEIVED ===', e);
+                        
+                        // Call Livewire method directly
+                        try {
+                            @this.call('handleProgressUpdate', e)
+                                .then(() => {
+                                    console.log('Successfully called handleProgressUpdate');
+                                })
+                                .catch((error) => {
+                                    console.error('Error calling handleProgressUpdate:', error);
+                                });
+                        } catch (error) {
+                            console.error('Error in Echo listener:', error);
+                        }
+                        
+                        // Also dispatch Livewire event as backup
+                        Livewire.dispatch('progress-updated', e);
+                        
+                        // And dispatch browser event as additional backup
+                        window.dispatchEvent(new CustomEvent('progress-updated', {
+                            detail: e
+                        }));
+                    })
+                    .error((error) => {
+                        console.error('Echo channel error:', error);
+                    });
+                    
+                console.log('Echo listener setup complete');
+            } else {
+                console.error('Echo is not defined! Make sure Laravel Echo is properly loaded.');
+            }
+        @else
+            console.log('Progress loader not initialized - missing project ID or insufficient permissions');
+        @endif
+    });
+    
+    // Additional check for Livewire readiness
+    document.addEventListener('livewire:initialized', () => {
+        console.log('Livewire initialized - ProgressLoader ready');
     });
 </script>
 @endpush
