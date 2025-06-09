@@ -7,27 +7,17 @@ use App\Enums\ProjectStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Services\DashboardService;
 
 class ProjectReportController extends Controller
 {
-    protected $dashboardService;
-
-    public function __construct(DashboardService $dashboardService)
-    {
-        $this->dashboardService = $dashboardService;
-    }
-
     public function download(Request $request)
     {
-        // dd($request->all());
         $query = Project::query()
             ->with(['package', 'headCoordinator', 'groomCoordinator', 'brideCoordinator', 'teams']);
 
         $start  = $request->query('start');
         $end    = $request->query('end');
         $status = $request->query('status');
-        $title  = $request->query('title', 'Overall Reports of Events');
 
         if ($status !== null) {
             $statusInt = config('project.project_status')[$status] ?? null;
@@ -45,22 +35,14 @@ class ProjectReportController extends Controller
             $query->whereDate('end', '<=', Carbon::parse($end));
         }
 
-        $projects = $query->get()
-            ->each(fn($project) => $project->statusText = $this->getStatusText($project->status));
+        $projects = $query->get();
 
-        $pdf = Pdf::loadView('pdf.reports', compact('projects', 'start', 'end', 'status', 'title'));
-
-        return $pdf->download('overall_project_report.pdf');
-    }
-
-
-    private function getStatusText($statusCode)
-    {
-        if ($statusCode instanceof ProjectStatus) {
-            return $statusCode->label();
-        }
-
-        $enum = ProjectStatus::tryFrom($statusCode);
-        return $enum ? $enum->label() : 'Unknown';
+        $pdf = Pdf::loadView('pdf.reports', compact('projects', 'start', 'end', 'status'));
+        
+        // Configure DomPDF options
+        $pdf->getDomPDF()->set_option('enable_remote', true);
+        
+        $date = now()->format('Y-m-d');
+        return $pdf->download("JEM_Event_Report_{$date}.pdf");
     }
 }
