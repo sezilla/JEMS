@@ -9,6 +9,7 @@ use App\Services\ProgressService;
 use App\Traits\BroadcastsProgress;
 use App\Events\AssignTaskSchedules;
 use Illuminate\Support\Facades\Log;
+use App\Services\ProjectProgressService;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +21,7 @@ class CreateTaskSchedulesListener implements ShouldQueue
     protected $projectService;
     protected $progressService;
 
-    public function __construct(ProjectService $projectService, ProgressService $progressService)
+    public function __construct(ProjectService $projectService, ProjectProgressService $progressService)
     {
         $this->projectService = $projectService;
         $this->progressService = $progressService;
@@ -31,10 +32,10 @@ class CreateTaskSchedulesListener implements ShouldQueue
         $project = $event->project;
 
         $this->progressService->updateProgress(
-            $project->id,
-            50,
-            'Assigning Schedules',
-            'Assigning task schedules to project tasks',
+            projectId: $project->id,
+            status: 'in_progress',
+            message: 'Assigning task schedules to project tasks',
+            progress: 60
         );
 
         try {
@@ -48,10 +49,10 @@ class CreateTaskSchedulesListener implements ShouldQueue
 
             // Mark as completed
             $this->progressService->updateProgress(
-                $project->id,
-                75,
-                'Completed',
-                'Task schedules assigned successfully',
+                projectId: $project->id,
+                status: 'completed',
+                message: 'Task schedules assigned successfully',
+                progress: 75
             );
         } catch (\Exception $e) {
             Log::error('Error assigning task schedules: ' . $e->getMessage(), [
@@ -61,10 +62,12 @@ class CreateTaskSchedulesListener implements ShouldQueue
 
             // Send error progress update
             $this->progressService->updateProgress(
-                $project->id,
-                -2,
-                'Error',
-                'Failed to assign task schedules: ' . $e->getMessage(),
+                projectId: $project->id,
+                status: 'error',
+                message: 'Failed to assign task schedules: ' . $e->getMessage(),
+                progress: 60,
+                isCompleted: false,
+                hasError: true
             );
 
             Notification::make()

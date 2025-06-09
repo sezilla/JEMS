@@ -4,11 +4,12 @@ namespace App\Providers;
 
 use Illuminate\View\View;
 use Filament\Facades\Filament;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Filament\Support\Facades\FilamentView;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,34 +31,17 @@ class AppServiceProvider extends ServiceProvider
             fn(): View => view('filament.auth.login')
         );
 
-        FilamentView::registerRenderHook(
+        Filament::registerRenderHook(
             PanelsRenderHook::TOPBAR_START,
-            function(): string {
-                $projectId = null;
-                
-                // Get project ID from the current route
-                if ($route = request()->route()) {
-                    // Check for project ID in route parameters
-                    $project = $route->parameter('project');
-                    if ($project) {
-                        $projectId = is_object($project) ? $project->id : $project;
-                    }
-                    // Check for record ID in Filament resource routes
-                    else {
-                        $record = $route->parameter('record');
-                        if ($record) {
-                            $projectId = is_object($record) ? $record->id : $record;
-                        }
-                    }
+            function (): string {
+                $project = request()->route('project') ?? Auth::user()?->currentProject ?? null;
+
+                if ($project) {
+                    return Blade::render('<livewire:project-progress-loader :project="$project" />');
                 }
 
-                Log::info('Rendering ProgressLoader in Filament', [
-                    'projectId' => $projectId,
-                    'route' => $route ? $route->getName() : null
-                ]);
-
-                return Blade::render('<livewire:progress-loader :projectId="$projectId" />', ['projectId' => $projectId]);
-            }
+                return '';
+            },
         );
     }
 }

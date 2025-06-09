@@ -2,9 +2,9 @@
 
 namespace App\Listeners;
 
-use App\Events\ProgressUpdated;
 use Exception;
 use App\Models\User;
+use App\Events\ProgressUpdated;
 use App\Services\ProjectService;
 use App\Services\ProgressService;
 use Namu\WireChat\Models\Message;
@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
 use Namu\WireChat\Models\Conversation;
+use App\Services\ProjectProgressService;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Namu\WireChat\Enums\ParticipantRole;
@@ -25,7 +26,7 @@ class CreateGroupChatListener implements ShouldQueue
     protected $projectService;
     protected $progressService;
 
-    public function __construct(ProjectService $projectService, ProgressService $progressService)
+    public function __construct(ProjectService $projectService, ProjectProgressService $progressService)
     {
         $this->projectService = $projectService;
         $this->progressService = $progressService;
@@ -36,10 +37,10 @@ class CreateGroupChatListener implements ShouldQueue
         $project = $event->project;
 
         $this->progressService->updateProgress(
-            $project->id,
-            0,
-            'Creating chat',
-            'Creating group conversation...'
+            projectId: $project->id,
+            status: 'in_progress',
+            message: 'Creating group conversation...',
+            progress: 10
         );
 
         $coordinatorIds = collect([
@@ -68,6 +69,13 @@ class CreateGroupChatListener implements ShouldQueue
             DB::beginTransaction();
 
             try {
+                $this->progressService->updateProgress(
+                    projectId: $project->id,
+                    status: 'in_progress',
+                    message: 'Setting up conversation...',
+                    progress: 15
+                );
+
                 Log::info('Attempting to create conversation', [
                     'type' => ConversationType::GROUP,
                     'current_time' => now()
@@ -83,6 +91,13 @@ class CreateGroupChatListener implements ShouldQueue
                     'name' => "{$project->groom_name} & {$project->bride_name} Project Coordinators",
                     'description' => "Coordination group for {$project->groom_name} and {$project->bride_name}'s project"
                 ]);
+
+                $this->progressService->updateProgress(
+                    projectId: $project->id,
+                    status: 'in_progress',
+                    message: 'Adding participants to group...',
+                    progress: 20
+                );
 
                 $headCoordinator = $coordinatorIds->first();
                 $coordinatorIds->each(function ($userId) use ($conversation, $headCoordinator) {
@@ -134,10 +149,10 @@ class CreateGroupChatListener implements ShouldQueue
 
                 // Mark as completed
                 $this->progressService->updateProgress(
-                    $project->id,
-                    25,
-                    'Completed',
-                    'Group chat created successfully'
+                    projectId: $project->id,
+                    status: 'completed',
+                    message: 'Group chat created successfully',
+                    progress: 25
                 );
             } catch (\Exception $e) {
                 DB::rollBack();
@@ -149,10 +164,12 @@ class CreateGroupChatListener implements ShouldQueue
 
                 // Send error progress update
                 $this->progressService->updateProgress(
-                    $project->id,
-                    -2,
-                    'Error',
-                    'Failed to create group chat: ' . $e->getMessage()
+                    projectId: $project->id,
+                    status: 'error',
+                    message: 'Failed to create group chat: ' . $e->getMessage(),
+                    progress: 0,
+                    isCompleted: false,
+                    hasError: true
                 );
 
                 $this->fail($e);
@@ -160,10 +177,10 @@ class CreateGroupChatListener implements ShouldQueue
         } else {
             // No coordinators to add, mark as completed
             $this->progressService->updateProgress(
-                $project->id,
-                25,
-                'Group chat created',
-                'No coordinators to add to group chat'
+                projectId: $project->id,
+                status: 'completed',
+                message: 'No coordinators to add to group chat',
+                progress: 25
             );
         }
     }

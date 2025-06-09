@@ -9,6 +9,7 @@ use App\Services\ProgressService;
 use App\Traits\BroadcastsProgress;
 use Illuminate\Support\Facades\Log;
 use App\Events\DueDateAssignedEvent;
+use App\Services\ProjectProgressService;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -20,7 +21,7 @@ class AssignUserToTasksListener implements ShouldQueue
     protected $projectService;
     protected $progressService;
 
-    public function __construct(ProjectService $projectService, ProgressService $progressService)
+    public function __construct(ProjectService $projectService, ProjectProgressService $progressService)
     {
         $this->projectService = $projectService;
         $this->progressService = $progressService;
@@ -32,10 +33,10 @@ class AssignUserToTasksListener implements ShouldQueue
         $user = $event->project->user;
 
         $this->progressService->updateProgress(
-            $project->id,
-            75,
-            'Assigning Tasks',
-            'Assigning task to users for event'
+            projectId: $project->id,
+            status: 'in_progress',
+            message: 'Assigning tasks to users for event',
+            progress: 85
         );
 
         try {
@@ -50,16 +51,26 @@ class AssignUserToTasksListener implements ShouldQueue
 
             // Mark as completed
             $this->progressService->updateProgress(
-                $project->id,
-                100,
-                'Completed',
-                'All tasks have been successfully assigned to users.'
+                projectId: $project->id,
+                status: 'completed',
+                message: 'All tasks have been successfully assigned to users.',
+                progress: 100,
+                isCompleted: true
             );
         } catch (\Exception $e) {
             Log::error('Error assigning user to tasks for project: ' . $project->id . '. Error: ' . $e->getMessage(), [
                 'project_id' => $project->id,
                 'exception' => $e,
             ]);
+
+            $this->progressService->updateProgress(
+                projectId: $project->id,
+                status: 'error',
+                message: 'Failed to assign tasks: ' . $e->getMessage(),
+                progress: 85,
+                isCompleted: false,
+                hasError: true
+            );
 
             Notification::make()
                 ->danger()

@@ -10,6 +10,7 @@ use App\Traits\BroadcastsProgress;
 use App\Events\ProjectCreatedEvent;
 use Illuminate\Support\Facades\Log;
 use App\Events\TrelloBoardCreatedEvent;
+use App\Services\ProjectProgressService;
 use Filament\Notifications\Notification;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,7 +22,7 @@ class CreateTrelloBoardListener implements ShouldQueue
     protected $projectService;
     protected $progressService;
 
-    public function __construct(ProjectService $projectService, ProgressService $progressService)
+    public function __construct(ProjectService $projectService, ProjectProgressService $progressService)
     {
         $this->projectService = $projectService;
         $this->progressService = $progressService;
@@ -32,20 +33,20 @@ class CreateTrelloBoardListener implements ShouldQueue
         $project = $event->project;
 
         $this->progressService->updateProgress(
-            $project->id,
-            25,
-            'Creating Trello Board',
-            'Setting up your project board...'
+            projectId: $project->id,
+            status: 'in_progress',
+            message: 'Setting up your project board...',
+            progress: 30
         );
 
         try {
             $this->projectService->createTrelloBoardForProject($project);
 
             $this->progressService->updateProgress(
-                $project->id,
-                45,
-                'Creating Trello Board',
-                'Setting up board structure...'
+                projectId: $project->id,
+                status: 'in_progress',
+                message: 'Setting up board structure...',
+                progress: 45
             );
 
             Notification::make()
@@ -55,10 +56,10 @@ class CreateTrelloBoardListener implements ShouldQueue
                 ->sendToDatabase($project->user);
 
             $this->progressService->updateProgress(
-                $project->id,
-                50,
-                'Trello Board Created',
-                'Project board created successfully'
+                projectId: $project->id,
+                status: 'completed',
+                message: 'Project board created successfully',
+                progress: 50
             );
 
             TrelloBoardCreatedEvent::dispatch($project);
@@ -70,10 +71,12 @@ class CreateTrelloBoardListener implements ShouldQueue
 
             // Send error progress update
             $this->progressService->updateProgress(
-                $project->id,
-                -2,
-                'Error',
-                'Failed to create Trello board: ' . $e->getMessage()
+                projectId: $project->id,
+                status: 'error',
+                message: 'Failed to create Trello board: ' . $e->getMessage(),
+                progress: 30,
+                isCompleted: false,
+                hasError: true
             );
 
             Notification::make()
