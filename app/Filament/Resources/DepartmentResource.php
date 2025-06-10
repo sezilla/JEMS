@@ -111,15 +111,15 @@ class DepartmentResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->tooltip('View department details'),
-                Tables\Actions\EditAction::make()
-                    ->tooltip('Edit department details'),
+                // Tables\Actions\ViewAction::make()
+                //     ->tooltip('View department details'),
+                // Tables\Actions\EditAction::make()
+                //     ->tooltip('Edit department details'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
-                        ->tooltip('Delete selected departments'),
+                    // Tables\Actions\DeleteBulkAction::make()
+                    //     ->tooltip('Delete selected departments'),
                 ]),
             ]);
     }
