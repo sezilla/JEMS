@@ -52,15 +52,19 @@ class TaskRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->tooltip('Add a new task to this department'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->tooltip('Edit task details'),
+                Tables\Actions\DeleteAction::make()
+                    ->tooltip('Delete this task'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->tooltip('Delete selected tasks'),
                 ]),
             ]);
     }

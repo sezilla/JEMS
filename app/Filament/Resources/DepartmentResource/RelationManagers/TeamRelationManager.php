@@ -120,15 +120,20 @@ class TeamRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()->createAnother(false),
+                Tables\Actions\CreateAction::make()
+                    ->createAnother(false)
+                    ->tooltip('Create a new team in this department'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->tooltip('Edit team details'),
+                Tables\Actions\DeleteAction::make()
+                    ->tooltip('Delete this team'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->tooltip('Delete selected teams'),
                 ]),
             ]);
     }

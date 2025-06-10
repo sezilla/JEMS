@@ -18,7 +18,8 @@ class EditDepartment extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->tooltip('Delete this department permanently'),
         ];
     }
 }
