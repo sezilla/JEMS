@@ -49,6 +49,7 @@ class UserRelationManager extends RelationManager
                 CreateAction::make('addMember')
                     ->createAnother(false)
                     ->label('Add Member')
+                    ->tooltip('Add new members to this team')
                     ->action(function (array $data) {
                         // Assign the user(s) to the team by updating their team_id
                         User::whereIn('id', (array) $data['user_id'])->update(['team_id' => $this->ownerRecord->id]);
@@ -82,6 +83,7 @@ class UserRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\DeleteAction::make()
                     ->label('Remove')
+                    ->tooltip('Remove member from this team')
                     ->action(function (User $record) {
                         // Remove the user from the team by setting team_id to null
                         $record->update(['team_id' => null]);
@@ -99,7 +101,8 @@ class UserRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->tooltip('Remove selected members from this team'),
                 ]),
             ]);
     }

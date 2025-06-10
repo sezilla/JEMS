@@ -236,12 +236,16 @@ class TaskResource extends Resource
                     ->relationship('category', 'name'),
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->tooltip('View task details'),
+                Tables\Actions\EditAction::make()
+                    ->tooltip('Edit task details'),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->tooltip('Delete selected tasks'),
+                ]),
             ]);
     }
 

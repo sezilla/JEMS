@@ -18,7 +18,8 @@ class EditTeam extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->tooltip('Delete this team permanently'),
         ];
     }
 }
