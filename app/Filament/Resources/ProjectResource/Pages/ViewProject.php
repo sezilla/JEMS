@@ -20,6 +20,7 @@ class ViewProject extends ViewRecord
         return [
             Actions\Action::make('markAsDone')
                 ->label('Mark as Done')
+                ->tooltip('Mark the event as completed')
                 ->action(function ($record) {
                     $this->authorize('update_project', $record);
 
@@ -41,6 +42,7 @@ class ViewProject extends ViewRecord
 
             Actions\RestoreAction::make()
                 ->label('Restore')
+                ->tooltip('Restore the event to active status')
                 ->action(function ($record) {
                     $record->restore();
 
@@ -59,12 +61,14 @@ class ViewProject extends ViewRecord
 
             Action::make('downloadPdf')
                 ->label('Download PDF')
+                ->tooltip('Download event details as PDF')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->url(fn($record) => route('projects.exportPdf', $record->id))
                 ->openUrlInNewTab()
                 ->color('secondary'),
 
             Actions\EditAction::make()
+                ->tooltip('Edit event details')
                 ->visible(fn($record) => $record->trashed() === false),
         ];
     }
