@@ -158,11 +158,15 @@ class TeamResource extends Resource
 
 
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->tooltip('View team details'),
+                Tables\Actions\EditAction::make()
+                    ->tooltip('Edit team details'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    // Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->tooltip('Delete selected teams'),
                 ]),
             ]);
     }

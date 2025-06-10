@@ -25,6 +25,7 @@ class EditProject extends EditRecord
         return [
             Actions\Action::make('onHold')
                 ->label('On hold')
+                ->tooltip('Temporarily pause the event, can be reactivated later')
                 ->visible(fn($record) => $record->status === ProjectStatus::ACTIVE)
                 ->action(function ($record) {
                     $this->authorize('update_project', $record);
@@ -42,6 +43,7 @@ class EditProject extends EditRecord
                 ->color('secondary'),
             Actions\Action::make('activate')
                 ->label('Activate')
+                ->tooltip('Reactivate the project')
                 ->visible(fn($record) => $record->status !== ProjectStatus::ACTIVE)
                 ->action(function ($record) {
                     $this->authorize('update_project', $record);
@@ -59,6 +61,7 @@ class EditProject extends EditRecord
                 ->color('info'),
             DeleteAction::make('cancelProject')
                 ->label('Cancel')
+                ->tooltip('Cancel the event')
                 ->action(function ($record) {
 
                     $record->update([
@@ -76,6 +79,7 @@ class EditProject extends EditRecord
                 ->color('warning'),
 
             DeleteAction::make()
+                ->tooltip('Delete the event')
                 ->action(function ($record) {
 
                     $record->update([
