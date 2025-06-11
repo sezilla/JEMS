@@ -8,6 +8,7 @@ use App\Models\Project;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
 use App\Http\Controllers\UserActionController;
+use App\Filament\App\Resources\ProjectResource;
 
 class UserService
 {
@@ -59,7 +60,7 @@ class UserService
                         ->label('Clear old Task')
                         ->icon('heroicon-o-arrow-path')
                         ->markAsRead()
-                        ->url(route('user.clear-old-tasks', ['user_id' => $user->id, 'old_team_id' => $oldTeamId])),
+                        ->url(route('filament.app.resources.projects.task', ['record' => $project->id])),
                     Action::make('keep')
                         ->label('Keep old tasks')
                         ->icon('heroicon-o-check-circle')
