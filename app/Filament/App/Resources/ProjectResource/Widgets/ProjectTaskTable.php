@@ -48,6 +48,8 @@ class ProjectTaskTable extends BaseWidget
 
     protected static ?string $heading = 'Event Tasks';
 
+    protected static string $id = 'tasks-table';
+
     protected static ?string $recordTitleAttribute = 'task_name';
 
     protected static bool $shouldCheckAccess = true;
@@ -133,6 +135,9 @@ class ProjectTaskTable extends BaseWidget
                 TextColumn::make('users.name')
                     ->label('Assigned To')
                     ->toggleable()
+                    ->default('no assigned user')
+                    ->badge()
+                    ->color(fn ($state) => $state === 'no assigned user' ? 'danger' : 'gray')
                     ->searchable()
                     ->sortable(),
                 // SelectColumn::make('priority_level')

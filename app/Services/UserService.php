@@ -36,7 +36,7 @@ class UserService
     {
         $oldTeamId = $user->getOriginal('team_id');
         $newTeamId = $user->team_id;
-        $projects = Project::whereHas('teams', function ($query) use ($oldTeamId) {
+        $projects = Project::with('headCoordinator')->whereHas('teams', function ($query) use ($oldTeamId) {
             $query->where('teams.id', $oldTeamId);
         })->get();
         $oldTeamName = Team::find($oldTeamId)->name ?? 'Unknown Team';
@@ -44,13 +44,19 @@ class UserService
         $headCoordinators = [];
 
         foreach ($projects as $project) {
-            $coordinator = $project->head_coordinator;
+            $coordinator = $project->headCoordinator;
             if ($coordinator) {
-                $headCoordinators[] = $coordinator;
+                $headCoordinators[$coordinator->id] = [
+                    'coordinator' => $coordinator,
+                    'project' => $project
+                ];
             }
         }
 
-        foreach ($headCoordinators as $coordinator) {
+        foreach ($headCoordinators as $coordinatorData) {
+            $coordinator = $coordinatorData['coordinator'];
+            $project = $coordinatorData['project'];
+            
             Notification::make()
                 ->title('Team Change Notification')
                 ->info()
@@ -60,13 +66,17 @@ class UserService
                         ->label('Clear old Task')
                         ->icon('heroicon-o-arrow-path')
                         ->markAsRead()
-                        ->url(route('filament.app.resources.projects.task', ['record' => $project->id])),
+                        ->url(route('user.clear-old-tasks', [
+                            'user_id' => $user->id, 
+                            'old_team_id' => $oldTeamId,
+                            'project_id' => $project->id
+                        ])),
                     Action::make('keep')
                         ->label('Keep old tasks')
                         ->icon('heroicon-o-check-circle')
                         ->markAsRead(),
                 ])
-                ->sendToDatabase(User::find($coordinator));
+                ->sendToDatabase($coordinator);
         }
     }
 

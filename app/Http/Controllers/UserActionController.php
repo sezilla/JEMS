@@ -21,6 +21,6 @@ class UserActionController extends Controller
         } catch (\Exception $e) {
             Notification::make()->danger()->title('Failed to clear tasks.')->body($e->getMessage())->send();
         }
-        return redirect()->back();
+        return redirect()->route('filament.app.resources.projects.task', ['record' => $request->query('project_id')]);
     }
 }
